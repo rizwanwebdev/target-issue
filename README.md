@@ -1,253 +1,160 @@
-Yes. If your goal is **job-ready full-stack experience**, don't build another todo app, basic e-commerce store, or simple chat app.
+# TargetIssue
 
-Build **2–3 systems that force you to deal with authentication, permissions, relational data, state management, background jobs, caching, APIs, real-time updates, testing, deployment, and architecture.**
+**TargetIssue** is a multi-tenant project and issue management platform built around a simple idea: give teams a structured place to plan work, assign responsibility, track progress, and resolve issues.
 
-I'd recommend these three, in this order:
+It models the way engineering teams actually work — from an organization and its members, through teams and projects, down to individual issues, tasks, and activity.
 
----
+## Features
 
-## 1. Multi-Tenant SaaS Project Management Platform
+* 🏢 **Organizations** — Create isolated workspaces for teams and projects
+* 👥 **Members & Invitations** — Invite users and manage organization membership
+* 🔐 **Role-Based Access** — Control what members can see and do
+* 👨‍💻 **Teams** — Organize members into functional teams
+* 📁 **Projects** — Manage multiple projects inside an organization
+* 🎯 **Issues** — Track bugs, features, improvements, and other work
+* 👤 **Assignments** — Assign issues to teams and individual members
+* 🚦 **Priority & Severity** — Distinguish urgency from technical impact
+* 🏷️ **Labels** — Categorize and filter issues
+* 📋 **Todos & Subtasks** — Break larger issues into actionable work
+* 💬 **Comments** — Discuss work directly on issues
+* 🔄 **Issue Workflows** — Move issues through defined states
+* 🔔 **Notifications** — Keep members informed about relevant activity
+* 📜 **Activity Logs** — Track changes and important actions
+* 📊 **Project & Team Visibility** — Understand what is happening across the workspace
 
-Think **Linear/Jira-lite**, but keep the scope controlled.
-
-![Image](https://images.openai.com/static-rsc-4/7YEfHvIDDYwh2beAVgbyMs2FFZ7955msBJibEOwOIXCxROh6ybTg-8ZmHDyujtFdWJ6F2hiZ1IcxZ3ZhI1p0D5RE6JX87XWamwGxtLONqoVbb_CDdyHdPBYNoSA-toGbYhWKkhw2AYmmAQreMFc0Cr-2K6r_48oioMLO4StJjAk31elItUun-nv2mORXfBiG?purpose=fullsize)
-
-
-### What you build
-
-Users create organizations/workspaces:
-
-```text
-Organization
- ├── Members
- ├── Projects
- │    ├── Issues
- │    ├── Comments
- │    └── Attachments
- ├── Teams
- └── Activity Logs
-```
-
-A user can belong to multiple organizations.
-
-Example:
+## Core Workflow
 
 ```text
-Rizwan
- ├── Acme
- │    ├── Admin
- │    └── 3 Projects
+User
  │
- └── Startup X
-      ├── Developer
-      └── 2 Projects
+ ▼
+Organization
+ │
+ ├── Members
+ │
+ ├── Teams
+ │    └── Team Members
+ │
+ └── Projects
+      │
+      ├── Project Members
+      │
+      └── Issues
+           │
+           ├── Assignee
+           ├── Team
+           ├── Priority
+           ├── Severity
+           ├── Status
+           ├── Labels
+           ├── Todos
+           ├── Subtasks
+           ├── Comments
+           └── Activity
 ```
 
-### Features
-
-**Authentication**
-
-* Register/login
-* Email verification
-* Password reset
-* Access + refresh tokens
-* OAuth optional
-* Session management
-
-**Authorization**
-
-Implement actual RBAC:
+A typical workflow looks like:
 
 ```text
-Owner
-Admin
-Member
-Viewer
-```
-
-For example:
-
-```text
-Owner → everything
-Admin → manage projects/members
-Member → create/update issues
-Viewer → read-only
-```
-
-### Projects
-
-Issues should have:
-
-```text
-Todo
-In Progress
+Create Organization
+        ↓
+Invite Members
+        ↓
+Create Teams
+        ↓
+Create Project
+        ↓
+Add Project Members
+        ↓
+Create Issue
+        ↓
+Assign Team / Member
+        ↓
+Set Priority & Severity
+        ↓
+Create Todos / Subtasks
+        ↓
+Work on Issue
+        ↓
 Review
+        ↓
+Resolve
+```
+
+## Issue Lifecycle
+
+```text
+Backlog
+   ↓
+Todo
+   ↓
+In Progress
+   ↓
+In Review
+   ↓
 Done
 ```
 
-with:
+Issues can also become **Blocked** or **Reopened** when circumstances require it.
 
-* priority
-* labels
-* assignee
-* due date
-* comments
-* attachments
-* activity history
+## Priority vs Severity
 
-### Frontend
+TargetIssue keeps these concepts separate.
 
-Use:
+**Priority** describes how urgently something should be handled:
 
 ```text
-Next.js
-TypeScript
-React
-Redux Toolkit
-React Query / TanStack Query
-Tailwind
+Urgent
+High
+Medium
+Low
 ```
 
-Use Redux for **client/global state**.
-
-Use TanStack Query for **server state**.
-
-This distinction is extremely valuable to understand.
-
-### Backend
-
-I'd use:
+**Severity** describes the impact of the issue:
 
 ```text
-Node.js
-Express
-TypeScript
-PostgreSQL
-Prisma
-Redis
+Critical
+Major
+Minor
+Trivial
 ```
 
-PostgreSQL is important here because you'll learn proper relational modeling.
+This allows a team to distinguish between something that is highly urgent and something that is technically severe.
 
-Example:
+## Multi-Tenant Workspace
+
+Each organization is an isolated workspace.
 
 ```text
-users
-organizations
-organization_members
-projects
-project_members
-issues
-issue_comments
-issue_labels
-activity_logs
+Organization A
+├── Members
+├── Teams
+├── Projects
+└── Issues
+
+Organization B
+├── Members
+├── Teams
+├── Projects
+└── Issues
 ```
 
-### Advanced features
+Users can belong to multiple organizations, with their membership and permissions managed independently in each one.
 
-Add:
+## Documentation
 
-* cursor pagination
-* filtering
-* sorting
-* full-text search
-* optimistic updates
-* rate limiting
-* Redis caching
-* background jobs
-* audit logs
-* WebSocket notifications
+The system architecture, workflows, data relationships, and technical design are documented separately:
 
-For background jobs:
+**[Architecture Documentation](./ARCHITECTURE.md)**
 
-```text
-BullMQ + Redis
-```
+That document contains the deeper technical design and Mermaid diagrams for the system.
 
-Example:
+## Project Status
 
-```text
-Issue assigned
-      ↓
-API
-      ↓
-Database
-      ↓
-Queue
-      ↓
-Worker
-      ↓
-Notification
-```
+> 🚧 **Under active development**
 
-### What this teaches
+The project is being built incrementally, with the focus on implementing the core domain correctly before expanding into additional functionality.
 
-This single project teaches you:
+## License
 
-**React**
-
-* complex components
-* forms
-* hooks
-* optimistic UI
-* reusable components
-
-**Next.js**
-
-* App Router
-* server/client components
-* layouts
-* middleware/proxy
-* route handling
-* authentication
-
-**TypeScript**
-
-* interfaces/types
-* generics
-* API types
-* DTOs
-* type-safe database access
-
-**Node/Express**
-
-* controllers
-* services
-* middleware
-* validation
-* error handling
-* authentication
-
-**PostgreSQL**
-
-* relations
-* indexes
-* transactions
-* constraints
-* joins
-* pagination
-
-**Redis**
-
-* caching
-* sessions
-* queues
-* rate limiting
-
-**Redux**
-
-* global client state
-* slices
-* async actions
-
-### Resume value
-
-Very high.
-
-You can describe it as:
-
-> Built a multi-tenant project management SaaS with RBAC, PostgreSQL, Redis caching, background jobs, real-time notifications, cursor pagination, audit logging, and optimistic React state management.
-
-That sounds substantially stronger than:
-
-> Built a task management application.
+This project is currently for educational and portfolio purposes.

@@ -1132,3 +1132,28 @@ We're going to be dealing with questions like:
 **That is where the real engineering experience comes from.**
 
 For the next step, I would freeze this workflow and design the **actual PostgreSQL schema + complete ERD**, including every table, PK/FK, indexes, enums, unique constraints, and relationships before writing the backend.
+
+
+// spme extra
+Authentication
+RBAC
+Multi-tenancy
+PostgreSQL
+Database design
+Transactions
+REST APIs
+Caching
+Redis
+Queues
+Workers
+WebSockets
+Notifications
+Search
+Pagination
+File uploads
+Testing
+Docker
+CI/CD
+Monitoring
+Deployment
+Billing
