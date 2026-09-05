@@ -1,12 +1,10 @@
 import express from "express"
 import test from "../middleware/test.middleware.js";
 const router = express.Router()
+import * as authController from "../controllers/auth.controller.js"
 
-router.get("/test",test, (req, res)=>{
-    res.json({
-    message: "TargetIssue API is running",
-  });
-})
+
+router.get("/register", authController.register)
 
 
 
