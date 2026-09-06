@@ -7,7 +7,7 @@ import pool from "./connect.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const migrationsDirectory = path.join(__dirname, "../../migrations");
+const migrationsDirectory = path.join(__dirname, "../migrations");
 
 const migrate = async () => {
   const client = await pool.connect();
@@ -23,9 +23,7 @@ const migrate = async () => {
 
     const files = await fs.readdir(migrationsDirectory);
 
-    const migrations = files
-      .filter((file) => file.endsWith(".sql"))
-      .sort();
+    const migrations = files.filter((file) => file.endsWith(".sql")).sort();
 
     for (const filename of migrations) {
       const { rows } = await client.query(
@@ -34,7 +32,7 @@ const migrate = async () => {
         FROM schema_migrations
         WHERE filename = $1
         `,
-        [filename]
+        [filename],
       );
 
       if (rows.length > 0) {
@@ -57,7 +55,7 @@ const migrate = async () => {
           INSERT INTO schema_migrations (filename)
           VALUES ($1)
           `,
-          [filename]
+          [filename],
         );
 
         await client.query("COMMIT");

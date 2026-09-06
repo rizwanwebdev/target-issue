@@ -11,11 +11,11 @@ function getEnv(key) {
 }
 
 const config = {
-  PORT:getEnv("PORT"),
+  PORT: getEnv("PORT"),
   POSTGRES_USER: getEnv("POSTGRES_USER"),
-  POSTGRES_PASSWORD: getEnv("POSTGRES_USER"),
-  POSTGRES_DB: getEnv("POSTGRES_USER"),
-  DATABASE_URL: getEnv("POSTGRES_USER"),
+  POSTGRES_PASSWORD: getEnv("POSTGRES_PASSWORD"),
+  POSTGRES_DB: getEnv("POSTGRES_DB"),
+  DATABASE_URL: getEnv("DATABASE_URL"),
 };
 
-export default config
+export default config;

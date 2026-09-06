@@ -1,7 +1,6 @@
 import pool from "../db/connect.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 import config from "../config/config.js";
 
 function genrateOTP() {
@@ -16,12 +15,12 @@ const cookieOptions = {
 };
 
 function genAccessToken(id) {
-  return jwt.sign({ id }, config.JWT_SECRET, {
-    expiresIn: "30d",
+  return jwt.sign({ id, type: "access" }, config.JWT_SECRET, {
+    expiresIn: "15m",
   });
 }
 function genRefreshToken(id) {
-  return jwt.sign({ id }, config.JWT_SECRET, {
+  return jwt.sign({ id, type: "refresh" }, config.JWT_SECRET, {
     expiresIn: "30d",
   });
 }
@@ -32,7 +31,7 @@ function genRefreshToken(id) {
 export async function register(req, res) {
   const { name, email, password } = req.body;
 
-  if (!name || email || password) {
+  if (!name || !email || !password) {
     return res.status(400).json({
       error: true,
       message: "name, email and password are required",
@@ -73,7 +72,7 @@ export async function register(req, res) {
  * User Login Controller
  */
 
-async function login(req, res) {
+export async function login(req, res) {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({
@@ -81,9 +80,10 @@ async function login(req, res) {
       message: "email OR passowrd required",
     });
   }
-  const user = await pool.query("SELECT email FROM users WHERE email=$1", [
-    email,
-  ]);
+  const user = await pool.query(
+    "SELECT email, password_hash FROM users WHERE email=$1",
+    [email],
+  );
   const matched = await bcrypt.compare(password, user.rows[0].password_hash);
   if (!matched) {
     return res.status(400).json({
@@ -124,8 +124,8 @@ async function login(req, res) {
  * @param {*} req
  * @param {*} res
  */
-async function refreshAccessToken(req, res) {
-  const refreshToken = req.cookie.refreshToken;
+export async function refreshAccessToken(req, res) {
+  const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
     return res.status(400).json({
@@ -134,7 +134,8 @@ async function refreshAccessToken(req, res) {
     });
   }
 
-  const decoded = jwt.decode(refreshToken, config.JWT_SECRET);
+  const decoded = jwt.verify(refreshToken, config.JWT_SECRET);
+  console.log(decoded);
 
   const user = await pool.query("SELECT id, email FROM users WHERE id=$1", [
     decoded.id,
@@ -145,8 +146,10 @@ async function refreshAccessToken(req, res) {
     });
   }
   const accessToken = genAccessToken(user.rows[0].id);
+  const tokenHash = await bcrypt.hash(tokenHash, 10);
 
-  res.cookie(accessToken);
+  await pool.query();
+
   res.cookie("accessToken", accessToken, {
     expires: new Date(Date.now() + 900000),
     httpOnly: true,
@@ -157,7 +160,7 @@ async function refreshAccessToken(req, res) {
   });
 }
 
-async function sendOTP(req, res) {
+export async function sendOTP(req, res) {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({
@@ -178,7 +181,7 @@ async function sendOTP(req, res) {
   const otp = genrateOTP();
   //currently testing, latter is will send with email
   console.log(otp);
-  const otpHash = await bcrypt.hash(otp);
+  const otpHash = await bcrypt.hash(String(otp), 10);
 
   await pool.query(
     "INSERT INTO otp_verification (user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, NOW())",
@@ -191,7 +194,7 @@ async function sendOTP(req, res) {
   });
 }
 
-async function verifyOtp(req, res) {
+export async function verifyOtp(req, res) {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
