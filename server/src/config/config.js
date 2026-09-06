@@ -11,6 +11,8 @@ function getEnv(key) {
 }
 
 const config = {
+  NODE_ENV: getEnv("NODE_ENV"),
+  JWT_SECRET: getEnv("JWT_SECRET"),
   PORT: getEnv("PORT"),
   POSTGRES_USER: getEnv("POSTGRES_USER"),
   POSTGRES_PASSWORD: getEnv("POSTGRES_PASSWORD"),

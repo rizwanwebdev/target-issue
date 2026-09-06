@@ -15,12 +15,12 @@ const cookieOptions = {
 };
 
 function genAccessToken(id) {
-  return jwt.sign({ id, type: "access" }, config.JWT_SECRET, {
+  return jwt.sign({ id: id, type: "access" }, config.JWT_SECRET, {
     expiresIn: "15m",
   });
 }
 function genRefreshToken(id) {
-  return jwt.sign({ id, type: "refresh" }, config.JWT_SECRET, {
+  return jwt.sign({ id: id, type: "refresh" }, config.JWT_SECRET, {
     expiresIn: "30d",
   });
 }
@@ -80,41 +80,43 @@ export async function login(req, res) {
       message: "email OR passowrd required",
     });
   }
-  const user = await pool.query(
-    "SELECT email, password_hash FROM users WHERE email=$1",
+  const result = await pool.query(
+    "SELECT id, email, password_hash FROM users WHERE email=$1",
     [email],
   );
-  const matched = await bcrypt.compare(password, user.rows[0].password_hash);
+  const user = result.rows[0];
+  console.log(user.id);
+  const matched = await bcrypt.compare(password, user.password_hash);
   if (!matched) {
     return res.status(400).json({
       error: true,
       message: "email or passowrd incorrect",
     });
   }
-  if (!user.rows[0].email_verified) {
+  if (user.email_verified === true) {
     return res.status(400).json({
       error: true,
       message: "email is not verified",
     });
   }
 
-  const refreshToken = genRefreshToken(user.rows[0].id);
-  const accessToken = genAccessToken(user.rows[0].id);
+  const refreshToken = genRefreshToken(user.id);
+  const accessToken = genAccessToken(user.id);
 
   res.cookie("refreshToken", refreshToken, cookieOptions);
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: config.NODE_ENV === "production",
     sameSite: "Strict",
-    maxAge: 15 * 60 * 1000, // 15m
+    maxAge: 15 * 60 * 1000,
   });
 
   return res.status(200).json({
     success: true,
     message: "Logedin successfuly",
     user: {
-      name: user.rows[0].full_name,
-      email: user.rows[0].email,
+      name: user.full_name,
+      email: user.email,
     },
   });
 }
@@ -126,6 +128,7 @@ export async function login(req, res) {
  */
 export async function refreshAccessToken(req, res) {
   const refreshToken = req.cookies.refreshToken;
+  console.log(refreshToken);
 
   if (!refreshToken) {
     return res.status(400).json({
@@ -135,7 +138,8 @@ export async function refreshAccessToken(req, res) {
   }
 
   const decoded = jwt.verify(refreshToken, config.JWT_SECRET);
-  console.log(decoded);
+
+  console.log(decoded, decoded.id);
 
   const user = await pool.query("SELECT id, email FROM users WHERE id=$1", [
     decoded.id,
@@ -146,10 +150,10 @@ export async function refreshAccessToken(req, res) {
     });
   }
   const accessToken = genAccessToken(user.rows[0].id);
-  const tokenHash = await bcrypt.hash(tokenHash, 10);
+  const tokenHash = await bcrypt.hash(accessToken, 10);
 
   await pool.query(
-    'INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAl "15 minutes")',
+    "INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAl '15 minutes')",
     [user.rows[0].id, tokenHash],
   );
 
@@ -230,15 +234,8 @@ export async function verifyOtp(req, res) {
       message: "Invalid OTP",
     });
   }
-  await pool.query(
-    "UPDATE otp_verification SET verified_at = NOW() WHERE otp_id = $1",
-    [result.rows[0].otp_id],
-  );
-  await pool.query("UPDATE users SET email_verified = TRUE WHERE id=$1", [
-    result.rows[0].user_id,
-  ]);
 
-  await pool.query(
+  const test = await pool.query(
     `
     WITH verified_otp AS (
       UPDATE otp_verification
@@ -249,9 +246,11 @@ export async function verifyOtp(req, res) {
     UPDATE users
     SET email_verified = TRUE
     WHERE id = (SELECT user_id FROM verified_otp)
+    RETURNING email_verified
   `,
     [result.rows[0].otp_id],
   );
+  console.log(test);
 
   return res.status(200).json({
     success: true,
