@@ -49,7 +49,7 @@ export async function register(req, res) {
     });
   }
   if (password.length < 6) {
-    return res.status(401).json({
+    return res.status(400).json({
       error: true,
       message: "Password must be more than 6 chracters",
     });
@@ -142,13 +142,16 @@ export async function refreshAccessToken(req, res) {
   ]);
   if (user.rows.length === 0) {
     return res.status(401).json({
-      message: "Not Authorized, User Not Found2",
+      message: "Not Authorized, User Not Found!",
     });
   }
   const accessToken = genAccessToken(user.rows[0].id);
   const tokenHash = await bcrypt.hash(tokenHash, 10);
 
-  await pool.query();
+  await pool.query(
+    'INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAl "15 minutes")',
+    [user.rows[0].id, tokenHash],
+  );
 
   res.cookie("accessToken", accessToken, {
     expires: new Date(Date.now() + 900000),
@@ -184,7 +187,7 @@ export async function sendOTP(req, res) {
   const otpHash = await bcrypt.hash(String(otp), 10);
 
   await pool.query(
-    "INSERT INTO otp_verification (user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, NOW())",
+    "INSERT INTO otp_verification (user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, NOW() + INTERVAL '10 minutes')",
     [result.rows[0].id, email, otpHash],
   );
 
@@ -205,7 +208,7 @@ export async function verifyOtp(req, res) {
   }
 
   const result = await pool.query(
-    "SELECT * FROM otp_verification WHERE email=$1",
+    "SELECT * FROM otp_verification WHERE email=$1 AND expires_at > NOW() AND attempts < 4 ORDER BY created_at DESC LIMIT 1",
     [email],
   );
 
@@ -216,12 +219,39 @@ export async function verifyOtp(req, res) {
     });
   }
   const matched = await bcrypt.compare(otp, result.rows[0].otp_hash);
+
   if (!matched) {
+    await pool.query(
+      "UPDATE otp_verification SET attempts = attempt + 1 WHERE otp_id = $1",
+      [result.rows[0].otp_id],
+    );
     return res.status(400).json({
       error: true,
       message: "Invalid OTP",
     });
   }
+  await pool.query(
+    "UPDATE otp_verification SET verified_at = NOW() WHERE otp_id = $1",
+    [result.rows[0].otp_id],
+  );
+  await pool.query("UPDATE users SET email_verified = TRUE WHERE id=$1", [
+    result.rows[0].user_id,
+  ]);
+
+  await pool.query(
+    `
+    WITH verified_otp AS (
+      UPDATE otp_verification
+      SET verified_at = NOW()
+      WHERE otp_id = $1
+      RETURNING user_id
+    )
+    UPDATE users
+    SET email_verified = TRUE
+    WHERE id = (SELECT user_id FROM verified_otp)
+  `,
+    [result.rows[0].otp_id],
+  );
 
   return res.status(200).json({
     success: true,
