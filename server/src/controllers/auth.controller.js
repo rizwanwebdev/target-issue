@@ -2,7 +2,7 @@ import pool from "../db/connect.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
-
+import otpTemplate from "../utils/otp.util.js";
 function genrateOTP() {
   return Math.floor(100000 + Math.random() * 900000);
 }
@@ -195,9 +195,11 @@ export async function sendOTP(req, res) {
     [result.rows[0].id, email, otpHash],
   );
 
+  await otpTemplate(email, otp);
+
   return res.status(200).json({
     success: true,
-    message: "otp genrated",
+    message: "OTP has been send to you email",
   });
 }
 

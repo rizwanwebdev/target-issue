@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import config from "../config/config.js";
+import logger from "../utils/logger.js";
 
 const pool = new Pool({
   connectionString: config.DATABASE_URL,
@@ -8,4 +9,19 @@ const pool = new Pool({
   connectionTimeoutMillis: 2_000,
 });
 
-export default pool
+export async function checkDatabaseConnection() {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    logger.success(
+      `Database connected: ${new Date(result.rows[0].now).toLocaleString()}`,
+    );
+
+    return true;
+  } catch (error) {
+    logger.error("Database connection failed:", error.message);
+
+    return false;
+  }
+}
+
+export default pool;
