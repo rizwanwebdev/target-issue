@@ -13,6 +13,11 @@ export default async function authorize(req, res, next) {
 
   try {
     const decoded = jwt.verify(accessToken, config.JWT_SECRET);
+    if (decoded.type !== "access") {
+      return res
+        .status(401)
+        .json({ error: true, message: "Invalid Token Type" });
+    }
 
     const result = await pool.query("SELECT id FROM users WHERE id=$1", [
       decoded.id,
@@ -25,7 +30,7 @@ export default async function authorize(req, res, next) {
       });
     }
 
-    req.user = { id: decoded.id };
+    req.user = { id: decoded.id, sessionId: decoded.sessionId };
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {

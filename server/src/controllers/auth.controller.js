@@ -17,14 +17,14 @@ const cookieOptions = {
   maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
-function genAccessToken(id) {
-  return jwt.sign({ id, type: "access" }, config.JWT_SECRET, {
+function genAccessToken(id, sessionId) {
+  return jwt.sign({ id, sessionId, type: "access" }, config.JWT_SECRET, {
     expiresIn: "15m",
   });
 }
 
-function genRefreshToken(id) {
-  return jwt.sign({ id, type: "refresh" }, config.JWT_SECRET, {
+function genRefreshToken(id, sessionId) {
+  return jwt.sign({ id, sessionId, type: "refresh" }, config.JWT_SECRET, {
     expiresIn: "30d",
   });
 }
@@ -116,26 +116,25 @@ export async function login(req, res) {
       });
     }
 
-    const refreshToken = genRefreshToken(user.id);
-    const resfrehTokenHash = await bcrypt.hash(refreshToken, 10);
     const source = req.headers["user-agent"] || "";
     const ua = useragent.parse(source);
     const deviceName = `${ua.browser} on ${ua.os}${ua.isMobile ? " (Mobile)" : ""}`;
-    await pool.query(
-      `WITH new_session AS (
-        INSERT INTO session (user_id, ip_address, user_agent, device_name, expires_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL '30 days' RETURNING session_id)
-      )
-      INSERT INTO refresh_token (user_id, session_id, token_hash, expires_at) VALUES ($1, (SELECT session_id FROM new_session) ,$5, NOW() + INTERVAL '30 days') 
-      `,
-      [
-        user.id,
-        req.ip || req.socket.remoteAddress,
-        source,
-        deviceName,
-        resfrehTokenHash,
-      ],
+    const session = await pool.query(
+      "INSERT INTO session (user_id, ip_address, user_agent, device_name, expires_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL '30 days') RETURNING session_id",
+      [user.id, req.ip || req.socket.remoteAddress, source, deviceName],
     );
-    const accessToken = genAccessToken(user.id);
+    const sessionId = session.rows[0].session_id;
+
+    const refreshToken = genRefreshToken(user.id, sessionId);
+    const accessToken = genAccessToken(user.id, sessionId);
+
+    // hash refresh token to save in db
+    const resfrehTokenHash = await bcrypt.hash(refreshToken, 10);
+
+    await pool.query(
+      "INSERT INTO refresh_token (user_id, session_id, token_hash, expires_at) VALUES ($1, $2 ,$3, NOW() + INTERVAL '30 days')",
+      [user.id, sessionId, resfrehTokenHash],
+    );
 
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.cookie("accessToken", accessToken, {
@@ -173,14 +172,7 @@ export async function refreshAccessToken(req, res) {
         .json({ error: true, message: "Invalid Token Type" });
     }
 
-    const user = await pool.query("SELECT id FROM users WHERE id=$1", [
-      decoded.id,
-    ]);
-    if (user.rows.length === 0) {
-      return res.status(401).json({ error: true, message: "User not found" });
-    }
-
-    const newAccessToken = genAccessToken(user.rows[0].id);
+    const newAccessToken = genAccessToken(decoded.id, decoded.sessionId);
 
     res.cookie("accessToken", newAccessToken, {
       ...cookieOptions,
@@ -382,6 +374,37 @@ export async function savePassword(req, res) {
     return res
       .status(200)
       .json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    return res.status(500).json({ error: true, message: error.message });
+  }
+}
+
+/**
+ * @method GET /logout
+ * @param {*} req
+ * @param {*} res
+ */
+export async function logout(req, res) {
+  try {
+    const sessionId = req.user.sessionId;
+
+    if (sessionId) {
+      await pool.query(
+        "UPDATE refresh_token SET revoked_at=NOW() WHERE session_id=$1",
+        [sessionId],
+      );
+      await pool.query("DELETE FROM session WHERE session_id = $1", [
+        sessionId,
+      ]);
+    }
+
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out from this device successfully",
+    });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
