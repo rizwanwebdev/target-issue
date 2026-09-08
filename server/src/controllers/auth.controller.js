@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import { otpTemplate, passwordResetOtpTemplate } from "../utils/email.util.js";
 
+import useragent from "express-useragent";
+
 function genrateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -27,6 +29,12 @@ function genRefreshToken(id) {
   });
 }
 
+/**
+ * @method POST /register
+ * @prop { name, email, password }
+ * @param {*} req
+ * @param {*} res
+ */
 export async function register(req, res) {
   try {
     const { name, email, password } = req.body;
@@ -67,7 +75,12 @@ export async function register(req, res) {
     return res.status(500).json({ error: true, message: error.message });
   }
 }
-
+/**
+ * @method POST /login
+ * @prop { email, password }
+ * @param {*} req
+ * @param {*} res
+ */
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
@@ -104,6 +117,24 @@ export async function login(req, res) {
     }
 
     const refreshToken = genRefreshToken(user.id);
+    const resfrehTokenHash = await bcrypt.hash(refreshToken, 10);
+    const source = req.headers["user-agent"] || "";
+    const ua = useragent.parse(source);
+    const deviceName = `${ua.browser} on ${ua.os}${ua.isMobile ? " (Mobile)" : ""}`;
+    await pool.query(
+      `WITH new_session AS (
+        INSERT INTO session (user_id, ip_address, user_agent, device_name, expires_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL '30 days' RETURNING session_id)
+      )
+      INSERT INTO refresh_token (user_id, session_id, token_hash, expires_at) VALUES ($1, (SELECT session_id FROM new_session) ,$5, NOW() + INTERVAL '30 days') 
+      `,
+      [
+        user.id,
+        req.ip || req.socket.remoteAddress,
+        source,
+        deviceName,
+        resfrehTokenHash,
+      ],
+    );
     const accessToken = genAccessToken(user.id);
 
     res.cookie("refreshToken", refreshToken, cookieOptions);
@@ -121,7 +152,11 @@ export async function login(req, res) {
     return res.status(500).json({ error: true, message: error.message });
   }
 }
-
+/**
+ * @method GET /refresh
+ * @param {*} req
+ * @param {*} res
+ */
 export async function refreshAccessToken(req, res) {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -159,7 +194,12 @@ export async function refreshAccessToken(req, res) {
       .json({ error: true, message: "Invalid or Expired Refresh Token" });
   }
 }
-
+/**
+ * @method POST /send-otp
+ * @prop { email }
+ * @param {*} req
+ * @param {*} res
+ */
 export async function sendOTP(req, res) {
   try {
     const { email } = req.body;
@@ -192,7 +232,12 @@ export async function sendOTP(req, res) {
     return res.status(500).json({ error: true, message: error.message });
   }
 }
-
+/**
+ * @method POST /verify-otp
+ * @prop { email, otp }
+ * @param {*} req
+ * @param {*} res
+ */
 export async function verifyOtp(req, res) {
   try {
     const { email, otp } = req.body;
@@ -240,7 +285,13 @@ export async function verifyOtp(req, res) {
   }
 }
 
-export async function resetPassword(req, res) {
+/**
+ * @method POST /forgot-password
+ * @prop { email }
+ * @param {*} req
+ * @param {*} res
+ */
+export async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
     if (!email) {
@@ -272,6 +323,12 @@ export async function resetPassword(req, res) {
   }
 }
 
+/**
+ * @method PUT /save-password
+ * @prop { email,otp, password }
+ * @param {*} req
+ * @param {*} res
+ */
 export async function savePassword(req, res) {
   try {
     const { email, otp, password } = req.body;
