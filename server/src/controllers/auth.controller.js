@@ -300,3 +300,48 @@ export async function resetPassword(req, res) {
     message: "Passowrd reset link has been sent to you email",
   });
 }
+
+/**
+ * @method PUT /save-password
+ * @param {*} req
+ * @param {*} res
+ */
+export async function savePassword(req, res) {
+  const { password } = req.body;
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    return res
+      .status(401)
+      .json({ error: true, message: "No authorization header provided" });
+  }
+
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
+    return res.status(401).json({ error: true, message: "Token is malformed" });
+  }
+
+  const decoded = await jwt.verify(parts[1], config.JWT_SECRET);
+  if (!decoded.id || decoded.type === "reset") {
+    return res.status(401).json({ error: true, message: "Token is malformed" });
+  }
+
+  const result = await pool.query(
+    "SELECT id, password_hash FROM users WHERE id=$1",
+    [decoded.id],
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(400).json({ error: true, message: "User not found" });
+  }
+
+  const passHash = await bcrypt.hash(password, 10);
+  await pool.query("UPDATE users SET password_hash=$1 WHERE id=$2", [
+    passHash,
+    decoded.id,
+  ]);
+
+  return res.status(201).json({
+    success: true,
+    message: "Password reseted",
+  });
+}
