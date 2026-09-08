@@ -17,5 +17,7 @@ router.get("/refresh", authController.refreshAccessToken);
 router.post("/forgot-password", authController.forgotPassword);
 router.put("/save-password", authController.savePassword);
 
-router.get("/logut", authorize, authController.logout);
+router.get("/logout", authorize, authController.logout);
+router.get("/logout-all", authorize, authController.logoutAll);
+
 export default router;

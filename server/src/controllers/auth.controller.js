@@ -409,3 +409,31 @@ export async function logout(req, res) {
     return res.status(500).json({ error: true, message: error.message });
   }
 }
+/**
+ * @method GET /logout-all
+ * @param {*} req
+ * @param {*} res
+ */
+export async function logoutAll(req, res) {
+  try {
+    const userId = req.user.id;
+
+    if (userId) {
+      await pool.query(
+        "UPDATE refresh_token SET revoked_at=NOW() WHERE user_id=$1",
+        [userId],
+      );
+      await pool.query("DELETE FROM session WHERE user_id = $1", [userId]);
+    }
+
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "You have been logged out from all devices successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({ error: true, message: error.message });
+  }
+}
