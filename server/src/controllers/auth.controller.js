@@ -2,7 +2,8 @@ import pool from "../db/connect.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
-import otpTemplate from "../utils/otp.util.js";
+import { otpTemplate, passwordResetTemplate } from "../utils/email.util.js";
+import { EPROTOCOL } from "nodemailer/lib/errors.js";
 function genrateOTP() {
   return Math.floor(100000 + Math.random() * 900000);
 }
@@ -186,7 +187,6 @@ export async function sendOTP(req, res) {
     });
   }
   const otp = genrateOTP();
-  //currently testing, latter is will send with email
   console.log(otp);
   const otpHash = await bcrypt.hash(String(otp), 10);
 
@@ -257,5 +257,46 @@ export async function verifyOtp(req, res) {
   return res.status(200).json({
     success: true,
     message: "OTP verified now you can login",
+  });
+}
+
+/**
+ * @method GET /reset-password
+ * @param {*} req
+ * @param {*} res
+ */
+export async function resetPassword(req, res) {
+  const userId = req.user.id;
+  const result = await pool.query("SELECT id, email FROM users WHERE id=$1", [
+    userId,
+  ]);
+
+  if (result.rows.length === 0) {
+    return res.status(400).json({
+      error: true,
+      message: "User Not Found",
+    });
+  }
+
+  const resetToken = jwt.sign(
+    { id: userId, type: "reset" },
+    config.JWT_SECRET,
+    {
+      expiresIn: "5m",
+    },
+  );
+
+  const tokenHash = await bcrypt.hash(tokenHash, 10);
+
+  await pool.query(
+    "INSERT INTO password_reset (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAL '5 minutes')",
+  );
+  const resetLink = `${config.CLIENT_URL}/reset-password?token=${resetToken}&type=email`;
+
+  await passwordResetTemplate(result.rows[0].email, resetLink);
+
+  return res.status(201).json({
+    success: true,
+    message: "Passowrd reset link has been sent to you email",
   });
 }

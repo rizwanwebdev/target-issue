@@ -18,6 +18,7 @@ const config = {
   POSTGRES_PASSWORD: getEnv("POSTGRES_PASSWORD"),
   POSTGRES_DB: getEnv("POSTGRES_DB"),
   DATABASE_URL: getEnv("DATABASE_URL"),
+  CLIENT_URL: getEnv("CLIENT_URL"),
 };
 
 export default config;
