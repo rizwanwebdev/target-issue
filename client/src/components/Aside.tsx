@@ -1,9 +1,7 @@
 export const Aside = () => {
   return (
     <>
-    <div>
-        
-    </div>
+      <div>aside</div>
     </>
-  )
-}
+  );
+};

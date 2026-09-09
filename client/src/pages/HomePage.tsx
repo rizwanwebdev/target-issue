@@ -1,5 +1,8 @@
+import { Link } from "react-router-dom";
 export const HomePage = () => {
   return (
-    <>HomePage</>
-  )
-}
+    <>
+      <Link to="/register">Register</Link>
+    </>
+  );
+};
