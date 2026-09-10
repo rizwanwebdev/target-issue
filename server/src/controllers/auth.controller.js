@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import { otpTemplate, passwordResetOtpTemplate } from "../utils/email.util.js";
-
+import jwtVerify from "../utils/jwtVerify.js";
 import useragent from "express-useragent";
 
 function genrateOTP() {
@@ -45,6 +45,23 @@ export async function register(req, res) {
         message: "name, email and password are required",
       });
     }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (emailRegex.test(email)) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid email",
+      });
+    }
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (strongPasswordRegex.test(password)) {
+      return res.status(400).json({
+        error: true,
+        message:
+          "Password must be at least 8 characters with special symbols like @$!%*?&",
+      });
+    }
 
     const user = await pool.query("SELECT email FROM users WHERE email=$1", [
       email,
@@ -55,22 +72,40 @@ export async function register(req, res) {
         .json({ error: true, message: "User with this email already exists" });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({
-        error: true,
-        message: "Password must be at least 6 characters",
-      });
-    }
-
     const passHash = await bcrypt.hash(password, 10);
-    await pool.query(
-      "INSERT INTO users (full_name, email, password_hash) VALUES ($1, $2, $3)",
+    const result = await pool.query(
+      "INSERT INTO users (full_name, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
       [name, email, passHash],
     );
 
-    return res
-      .status(201)
-      .json({ success: true, message: "Registered successfully", email });
+    const otp = genrateOTP();
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    const otpId = await pool.query(
+      "INSERT INTO otp_verification (user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, NOW() + INTERVAL '5 minutes') RETURNING otp_id",
+      [result.rows[0].id, email, otpHash],
+    );
+
+    const otpToken = jwt.sign(
+      { id: otpId.rows[0].otp_id, type: "otp" },
+      config.JWT_SECRET,
+      {
+        expiresIn: "5m",
+      },
+    );
+
+    await otpTemplate(email, otp, otpToken);
+
+    res.cookie("token", otpToken, {
+      ...cookieOptions,
+      maxAge: 5 * 60 * 1000,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Registered successfully. Check you email for OTP",
+      email,
+    });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
@@ -165,12 +200,7 @@ export async function refreshAccessToken(req, res) {
         .json({ error: true, message: "Refresh Token Not Found" });
     }
 
-    const decoded = jwt.verify(refreshToken, config.JWT_SECRET);
-    if (decoded.type !== "refresh") {
-      return res
-        .status(401)
-        .json({ error: true, message: "Invalid Token Type" });
-    }
+    const decoded = jwtVerify(refreshToken, "refresh");
 
     const newAccessToken = genAccessToken(decoded.id, decoded.sessionId);
 
@@ -186,44 +216,7 @@ export async function refreshAccessToken(req, res) {
       .json({ error: true, message: "Invalid or Expired Refresh Token" });
   }
 }
-/**
- * @method POST /send-otp
- * @prop { email }
- * @param {*} req
- * @param {*} res
- */
-export async function sendOTP(req, res) {
-  try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: true, message: "Email required" });
-    }
 
-    const result = await pool.query("SELECT id FROM users WHERE email=$1", [
-      email,
-    ]);
-    if (result.rows.length === 0) {
-      return res
-        .status(400)
-        .json({ error: true, message: "No user exists with this email" });
-    }
-
-    const otp = genrateOTP();
-    const otpHash = await bcrypt.hash(otp, 10);
-
-    await pool.query(
-      "INSERT INTO otp_verification (user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, NOW() + INTERVAL '10 minutes')",
-      [result.rows[0].id, email, otpHash],
-    );
-
-    await otpTemplate(email, otp);
-    return res
-      .status(200)
-      .json({ success: true, message: "OTP sent to your email" });
-  } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
-  }
-}
 /**
  * @method POST /verify-otp
  * @prop { email, otp }
@@ -232,16 +225,25 @@ export async function sendOTP(req, res) {
  */
 export async function verifyOtp(req, res) {
   try {
-    const { email, otp } = req.body;
-    if (!email || !otp) {
+    const tokenFromCookies = req.cookies.token;
+
+    const { token, otp } = req.body;
+
+    if ((!token && !tokenFromCookies) || !otp) {
       return res
         .status(400)
         .json({ error: true, message: "Email or OTP missing" });
     }
+    let decoded;
+    if (token) {
+      decoded = jwtVerify(token, "otp");
+    } else {
+      decoded = jwtVerify(tokenFromCookies, "otp");
+    }
 
     const result = await pool.query(
-      "SELECT * FROM otp_verification WHERE email=$1 AND expires_at > NOW() AND attempts < 4 ORDER BY created_at DESC LIMIT 1",
-      [email],
+      "SELECT * FROM otp_verification WHERE otp_id=$1 AND expires_at > NOW() AND attempts < 4",
+      [decoded.id],
     );
 
     if (result.rows.length === 0) {
@@ -262,10 +264,10 @@ export async function verifyOtp(req, res) {
     }
 
     await pool.query(
-      `WITH verified_otp AS (
+      `WITH verified_user AS (
         UPDATE otp_verification SET verified_at = NOW() WHERE otp_id = $1 RETURNING user_id
       )
-      UPDATE users SET email_verified = TRUE WHERE id = (SELECT user_id FROM verified_otp)`,
+      UPDATE users SET email_verified = TRUE WHERE id = (SELECT user_id FROM verified_user)`,
       [otpSession.otp_id],
     );
 

@@ -1,6 +1,6 @@
 import sendEmail from "../services/email.service.js";
-
-export async function otpTemplate(email, otp) {
+import config from "../config/config.js";
+export async function otpTemplate(email, otp, token) {
   const otpSubject = `OTP Verificatoin Code For TargetIssue`;
   const otpText = `Your OTP code is ${otp}`;
   const otpHtml = `
@@ -13,6 +13,11 @@ export async function otpTemplate(email, otp) {
             <p className="text-gray-700 mb-6">Your One-Time Password (OTP) for account verification is:</p>
             <div className="bg-gray-100 rounded-lg p-4 mb-6">
                 <p className="text-4xl font-bold text-center text-indigo-600">${otp}</p>
+            </div>
+              <div className="mt-4">
+
+              <p className="text-lg font-bold text-center text-black">Type the above OTP or click the link below to verify: </p>
+              <a href="${config.CLIENT_URL}/verify-otp?token=${token}&type=email" className="font-medium text-indigo-600">${config.CLIENT_URL}/verify-otp?token=${token}&type=email</a>
             </div>
             <p className="text-gray-700 mb-6">This OTP is valid for <span className="font-semibold">2 minutes</span>. Please do not share this code with anyone.</p>
             <p className="text-gray-700 mb-2">If you didn't request this code, please ignore this email.</p>

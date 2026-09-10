@@ -1,5 +1,45 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import login from "../api/login.api.ts";
+
 export const LoginPage = () => {
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // i will show error in a toast latter
+  const [err, setErr] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    try {
+      setLoading(true);
+      setErr("");
+
+      // Extract form values cleanly without manual state bindings
+      const formData = new FormData(form);
+      const credentials = Object.fromEntries(formData.entries());
+      console.log("Submitting credentials:", credentials);
+
+      const result = await login(
+        String(credentials.name),
+        String(credentials.password),
+      );
+      if (result.error) {
+        setErr(result.message);
+      }
+      // await loginApi(credentials);
+      form.reset();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErr(error.message);
+      } else {
+        setErr("An unexpected error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <main className="bg-gray-50 px-4 md:px-8">
@@ -18,7 +58,7 @@ export const LoginPage = () => {
                 Sign in
               </h1>
 
-              <form className="space-y-6 mt-10">
+              <form className="space-y-6 mt-10" onSubmit={handleSubmit}>
                 <div>
                   <label
                     htmlFor="email"
@@ -42,14 +82,62 @@ export const LoginPage = () => {
                   >
                     Password
                   </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="••••••••"
-                    required
-                    className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      placeholder="••••••••"
+                      minLength={8}
+                      required
+                      className="px-3 py-2.5 pr-10 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      className="absolute right-3 cursor-pointer top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
+                    >
+                      {showPassword ? (
+                        /* Eye Slash Icon (Hide) */
+                        <svg
+                          className="size-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.5}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                          />
+                        </svg>
+                      ) : (
+                        /* Eye Icon (Show) */
+                        <svg
+                          className="size-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.5}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.036 12c1.274 4.057 5.065 7 9.542 7 4.477 0 8.268-2.943 9.542-7-1.274-4.057-5.064-7-9.542-7-4.477 0-8.268 2.943-9.542 7z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-start flex-wrap gap-2">
@@ -58,7 +146,6 @@ export const LoginPage = () => {
                       id="remember"
                       name="remember"
                       type="checkbox"
-                      required
                       className="sr-only"
                     />
                     <span
@@ -70,7 +157,7 @@ export const LoginPage = () => {
                         viewBox="0 0 12 10"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="2"
+                        strokeWidth="2"
                       >
                         <path d="M1 5l3 3 7-7" />
                       </svg>
@@ -89,7 +176,8 @@ export const LoginPage = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-2 px-3.5 text-sm rounded-md font-semibold cursor-pointer tracking-wide text-white border border-blue-600 bg-blue-600 hover:bg-blue-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  disabled={loading}
+                  className="w-full py-2 px-3.5 text-sm rounded-md font-semibold cursor-pointer tracking-wide text-white border border-blue-600 bg-blue-600 disabled:bg-blue-500 hover:bg-blue-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                   Sign in
                 </button>
