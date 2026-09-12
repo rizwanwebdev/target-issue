@@ -45,6 +45,12 @@ export async function register(req, res) {
         message: "name, email and password are required",
       });
     }
+    if (name.length < 4) {
+      return res.status(400).json({
+        error: true,
+        message: "Name is less than 4 chracters",
+      });
+    }
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -123,6 +129,13 @@ export async function login(req, res) {
       return res
         .status(400)
         .json({ error: true, message: "Email and password are required" });
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid email",
+      });
     }
 
     const result = await pool.query(

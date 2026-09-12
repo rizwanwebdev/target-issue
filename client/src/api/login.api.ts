@@ -1,16 +1,19 @@
-async function login(email: string, password: string) {
+async function register(email: string, password: string) {
   if (!email || !password) {
-    return "All Fields are required";
+    return { error: true, message: "All Fields are required" };
   }
-
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
-    return "Invalid Email";
+    return { error: true, message: "Invalid Email" };
   }
+  console.log(email, password);
 
   try {
     const res = await fetch("/api/v1/auth/login", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         email: email,
         password: password,
@@ -18,8 +21,11 @@ async function login(email: string, password: string) {
     });
     return await res.json();
   } catch (err) {
-    return err instanceof Error ? err.message : "Something went wrong";
+    return {
+      error: true,
+      message: err instanceof Error ? err.message : "Something went wrong",
+    };
   }
 }
 
-export default login;
+export default register;
