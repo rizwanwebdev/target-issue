@@ -11,9 +11,9 @@ const pool = new Pool({
 
 export async function checkDatabaseConnection() {
   try {
-    const result = await pool.query("SELECT NOW()");
+    const result = await pool.query("SELECT COUNT(*), NOW() FROM users");
     logger.success(
-      `Database connected: ${new Date(result.rows[0].now).toLocaleString()}`,
+      `Database connected:${result.rows[0].count} users, ${new Date(result.rows[0].now).toLocaleString()}`,
     );
 
     return true;
