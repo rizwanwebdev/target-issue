@@ -1,5 +1,4 @@
 import express from "express";
-import test from "../middleware/test.middleware.js";
 import * as authController from "../controllers/auth.controller.js";
 
 import authorize from "../middleware/authorize.middelware.js";

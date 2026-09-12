@@ -1,22 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import login from "../api/login.api.ts";
-
+import { useToast } from "../context/ToastProvider.tsx";
 export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // i will show error in a toast latter
-  const [err, setErr] = useState("");
+  const { addToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     try {
       setLoading(true);
-      setErr("");
 
-      // Extract form values cleanly without manual state bindings
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
       console.log("Submitting credentials:", credentials);
@@ -26,15 +22,15 @@ export const LoginPage = () => {
         String(credentials.password),
       );
       if (result.error) {
-        setErr(result.message);
+        addToast(result.message);
       }
       // await loginApi(credentials);
       form.reset();
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setErr(error.message);
+        addToast(error.message);
       } else {
-        setErr("An unexpected error occurred");
+        addToast("An unexpected error occurred");
       }
     } finally {
       setLoading(false);

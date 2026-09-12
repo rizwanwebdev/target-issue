@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import checkPasswordStrength, {
   type PasswordCheckRule,
   type PasswordStrengthResult,
-} from "../utils/CheckStrongPassowrd.ts";
+} from "../utils/CheckStrongPassowrd";
+import { useToast } from "../context/ToastProvider.tsx";
+import register from "../api/register.api.ts";
 
 // Readable messages for each validation rule key
 const PASSWORD_ERROR_MESSAGES: Record<PasswordCheckRule, string> = {
@@ -25,7 +27,7 @@ export const RegisterPage = () => {
     terms: false,
   };
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
-
+  const { addToast } = useToast();
   // 2. Strongly typed validation state
   const [passwordCheck, setPasswordCheck] =
     useState<PasswordStrengthResult | null>(null);
@@ -62,10 +64,22 @@ export const RegisterPage = () => {
     try {
       setLoading(true);
       console.log("Submitting controlled state:", formData);
+      const result = await register(
+        formData.name,
+        formData.email,
+        formData.password,
+      );
+      console.log(result);
+
+      if (result?.error) {
+        return addToast(result.message, "error");
+      }
+      addToast(result.message, "success");
       // Reset controlled React state
       setFormData(INITIAL_FORM_STATE);
       setPasswordCheck(null);
-    } catch (error) {
+    } catch (error: any) {
+      addToast(error.message, "error");
       console.error(error);
     } finally {
       setLoading(false);

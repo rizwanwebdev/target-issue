@@ -1,11 +1,6 @@
 async function register(name: string, email: string, password: string) {
   if (!name || !email || !password) {
-    return "All Fields are required";
-  }
-
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (emailRegex.test(email)) {
-    return "Invalid Email";
+    return { error: true, message: "All Fields are required" };
   }
 
   try {
@@ -19,7 +14,10 @@ async function register(name: string, email: string, password: string) {
     });
     return await res.json();
   } catch (err) {
-    return err instanceof Error ? err.message : "Something went wrong";
+    return {
+      error: true,
+      message: err instanceof Error ? err.message : "Something went wrong",
+    };
   }
 }
 
