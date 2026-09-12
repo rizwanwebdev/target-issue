@@ -1,0 +1,2 @@
+ALTER TABLE otp_verification
+ADD COLUMN resent INTEGER  DEFAULT 0

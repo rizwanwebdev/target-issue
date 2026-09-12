@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import checkPasswordStrength, {
   type PasswordCheckRule,
   type PasswordStrengthResult,
@@ -16,7 +16,7 @@ const PASSWORD_ERROR_MESSAGES: Record<PasswordCheckRule, string> = {
   hasSpecial: "Include at least one special character (@$!%*?&)",
 };
 
-export const RegisterPage = () => {
+const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   // 1. Fully controlled form state
@@ -31,6 +31,8 @@ export const RegisterPage = () => {
   // 2. Strongly typed validation state
   const [passwordCheck, setPasswordCheck] =
     useState<PasswordStrengthResult | null>(null);
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -75,9 +77,9 @@ export const RegisterPage = () => {
         return addToast(result.message, "error");
       }
       addToast(result.message, "success");
-      // Reset controlled React state
       setFormData(INITIAL_FORM_STATE);
       setPasswordCheck(null);
+      navigate(`/verify-otp?token=${result?.verificationToken}&type=direct`);
     } catch (error: any) {
       addToast(error.message, "error");
       console.error(error);
@@ -268,3 +270,4 @@ export const RegisterPage = () => {
     </main>
   );
 };
+export default RegisterPage;

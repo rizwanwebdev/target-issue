@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-export const ForgotPasswordPage = () => {
+const ForgotPasswordPage = () => {
   return (
     <>
       <title>Forgot Password</title>
@@ -54,3 +54,4 @@ export const ForgotPasswordPage = () => {
     </>
   );
 };
+export default ForgotPasswordPage;

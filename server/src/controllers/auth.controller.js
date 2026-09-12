@@ -5,7 +5,7 @@ import config from "../config/config.js";
 import { otpTemplate, passwordResetOtpTemplate } from "../utils/email.util.js";
 import jwtVerify from "../utils/jwtVerify.js";
 import useragent from "express-useragent";
-
+import crypto from "crypto";
 function genrateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -86,31 +86,22 @@ export async function register(req, res) {
 
     const otp = genrateOTP();
     const otpHash = await bcrypt.hash(otp, 10);
+    const verificationToken = crypto.randomUUID();
+    console.log(otp, verificationToken);
 
-    const otpId = await pool.query(
-      "INSERT INTO otp_verification (user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, NOW() + INTERVAL '5 minutes') RETURNING otp_id",
-      [result.rows[0].id, email, otpHash],
+    await pool.query(
+      "INSERT INTO otp_verification (otp_id, user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL '5 minutes')",
+      [verificationToken, result.rows[0].id, email, otpHash],
     );
 
-    const otpToken = jwt.sign(
-      { id: otpId.rows[0].otp_id, type: "otp" },
-      config.JWT_SECRET,
-      {
-        expiresIn: "5m",
-      },
-    );
-
-    await otpTemplate(email, otp, otpToken);
-
-    res.cookie("token", otpToken, {
-      ...cookieOptions,
-      maxAge: 5 * 60 * 1000,
-    });
+    // await otpTemplate(email, otp, verificationToken);
+    console.log(email, otp, verificationToken);
 
     return res.status(201).json({
       success: true,
       message: "Registered successfully. Check you email for OTP",
       email,
+      verificationToken: verificationToken,
     });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
@@ -232,33 +223,26 @@ export async function refreshAccessToken(req, res) {
 
 /**
  * @method POST /verify-otp
- * @prop { email, otp }
+ * @prop {token, otp }
  * @param {*} req
  * @param {*} res
  */
 export async function verifyOtp(req, res) {
+  const { verificationToken, otp } = req.body;
   try {
-    const tokenFromCookies = req.cookies.token;
+    console.log(verificationToken, otp);
 
-    const { token, otp } = req.body;
-
-    if ((!token && !tokenFromCookies) || !otp) {
+    if (!verificationToken || !otp) {
       return res
         .status(400)
-        .json({ error: true, message: "Email or OTP missing" });
-    }
-    let decoded;
-    if (token) {
-      decoded = jwtVerify(token, "otp");
-    } else {
-      decoded = jwtVerify(tokenFromCookies, "otp");
+        .json({ error: true, message: "verificationToken or OTP missing" });
     }
 
     const result = await pool.query(
-      "SELECT * FROM otp_verification WHERE otp_id=$1 AND expires_at > NOW() AND attempts < 4",
-      [decoded.id],
+      "SELECT * FROM otp_verification WHERE otp_id=$1  AND attempts < 4",
+      [verificationToken],
     );
-
+    console.log(result.rows);
     if (result.rows.length === 0) {
       return res
         .status(400)
@@ -266,7 +250,7 @@ export async function verifyOtp(req, res) {
     }
 
     const otpSession = result.rows[0];
-    const matched = await bcrypt.compare(String(otp), otpSession.otp_hash);
+    const matched = await bcrypt.compare(otp, otpSession.otp_hash);
 
     if (!matched) {
       await pool.query(
@@ -287,6 +271,52 @@ export async function verifyOtp(req, res) {
     return res
       .status(200)
       .json({ success: true, message: "OTP verified, you can now log in" });
+  } catch (error) {
+    return res.status(500).json({ error: true, message: error.message });
+  }
+}
+
+export async function resendOTp(req, res) {
+  const { verificationToken } = req.body;
+  try {
+    if (!verificationToken) {
+      return res.status(400).json({ error: true, message: "Token is missing" });
+    }
+
+    const result = await pool.query(
+      "SELECT * FROM otp_verification WHERE otp_id=$1",
+      [verificationToken],
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Invalid Token, retry from email" });
+    }
+    if (result.rows[0].resent > 3) {
+      return res
+        .status(429)
+        .json({
+          error: true,
+          message: "Rate Limit Exceded, Try After Few Hours",
+        });
+    }
+
+    const otpSession = result.rows[0];
+    const newOTP = genrateOTP();
+
+    const otpHash = await bcrypt.hash(newOTP, 10);
+    const ress = await pool.query(
+      "INSERT INTO otp_verification (otp_hash,email, attempts, resent ,expires_at) VALUES ($1,$2,$3, $4 , NOW() + INTERVAL '5 minutes')",
+      [otpHash, result.rows[0].email, 0, result.rows[0].resent + 1],
+    );
+    // await otpTemplate(email, otp, verificationToken);
+    console.log(verificationToken, newOTP);
+
+    return res.status(200).json({
+      success: true,
+      message: "We had sent a new OTP, check you email",
+    });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }

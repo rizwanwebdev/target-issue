@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import login from "../api/login.api.ts";
 import { useToast } from "../context/ToastProvider.tsx";
-export const LoginPage = () => {
+const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { addToast } = useToast();
-
+  const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -18,14 +18,17 @@ export const LoginPage = () => {
       console.log("Submitting credentials:", credentials);
 
       const result = await login(
-        String(credentials.name),
+        String(credentials.email),
         String(credentials.password),
       );
       if (result.error) {
         addToast(result.message);
+        return;
       }
       // await loginApi(credentials);
       form.reset();
+      addToast(result.message);
+      navigate("/dashboard");
     } catch (error: unknown) {
       if (error instanceof Error) {
         addToast(error.message);
@@ -195,3 +198,4 @@ export const LoginPage = () => {
     </>
   );
 };
+export default LoginPage;
