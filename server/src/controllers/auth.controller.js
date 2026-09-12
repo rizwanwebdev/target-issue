@@ -35,6 +35,9 @@ function genRefreshToken(id, sessionId) {
  * @param {*} req
  * @param {*} res
  */
+const EMAILREGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const STRONGPASSOWRDREGX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 export async function register(req, res) {
   try {
     const { name, email, password } = req.body;
@@ -51,17 +54,14 @@ export async function register(req, res) {
         message: "Name is less than 4 chracters",
       });
     }
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!EMAILREGEX.test(email)) {
       return res.status(400).json({
         error: true,
         message: "Invalid email",
       });
     }
-    const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    if (!strongPasswordRegex.test(password)) {
+    if (!STRONGPASSOWRDREGX.test(password)) {
       return res.status(400).json({
         error: true,
         message:
@@ -121,8 +121,8 @@ export async function login(req, res) {
         .status(400)
         .json({ error: true, message: "Email and password are required" });
     }
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    const EMAILREGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!EMAILREGEX.test(email)) {
       return res.status(400).json({
         error: true,
         message: "Invalid email",
@@ -294,12 +294,10 @@ export async function resendOTp(req, res) {
         .json({ error: true, message: "Invalid Token, retry from email" });
     }
     if (result.rows[0].resent > 3) {
-      return res
-        .status(429)
-        .json({
-          error: true,
-          message: "Rate Limit Exceded, Try After Few Hours",
-        });
+      return res.status(429).json({
+        error: true,
+        message: "Rate Limit Exceded, Try After Few Hours",
+      });
     }
 
     const otpSession = result.rows[0];
@@ -334,6 +332,9 @@ export async function forgotPassword(req, res) {
     if (!email) {
       return res.status(400).json({ error: true, message: "Email required" });
     }
+    if (EMAILREGEX.test(email)) {
+      return res.status(400).json({ error: true, message: "Invalid Email" });
+    }
 
     const result = await pool.query("SELECT id FROM users WHERE email=$1", [
       email,
@@ -349,8 +350,8 @@ export async function forgotPassword(req, res) {
       "INSERT INTO password_reset (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAL '5 minutes')",
       [result.rows[0].id, otpHash],
     );
-
-    await passwordResetOtpTemplate(email, resetOTP);
+    console.log(resetOTP, email);
+    // await passwordResetOtpTemplate(email, resetOTP);
     return res.status(200).json({
       success: true,
       message: "Password reset OTP sent to your email",
@@ -376,15 +377,20 @@ export async function savePassword(req, res) {
         message: "Email, OTP, and password are required",
       });
     }
-
-    const userResult = await pool.query("SELECT id FROM users WHERE email=$1", [
-      email,
-    ]);
-    if (userResult.rows.length === 0) {
-      return res.status(400).json({ error: true, message: "User not found" });
+    if (EMAILREGEX.test(email)) {
+      return res.status(400).json({ error: true, message: "Invalid Email" });
     }
 
-    const userId = userResult.rows[0].id;
+    const result = await pool.query("SELECT id FROM users WHERE email=$1", [
+      email,
+    ]);
+    if (result.rows.length === 0) {
+      return res
+        .status(400)
+        .json({ error: true, message: "User not found. Register Now!" });
+    }
+
+    const userId = result.rows[0].id;
 
     // Fetch active reset OTP record
     const resetResult = await pool.query(
@@ -416,9 +422,10 @@ export async function savePassword(req, res) {
       [passHash, userId, resetRecord.reset_id],
     );
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Password reset successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully. Login Now!",
+    });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }

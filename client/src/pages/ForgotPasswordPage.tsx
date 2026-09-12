@@ -1,5 +1,17 @@
 import { Link } from "react-router-dom";
+import forgotPassword from "../api/forgotPassword.api.ts";
+import savePassword from "../api/savePassword.api.ts";
+import { useToast } from "../context/ToastProvider.tsx";
 const ForgotPasswordPage = () => {
+  const { addToast } = useToast();
+  const handleForgotPassword = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      addToast("something", "info");
+    } catch (error: any) {
+      addToast(error.message, "error");
+    }
+  };
   return (
     <>
       <title>Forgot Password</title>
@@ -22,7 +34,7 @@ const ForgotPasswordPage = () => {
                 to reset your password!
               </p>
 
-              <form className="space-y-6 mt-10">
+              <form className="space-y-6 mt-10" onSubmit={handleForgotPassword}>
                 <div>
                   <label
                     htmlFor="email"
