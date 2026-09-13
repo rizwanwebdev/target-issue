@@ -140,7 +140,6 @@ export async function login(req, res) {
         .status(400)
         .json({ error: true, message: "Invalid email or password" });
     }
-
     const matched = await bcrypt.compare(password, user.password_hash);
     if (!matched) {
       return res
@@ -154,7 +153,6 @@ export async function login(req, res) {
         message: "Please verify your email before logging in",
       });
     }
-
     const source = req.headers["user-agent"] || "";
     const ua = useragent.parse(source);
     const deviceName = `${ua.browser} on ${ua.os}${ua.isMobile ? " (Mobile)" : ""}`;
@@ -163,20 +161,16 @@ export async function login(req, res) {
       [user.id, req.ip || req.socket.remoteAddress, source, deviceName],
     );
     const sessionId = session.rows[0].session_id;
-
     const refreshToken = genRefreshToken(user.id, sessionId);
     const accessToken = genAccessToken(user.id, sessionId);
 
     // hash refresh token to save in db
     const resfrehTokenHash = await bcrypt.hash(refreshToken, 10);
-
     await pool.query(
-      `
-      WITH new_token AS (
+      `WITH new_token AS (
     INSERT INTO refresh_token (user_id,session_id,token_hash,expires_at) VALUES ($1, $2, $3,NOW() + INTERVAL '30 days'))
-    UPDATE users SET last_login_at = NOW() WHERE id = $1;`[
-        (user.id, sessionId, resfrehTokenHash)
-      ],
+    UPDATE users SET last_login_at = NOW() WHERE id = $1`,
+      [user.id, sessionId, resfrehTokenHash],
     );
 
     res.cookie("refreshToken", refreshToken, cookieOptions);
@@ -184,7 +178,6 @@ export async function login(req, res) {
       ...cookieOptions,
       maxAge: 15 * 60 * 1000,
     });
-
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
@@ -432,7 +425,10 @@ export async function getMe(req, res) {
   );
 
   if (result.rows.length === 0) {
-    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("accessToken", {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
     res.clearCookie("refreshToken", cookieOptions);
     return res.status(401).json({
       error: true,
@@ -457,18 +453,20 @@ export async function getMe(req, res) {
 export async function logout(req, res) {
   try {
     const sessionId = req.user.sessionId;
-
+    console.log(sessionId);
     if (sessionId) {
       await pool.query(
-        "UPDATE refresh_token SET revoked_at=NOW() WHERE session_id=$1",
+        `WITH revoked_user AS (
+          UPDATE refresh_token SET revoked_at=NOW() WHERE session_id=$1)
+        UPDATE session SET is_active = FALSE WHERE session_id = $1`,
         [sessionId],
       );
-      await pool.query("DELETE FROM session WHERE session_id = $1", [
-        sessionId,
-      ]);
     }
 
-    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("accessToken", {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
     res.clearCookie("refreshToken", cookieOptions);
 
     return res.status(200).json({

@@ -12,7 +12,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { ToastProvider } from "./context/ToastProvider";
 import { AuthProvider } from "./context/AuthContext";
 
-import Authorize from "./components/Authorize";
+import Authorize from "./components/utils/Authorize";
 
 function App() {
   return (

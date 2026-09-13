@@ -3,8 +3,7 @@ import apiFetch from "./client.ts";
 apiFetch;
 
 interface User {
-  id: number;
-  full_name: string;
+  fullName: string;
   email: string;
 }
 

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import forgotPassword from "../api/forgotPassword.api.ts";
+import forgotPassword from "../api/auth/forgotPassword.api.ts";
 import { useToast } from "../context/ToastProvider.tsx";
 
 const ForgotPasswordPage = () => {

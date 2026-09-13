@@ -5,7 +5,7 @@ import checkPasswordStrength, {
   type PasswordStrengthResult,
 } from "../utils/CheckStrongPassowrd";
 import { useToast } from "../context/ToastProvider.tsx";
-import register from "../api/register.api.ts";
+import register from "../api/auth/register.api.ts";
 
 // Readable messages for each validation rule key
 const PASSWORD_ERROR_MESSAGES: Record<PasswordCheckRule, string> = {

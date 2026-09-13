@@ -1,8 +1,15 @@
+import config from "../config/config.js";
 import pool from "../db/connect.js";
 import jwtVerify from "../utils/jwtVerify.js";
 export default async function authorize(req, res, next) {
   const accessToken = req.cookies.accessToken;
 
+  const cookieOptions = {
+    httpOnly: true,
+    secure: config.NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  };
   if (!accessToken) {
     return res
       .status(401)
@@ -16,12 +23,14 @@ export default async function authorize(req, res, next) {
   );
   if (result.rows.length === 0) {
     res.clearCookie("accessToken", cookieOptions);
-    res.clearCookie("refreshToken", cookieOptions);
+    res.clearCookie("refreshToken", {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
     return res
       .status(401)
       .json({ error: true, message: "Session Has been revoked. Login Again" });
   }
-  console.log(decoded);
 
   req.user = { id: decoded.id, sessionId: decoded.sessionId };
   next();

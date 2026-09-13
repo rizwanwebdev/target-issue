@@ -1,4 +1,4 @@
-async function logout() {
+async function logoutApi() {
   try {
     const res = await fetch("/api/v1/auth/logout", {
       credentials: "include",
@@ -14,4 +14,4 @@ async function logout() {
   }
 }
 
-export default logout;
+export default logoutApi;

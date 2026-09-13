@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import login from "../api/login.api.ts";
+import login from "../api/auth/login.api.ts";
 import { useToast } from "../context/ToastProvider.tsx";
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);

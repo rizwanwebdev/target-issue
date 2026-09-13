@@ -1,19 +1,21 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
-import getMe from "../api/getMe";
+import getMe from "../api/auth/getMe";
+import logoutApi from "../api/auth/logout.api.ts";
 
 interface User {
-  id: number;
-  full_name: string;
+  fullName: string;
   email: string;
 }
-
+interface LogoutResult {
+  error: boolean;
+  message: string;
+}
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   authenticated: boolean;
   refreshUser: () => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => Promise<LogoutResult>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,12 +52,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function logout() {
     try {
-      await fetch("/api/v1/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-    } finally {
+      const result = await logoutApi();
+
+      if (result.error) {
+        return result;
+      }
+
       setUser(null);
+
+      return result;
+    } catch (error) {
+      return {
+        error: true,
+        message:
+          error instanceof Error ? error.message : "Something went wrong",
+      };
     }
   }
 
