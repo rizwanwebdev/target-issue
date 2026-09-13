@@ -1,15 +1,9 @@
-async function savePassword(email: string, otp: string, password: string) {
-  if (!email || !otp || !password) {
+async function savePassword(token: string, password: string) {
+  if (!token || !password) {
     return { error: true, message: "All Fields are required" };
   }
-  if (otp.length !== 6) {
-    return { error: true, message: "Invalid OTP, It should be 6 digits" };
-  }
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!emailRegex.test(email)) {
-    return { error: true, message: "Invalid Email" };
-  }
-  console.log(email, otp, password);
+
+  console.log(token, password);
 
   try {
     const res = await fetch("/api/v1/auth/save-password", {
@@ -18,8 +12,7 @@ async function savePassword(email: string, otp: string, password: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: email,
-        otp: otp,
+        token: token,
         password: password,
       }),
     });

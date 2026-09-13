@@ -1,13 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import forgotPassword from "../api/forgotPassword.api.ts";
-import savePassword from "../api/savePassword.api.ts";
 import { useToast } from "../context/ToastProvider.tsx";
+
 const ForgotPasswordPage = () => {
+  const navigate = useNavigate();
   const { addToast } = useToast();
-  const handleForgotPassword = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      addToast("something", "info");
+      const formData = new FormData(e.currentTarget);
+      const credentials = Object.fromEntries(formData.entries());
+      console.log(credentials);
+      const result = await forgotPassword(String(credentials.email));
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+      navigate(`/save-password?token=${result.token}&type=direct`);
+      addToast("Test Message", "success");
     } catch (error: any) {
       addToast(error.message, "error");
     }

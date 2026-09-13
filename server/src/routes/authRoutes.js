@@ -15,6 +15,7 @@ router.get("/refresh", authController.refreshAccessToken);
 
 router.post("/forgot-password", authController.forgotPassword);
 router.put("/save-password", authController.savePassword);
+router.get("/get-me", authorize, authController.getMe);
 
 router.get("/logout", authorize, authController.logout);
 router.get("/logout-all", authorize, authController.logoutAll);

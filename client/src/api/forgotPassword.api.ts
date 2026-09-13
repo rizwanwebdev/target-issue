@@ -9,7 +9,7 @@ async function forgotPassword(email: string) {
   console.log(email);
 
   try {
-    const res = await fetch("/api/v1/auth/forgotPassword", {
+    const res = await fetch("/api/v1/auth/forgot-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

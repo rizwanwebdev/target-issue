@@ -171,8 +171,12 @@ export async function login(req, res) {
     const resfrehTokenHash = await bcrypt.hash(refreshToken, 10);
 
     await pool.query(
-      "INSERT INTO refresh_token (user_id, session_id, token_hash, expires_at) VALUES ($1, $2 ,$3, NOW() + INTERVAL '30 days')",
-      [user.id, sessionId, resfrehTokenHash],
+      `
+      WITH new_token AS (
+    INSERT INTO refresh_token (user_id,session_id,token_hash,expires_at) VALUES ($1, $2, $3,NOW() + INTERVAL '30 days'))
+    UPDATE users SET last_login_at = NOW() WHERE id = $1;`[
+        (user.id, sessionId, resfrehTokenHash)
+      ],
     );
 
     res.cookie("refreshToken", refreshToken, cookieOptions);
@@ -332,7 +336,7 @@ export async function forgotPassword(req, res) {
     if (!email) {
       return res.status(400).json({ error: true, message: "Email required" });
     }
-    if (EMAILREGEX.test(email)) {
+    if (!EMAILREGEX.test(email)) {
       return res.status(400).json({ error: true, message: "Invalid Email" });
     }
 
@@ -340,21 +344,25 @@ export async function forgotPassword(req, res) {
       email,
     ]);
     if (result.rows.length === 0) {
-      return res.status(400).json({ error: true, message: "User Not Found" });
+      return res
+        .status(400)
+        .json({ error: true, message: "User Not Found. Register Now!" });
     }
 
-    const resetOTP = genrateOTP();
-    const otpHash = await bcrypt.hash(resetOTP, 10);
-
-    await pool.query(
-      "INSERT INTO password_reset (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAL '5 minutes')",
-      [result.rows[0].id, otpHash],
+    const resetToken = jwt.sign(
+      { id: result.rows[0].id, type: "reset" },
+      config.JWT_SECRET,
+      {
+        expiresIn: "15m",
+      },
     );
-    console.log(resetOTP, email);
+
+    console.log(resetToken, email);
     // await passwordResetOtpTemplate(email, resetOTP);
     return res.status(200).json({
       success: true,
-      message: "Password reset OTP sent to your email",
+      message: "Password reset link sent to your email",
+      token: resetToken,
     });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
@@ -369,20 +377,22 @@ export async function forgotPassword(req, res) {
  */
 export async function savePassword(req, res) {
   try {
-    const { email, otp, password } = req.body;
+    const { token, password } = req.body;
 
-    if (!email || !otp || !password) {
+    if (!token || !password) {
       return res.status(400).json({
         error: true,
-        message: "Email, OTP, and password are required",
+        message: "Missing Token OR Password.",
       });
     }
-    if (EMAILREGEX.test(email)) {
-      return res.status(400).json({ error: true, message: "Invalid Email" });
-    }
-
-    const result = await pool.query("SELECT id FROM users WHERE email=$1", [
-      email,
+    const decoded = jwtVerify(
+      token,
+      "reset",
+      "Token Has been Expired, Try Again",
+    );
+    console.log(decoded, token);
+    const result = await pool.query("SELECT id FROM users WHERE id=$1", [
+      decoded.id,
     ]);
     if (result.rows.length === 0) {
       return res
@@ -390,37 +400,19 @@ export async function savePassword(req, res) {
         .json({ error: true, message: "User not found. Register Now!" });
     }
 
-    const userId = result.rows[0].id;
-
-    // Fetch active reset OTP record
-    const resetResult = await pool.query(
-      "SELECT * FROM password_reset WHERE user_id=$1 AND expires_at > NOW() AND used = FALSE ORDER BY created_at DESC LIMIT 1",
-      [userId],
-    );
-
-    if (resetResult.rows.length === 0) {
+    if (!STRONGPASSOWRDREGX.test(password)) {
       return res
         .status(400)
-        .json({ error: true, message: "Invalid or expired reset request" });
-    }
-
-    const resetRecord = resetResult.rows[0];
-    const matched = await bcrypt.compare(String(otp), resetRecord.token_hash);
-
-    if (!matched) {
-      return res.status(400).json({ error: true, message: "Invalid OTP" });
+        .json({ error: true, message: "Required Strong Passoword" });
     }
 
     // Hash new password and mark reset token as used
     const passHash = await bcrypt.hash(password, 10);
 
-    await pool.query(
-      `WITH updated_user AS (
-        UPDATE users SET password_hash=$1 WHERE id=$2)
-        UPDATE password_reset SET used = TRUE WHERE id=$3
-      `,
-      [passHash, userId, resetRecord.reset_id],
-    );
+    await pool.query("UPDATE users SET password_hash=$1 WHERE id=$2", [
+      passHash,
+      decoded.id,
+    ]);
 
     return res.status(200).json({
       success: true,
@@ -429,6 +421,32 @@ export async function savePassword(req, res) {
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
+}
+
+export async function getMe(req, res) {
+  const userId = req.user.id;
+
+  const result = await pool.query(
+    "SELECT id, full_name, email FROM users WHERE id=$1",
+    [userId],
+  );
+
+  if (result.rows.length === 0) {
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+    return res.status(401).json({
+      error: true,
+      message: "User Not Found",
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Found you",
+    user: {
+      fullName: result.rows[0].full_name,
+      email: result.rows[0].email,
+    },
+  });
 }
 
 /**
