@@ -2,11 +2,15 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import login from "../api/auth/login.api.ts";
 import { useToast } from "../context/ToastProvider.tsx";
+import { useAuth } from "../context/AuthContext.tsx";
+
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -22,18 +26,18 @@ const LoginPage = () => {
         String(credentials.password),
       );
       if (result.error) {
-        addToast(result.message);
+        addToast(result.message, "error");
         return;
       }
-      // await loginApi(credentials);
       form.reset();
-      addToast(result.message);
-      navigate("/dashboard");
+      await refreshUser();
+      navigate("/dashboard", { replace: true });
+      addToast(result.message, "success");
     } catch (error: unknown) {
       if (error instanceof Error) {
-        addToast(error.message);
+        addToast(error.message, "error");
       } else {
-        addToast("An unexpected error occurred");
+        addToast("An unexpected error occurred", "error");
       }
     } finally {
       setLoading(false);

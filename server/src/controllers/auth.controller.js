@@ -6,6 +6,7 @@ import { otpTemplate, passwordResetOtpTemplate } from "../utils/email.util.js";
 import jwtVerify from "../utils/jwtVerify.js";
 import useragent from "express-useragent";
 import crypto from "crypto";
+import { error } from "console";
 function genrateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -193,15 +194,51 @@ export async function login(req, res) {
  * @param {*} res
  */
 export async function refreshAccessToken(req, res) {
-  try {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-      return res
-        .status(401)
-        .json({ error: true, message: "Refresh Token Not Found" });
-    }
+  const refreshToken = req.cookies.refreshToken;
 
-    const decoded = jwtVerify(refreshToken, "refresh");
+  if (!refreshToken) {
+    return res.status(401).json({
+      error: true,
+      code: "NO_REFRESH_TOKEN",
+      message: "Refresh token not found",
+    });
+  }
+
+  const decoded = jwtVerify(refreshToken, "refresh");
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT
+        rt.token_id,
+        rt.user_id,
+        rt.session_id
+      FROM refresh_token rt
+      JOIN session s
+        ON s.session_id = rt.session_id
+      WHERE rt.user_id = $1
+        AND rt.session_id = $2
+        AND rt.revoked_at IS NULL
+        AND (
+          rt.expires_at IS NULL
+          OR rt.expires_at > NOW()
+        )
+        AND s.is_active = TRUE
+        AND (
+          s.expires_at IS NULL
+          OR s.expires_at > NOW()
+        )
+      `,
+      [decoded.id, decoded.sessionId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        error: true,
+        code: "INVALID_REFRESH_TOKEN",
+        message: "Refresh token is invalid or session is revoked",
+      });
+    }
 
     const newAccessToken = genAccessToken(decoded.id, decoded.sessionId);
 
@@ -210,11 +247,17 @@ export async function refreshAccessToken(req, res) {
       maxAge: 15 * 60 * 1000,
     });
 
-    return res.status(200).json({ success: true, message: "Token Refreshed" });
+    return res.status(200).json({
+      success: true,
+      message: "Access token refreshed",
+    });
   } catch (error) {
-    return res
-      .status(401)
-      .json({ error: true, message: "Invalid or Expired Refresh Token" });
+    console.error(error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error",
+    });
   }
 }
 
@@ -378,12 +421,19 @@ export async function savePassword(req, res) {
         message: "Missing Token OR Password.",
       });
     }
-    const decoded = jwtVerify(
-      token,
-      "reset",
-      "Token Has been Expired, Try Again",
-    );
-    console.log(decoded, token);
+    const decoded = jwtVerify(token, "reset");
+    if (decoded.error) {
+      res.status(401).json({
+        error: true,
+        code: decoded.code,
+        message: decoded.message,
+      });
+    }
+    // else something like this
+    const { id, sessionId } = decoded;
+    // or
+
+    console.log(decoded.id, decoded.sessionId);
     const result = await pool.query("SELECT id FROM users WHERE id=$1", [
       decoded.id,
     ]);
@@ -417,32 +467,44 @@ export async function savePassword(req, res) {
 }
 
 export async function getMe(req, res) {
-  const userId = req.user.id;
+  try {
+    const { id } = req.user;
 
-  const result = await pool.query(
-    "SELECT id, full_name, email FROM users WHERE id=$1",
-    [userId],
-  );
+    const result = await pool.query(
+      `
+      SELECT id, full_name, email
+      FROM users
+      WHERE id = $1
+      `,
+      [id],
+    );
 
-  if (result.rows.length === 0) {
-    res.clearCookie("accessToken", {
-      ...cookieOptions,
-      maxAge: 15 * 60 * 1000,
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        error: true,
+        code: "USER_NOT_FOUND",
+        message: "User not found",
+      });
+    }
+
+    const user = result.rows[0];
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        fullName: user.full_name,
+        email: user.email,
+      },
     });
-    res.clearCookie("refreshToken", cookieOptions);
-    return res.status(401).json({
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
       error: true,
-      message: "User Not Found",
+      message: "Internal server error",
     });
   }
-  return res.status(200).json({
-    success: true,
-    message: "Found you",
-    user: {
-      fullName: result.rows[0].full_name,
-      email: result.rows[0].email,
-    },
-  });
 }
 
 /**
@@ -453,20 +515,38 @@ export async function getMe(req, res) {
 export async function logout(req, res) {
   try {
     const sessionId = req.user.sessionId;
-    console.log(sessionId);
+
     if (sessionId) {
-      await pool.query(
-        `WITH revoked_user AS (
-          UPDATE refresh_token SET revoked_at=NOW() WHERE session_id=$1)
-        UPDATE session SET is_active = FALSE WHERE session_id = $1`,
-        [sessionId],
-      );
+      const client = await pool.connect();
+
+      try {
+        await client.query("BEGIN");
+
+        await client.query(
+          `UPDATE refresh_token
+           SET revoked_at = NOW()
+           WHERE session_id = $1
+             AND revoked_at IS NULL`,
+          [sessionId],
+        );
+
+        await client.query(
+          `UPDATE session
+           SET is_active = FALSE
+           WHERE session_id = $1`,
+          [sessionId],
+        );
+
+        await client.query("COMMIT");
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      } finally {
+        client.release();
+      }
     }
 
-    res.clearCookie("accessToken", {
-      ...cookieOptions,
-      maxAge: 15 * 60 * 1000,
-    });
+    res.clearCookie("accessToken", cookieOptions);
     res.clearCookie("refreshToken", cookieOptions);
 
     return res.status(200).json({
@@ -474,7 +554,10 @@ export async function logout(req, res) {
       message: "Logged out from this device successfully",
     });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error",
+    });
   }
 }
 /**
@@ -486,12 +569,32 @@ export async function logoutAll(req, res) {
   try {
     const userId = req.user.id;
 
-    if (userId) {
-      await pool.query(
-        "UPDATE refresh_token SET revoked_at=NOW() WHERE user_id=$1",
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      await client.query(
+        `UPDATE refresh_token
+         SET revoked_at = NOW()
+         WHERE user_id = $1
+           AND revoked_at IS NULL`,
         [userId],
       );
-      await pool.query("DELETE FROM session WHERE user_id = $1", [userId]);
+
+      await client.query(
+        `UPDATE session
+         SET is_active = FALSE
+         WHERE user_id = $1`,
+        [userId],
+      );
+
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
     }
 
     res.clearCookie("accessToken", cookieOptions);
@@ -502,6 +605,9 @@ export async function logoutAll(req, res) {
       message: "You have been logged out from all devices successfully",
     });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error",
+    });
   }
 }

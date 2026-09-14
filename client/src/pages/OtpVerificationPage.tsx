@@ -28,16 +28,16 @@ const OtpVerificationPage = () => {
 
       const result = await verifyOtp(otp, token);
       if (result.error) {
-        addToast(result.message);
+        addToast(result.message, "error");
         return;
       }
-      addToast(result.message);
+      addToast(result.message, "success");
       navigate("/login");
     } catch (error: unknown) {
       if (error instanceof Error) {
-        addToast(error.message);
+        addToast(error.message, "error");
       } else {
-        addToast("An unexpected error occurred");
+        addToast("An unexpected error occurred", "error");
       }
     }
   };

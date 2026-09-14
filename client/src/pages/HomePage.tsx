@@ -5,17 +5,24 @@ const HomePage = () => {
   return (
     <>
       <div className="flex flex-col justify-center items-center min-h-screen">
-        <p>Dashboard</p>
-
-        <p>{user?.fullName}</p>
-
-        <Link
-          to="/dashboard"
-          className="bg-indigo-600 text-white px-3 py-2 rounded-xl cursor-pointer"
-        >
-          dashboard
+        <Link to="/register" className="border rounded p-3">
+          Register
         </Link>
-        {!authenticated && <Link to="/register">Register</Link>}
+
+        {authenticated && (
+          <div>
+            <p>Dashboard</p>
+
+            <p>{user?.fullName}</p>
+
+            <Link
+              to="/dashboard"
+              className="bg-indigo-600 text-white px-3 py-2 rounded-xl cursor-pointer"
+            >
+              dashboard
+            </Link>
+          </div>
+        )}
       </div>
     </>
   );

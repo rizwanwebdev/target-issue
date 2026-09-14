@@ -19,7 +19,8 @@ async function login(email: string, password: string) {
         password: password,
       }),
     });
-    return await res.json();
+    const result = await res.json();
+    return result;
   } catch (err) {
     return {
       error: true,

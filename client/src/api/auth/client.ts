@@ -3,7 +3,7 @@ let refreshPromise: Promise<boolean> | null = null;
 async function refreshAccessToken(): Promise<boolean> {
   if (!refreshPromise) {
     refreshPromise = fetch("/api/v1/auth/refresh", {
-      method: "GET",
+      method: "POST",
       credentials: "include",
     })
       .then((response) => response.ok)
@@ -16,10 +16,7 @@ async function refreshAccessToken(): Promise<boolean> {
   return refreshPromise;
 }
 
-async function apiFetch(
-  input: RequestInfo | URL,
-  options: RequestInit = {},
-): Promise<Response> {
+async function apiFetch(input: RequestInfo | URL, options: RequestInit = {}) {
   const request = () =>
     fetch(input, {
       ...options,
@@ -28,23 +25,27 @@ async function apiFetch(
 
   let response = await request();
 
-  // Request succeeded or failed for a reason other than authentication.
   if (response.status !== 401) {
     return response;
   }
 
-  // Access token may have expired.
+  // Read the backend error
+  const data = await response
+    .clone()
+    .json()
+    .catch(() => null);
+
+  if (data?.code !== "ACCESS_TOKEN_EXPIRED") {
+    return response;
+  }
+
   const refreshed = await refreshAccessToken();
 
   if (!refreshed) {
     return response;
   }
 
-  // New access-token cookie was created.
-  // Retry the original request.
-  response = await request();
-
-  return response;
+  return request();
 }
 
 export default apiFetch;

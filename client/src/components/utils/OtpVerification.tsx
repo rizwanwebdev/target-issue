@@ -105,7 +105,7 @@ export default function OtpVerification({
       }
       addToast(result.message, "success");
     } catch (error: any) {
-      addToast(error.message);
+      addToast(error.message, "error");
     }
   };
   return (

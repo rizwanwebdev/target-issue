@@ -1,32 +1,43 @@
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
-/**
- * @param {*} token jwt signed token
- * @param {*} type
- * @param {*} err
- * @returns decoded  jwt
- */
-function jwtVerify(token, type, err = "Token has expired") {
+
+export default function jwtVerify(token, expectedType) {
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET);
-    if (decoded.type !== type) {
-      return res
-        .status(401)
-        .json({ error: true, message: "Invalid Token Type" });
+
+    if (decoded.type !== expectedType) {
+      return {
+        error: true,
+        code: "INVALID_TOKEN_TYPE",
+        message: "Invalid token type",
+      };
     }
-    return decoded;
+
+    return {
+      error: false,
+      ...decoded,
+    };
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return res.status(401).json({
+      return {
         error: true,
-        message: err,
-      });
-    } else if (error.name === "JsonWebTokenError") {
-      return res.status(401).json({
-        error: true,
-        message: "Invalid Token",
-      });
+        code: "TOKEN_EXPIRED",
+        message: "Token has expired",
+      };
     }
+
+    if (error.name === "JsonWebTokenError") {
+      return {
+        error: true,
+        code: "INVALID_TOKEN",
+        message: "Invalid token",
+      };
+    }
+
+    return {
+      error: true,
+      code: "JWT_VERIFICATION_FAILED",
+      message: "Unable to verify token",
+    };
   }
 }
-export default jwtVerify;
