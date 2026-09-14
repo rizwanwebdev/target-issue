@@ -6,7 +6,10 @@ import {
   type ReactNode,
 } from "react";
 
-// 1. Types
+// --------------------------------------------------
+// Types
+// --------------------------------------------------
+
 export type ToastType = "success" | "error" | "warning" | "info";
 
 export interface ToastProps {
@@ -27,7 +30,10 @@ interface ToastContextType {
   addToast: (message: string, type?: ToastType) => void;
 }
 
-// 2. Toast UI Component
+// --------------------------------------------------
+// Toast Styles
+// --------------------------------------------------
+
 const toastStyles: Record<
   ToastType,
   { bg: string; border: string; icon: ReactNode }
@@ -51,6 +57,7 @@ const toastStyles: Record<
       </svg>
     ),
   },
+
   error: {
     bg: "bg-red-50 text-red-800",
     border: "border-red-300",
@@ -70,6 +77,7 @@ const toastStyles: Record<
       </svg>
     ),
   },
+
   warning: {
     bg: "bg-amber-50 text-amber-800",
     border: "border-amber-300",
@@ -89,6 +97,7 @@ const toastStyles: Record<
       </svg>
     ),
   },
+
   info: {
     bg: "bg-blue-50 text-blue-800",
     border: "border-blue-300",
@@ -110,24 +119,41 @@ const toastStyles: Record<
   },
 };
 
+// --------------------------------------------------
+// Toast Component
+// --------------------------------------------------
+
 export const Toast = ({
   id,
   type = "info",
   message,
-  duration = 4000,
+  duration = 5000,
   onClose,
 }: ToastProps) => {
   const [isLeaving, setIsLeaving] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const handleDismiss = () => {
+    if (isLeaving) return;
+
     setIsLeaving(true);
+
     setTimeout(() => {
       onClose(id);
-    }, 300);
+    }, 350);
   };
 
   useEffect(() => {
+    const enterTimer = requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
+
+    return () => cancelAnimationFrame(enterTimer);
+  }, []);
+
+  useEffect(() => {
     if (duration <= 0) return;
+
     const timer = setTimeout(() => {
       handleDismiss();
     }, duration);
@@ -140,16 +166,35 @@ export const Toast = ({
   return (
     <div
       role="alert"
-      className={`flex items-center gap-3 w-80 p-4 rounded-lg border shadow-lg transition-all duration-300 ease-in-out ${
-        style.bg
-      } ${style.border} ${
-        isLeaving
-          ? "opacity-0 translate-x-full scale-95"
-          : "opacity-100 translate-x-0 scale-100 animate-slide-in"
-      }`}
+      className={`
+        flex items-center gap-3
+        w-80 max-w-[calc(100vw-2rem)]
+        p-4
+        rounded-lg
+        border
+        shadow-lg
+
+        ${style.bg}
+        ${style.border}
+
+        transform-gpu
+        transition-all
+        duration-350
+        ease-[cubic-bezier(0.22,1,0.36,1)]
+
+        ${
+          isLeaving
+            ? "opacity-0 translate-x-8 scale-95"
+            : isVisible
+              ? "opacity-100 translate-x-0 scale-100"
+              : "opacity-0 translate-x-8 scale-95"
+        }
+      `}
     >
       {style.icon}
+
       <p className="text-sm font-medium flex-1 wrap-break-word">{message}</p>
+
       <button
         type="button"
         onClick={handleDismiss}
@@ -174,15 +219,30 @@ export const Toast = ({
   );
 };
 
-// 3. Context & Provider
+// --------------------------------------------------
+// Context
+// --------------------------------------------------
+
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
+
+// --------------------------------------------------
+// Provider
+// --------------------------------------------------
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const addToast = (message: string, type: ToastType = "info") => {
     const id = crypto.randomUUID();
-    setToasts((prev) => [...prev, { id, message, type }]);
+
+    setToasts((prev) => [
+      ...prev,
+      {
+        id,
+        message,
+        type,
+      },
+    ]);
   };
 
   const removeToast = (id: string) => {
@@ -193,10 +253,17 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     <ToastContext.Provider value={{ addToast }}>
       {children}
 
-      {/* Top Right Container */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm pointer-events-none">
+      <div className="fixed top-4 right-4 z-50 flex flex-col-reverse gap-3 max-w-sm pointer-events-none">
         {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto">
+          <div
+            key={toast.id}
+            className="
+              pointer-events-auto
+              transition-all
+              duration-350
+              ease-[cubic-bezier(0.22,1,0.36,1)]
+            "
+          >
             <Toast
               id={toast.id}
               type={toast.type}
@@ -210,11 +277,16 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// 4. Custom Hook
+// --------------------------------------------------
+// Hook
+// --------------------------------------------------
+
 export const useToast = () => {
   const context = useContext(ToastContext);
+
   if (!context) {
     throw new Error("useToast must be used within a ToastProvider");
   }
+
   return context;
 };
