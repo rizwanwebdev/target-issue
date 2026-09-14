@@ -25,11 +25,11 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/verify-otp" element={<OtpVerificationPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/save-password" element={<SavePasswordPage />} />
 
           {/* Protected routes */}
           <Route element={<Authorize />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/save-password" element={<SavePasswordPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

@@ -17,7 +17,9 @@ const ForgotPasswordPage = () => {
         return;
       }
       addToast(result.message, "success");
-      navigate(`/save-password?token=${result.token}&type=direct`);
+      navigate(`/save-password?token=${result.token}&type=direct`, {
+        replace: true,
+      });
       addToast("Test Message", "success");
     } catch (error: any) {
       addToast(error.message, "error");
