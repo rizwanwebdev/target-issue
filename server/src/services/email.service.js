@@ -1,70 +1,51 @@
 import nodemailer from "nodemailer";
+import config from "../config/config.js";
 
-let transporter = null;
+const transporter = nodemailer.createTransport({
+  service: "gmail",
 
-async function getTransporter() {
-  if (transporter) {
-    return transporter;
+  auth: {
+    type: "OAuth2",
+    user: config.GOOGLE_USER,
+    clientId: config.GOOGLE_CLIENT_ID,
+    clientSecret: config.GOOGLE_CLIENT_SECRET,
+    refreshToken: config.GOOGLE_REFRESH_TOKEN,
+  },
+  // Connection/timeouts in milliseconds
+  connectionTimeout: 30_000, // 30 seconds
+  greetingTimeout: 30_000, // 30 seconds
+  socketTimeout: 60_000, // 60 seconds
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("SMTP connection failed:", error);
+  } else {
+    console.log("SMTP server is ready");
   }
+});
 
-  const testAccount = await nodemailer.createTestAccount();
-
-  transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 2525,
-    secure: false,
-
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
-    },
-
-    connectionTimeout: 5000,
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
-  });
-
-  return transporter;
-}
-
-export default async function sendEmail(to, subject, text, html) {
+export default async function sendEmail(to, subject, html) {
   try {
-    const mailer = await getTransporter();
-
-    const info = await mailer.sendMail({
-      from: '"TargetIssue" <noreply@targetissue.com>',
+    const info = await transporter.sendMail({
+      from: `"TargetIssue" <${config.GOOGLE_USER}>`,
       to,
       subject,
-      text,
       html,
     });
 
-    console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
+    console.log("Email sent:", info.messageId);
 
-    if (info.rejected.length > 0) {
-      console.warn("Some recipients were rejected:", info.rejected);
-    }
+    return {
+      success: true,
+      messageId: info.messageId,
+    };
+  } catch (error) {
+    console.error("Email sending failed:", error);
 
-    return info;
-  } catch (err) {
-    switch (err.code) {
-      case "ECONNECTION":
-      case "ETIMEDOUT":
-        console.error("Network error:", err.message);
-        break;
-
-      case "EAUTH":
-        console.error("Authentication failed:", err.message);
-        break;
-
-      case "EENVELOPE":
-        console.error("Invalid envelope:", err.message, err.rejected || []);
-        break;
-
-      default:
-        console.error("Send failed:", err.message);
-    }
-
-    throw err;
+    return {
+      error: true,
+      message: error.message,
+    };
   }
 }

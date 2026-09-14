@@ -86,6 +86,7 @@ export async function register(req, res) {
     );
 
     const otp = genrateOTP();
+    console.log(otp, "------------------");
     const otpHash = await bcrypt.hash(otp, 10);
     const verificationToken = crypto.randomUUID();
 
@@ -337,13 +338,14 @@ export async function resendOTp(req, res) {
 
     const otpSession = result.rows[0];
     const newOTP = genrateOTP();
+    console.log(newOTP, "------------------");
 
     const otpHash = await bcrypt.hash(newOTP, 10);
     const ress = await pool.query(
       "INSERT INTO otp_verification (otp_hash,email, attempts, resent ,expires_at) VALUES ($1,$2,$3, $4 , NOW() + INTERVAL '5 minutes')",
       [otpHash, result.rows[0].email, 0, result.rows[0].resent + 1],
     );
-    // await otpTemplate(email, otp, verificationToken);
+    // await otpTemplate(otpSession.email, newOTP, verificationToken);
 
     return res.status(200).json({
       success: true,
@@ -387,7 +389,7 @@ export async function forgotPassword(req, res) {
       },
     );
 
-    // await passwordResetOtpTemplate(email, resetOTP);
+    // await passwordResetOtpTemplate(email, resetToken);
     return res.status(200).json({
       success: true,
       message: "Password reset link sent to your email",
