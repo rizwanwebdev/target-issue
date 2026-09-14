@@ -88,7 +88,6 @@ export async function register(req, res) {
     const otp = genrateOTP();
     const otpHash = await bcrypt.hash(otp, 10);
     const verificationToken = crypto.randomUUID();
-    console.log(otp, verificationToken);
 
     await pool.query(
       "INSERT INTO otp_verification (otp_id, user_id, email, otp_hash, expires_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL '5 minutes')",
@@ -96,7 +95,6 @@ export async function register(req, res) {
     );
 
     // await otpTemplate(email, otp, verificationToken);
-    console.log(email, otp, verificationToken);
 
     return res.status(201).json({
       success: true,
@@ -270,8 +268,6 @@ export async function refreshAccessToken(req, res) {
 export async function verifyOtp(req, res) {
   const { verificationToken, otp } = req.body;
   try {
-    console.log(verificationToken, otp);
-
     if (!verificationToken || !otp) {
       return res
         .status(400)
@@ -282,7 +278,6 @@ export async function verifyOtp(req, res) {
       "SELECT * FROM otp_verification WHERE otp_id=$1  AND attempts < 4",
       [verificationToken],
     );
-    console.log(result.rows);
     if (result.rows.length === 0) {
       return res
         .status(400)
@@ -349,7 +344,6 @@ export async function resendOTp(req, res) {
       [otpHash, result.rows[0].email, 0, result.rows[0].resent + 1],
     );
     // await otpTemplate(email, otp, verificationToken);
-    console.log(verificationToken, newOTP);
 
     return res.status(200).json({
       success: true,
@@ -393,7 +387,6 @@ export async function forgotPassword(req, res) {
       },
     );
 
-    console.log(resetToken, email);
     // await passwordResetOtpTemplate(email, resetOTP);
     return res.status(200).json({
       success: true,
@@ -433,7 +426,6 @@ export async function savePassword(req, res) {
     const { id, sessionId } = decoded;
     // or
 
-    console.log(decoded.id, decoded.sessionId);
     const result = await pool.query("SELECT id FROM users WHERE id=$1", [
       decoded.id,
     ]);

@@ -3,8 +3,6 @@ async function savePassword(token: string, password: string) {
     return { error: true, message: "All Fields are required" };
   }
 
-  console.log(token, password);
-
   try {
     const res = await fetch("/api/v1/auth/save-password", {
       method: "PUT",

@@ -65,13 +65,11 @@ const RegisterPage = () => {
 
     try {
       setLoading(true);
-      console.log("Submitting controlled state:", formData);
       const result = await register(
         formData.name,
         formData.email,
         formData.password,
       );
-      console.log(result);
 
       if (result?.error) {
         return addToast(result.message, "error");
@@ -82,7 +80,6 @@ const RegisterPage = () => {
       navigate(`/verify-otp?token=${result?.verificationToken}&type=direct`);
     } catch (error: any) {
       addToast(error.message, "error");
-      console.error(error);
     } finally {
       setLoading(false);
     }

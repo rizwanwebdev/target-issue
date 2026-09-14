@@ -6,7 +6,6 @@ async function forgotPassword(email: string) {
   if (!emailRegex.test(email)) {
     return { error: true, message: "Invalid Email" };
   }
-  console.log(email);
 
   try {
     const res = await fetch("/api/v1/auth/forgot-password", {

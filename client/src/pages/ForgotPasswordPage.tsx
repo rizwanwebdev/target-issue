@@ -10,7 +10,6 @@ const ForgotPasswordPage = () => {
     try {
       const formData = new FormData(e.currentTarget);
       const credentials = Object.fromEntries(formData.entries());
-      console.log(credentials);
       const result = await forgotPassword(String(credentials.email));
       if (result.error) {
         addToast(result.message, "error");

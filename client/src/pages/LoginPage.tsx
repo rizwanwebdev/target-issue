@@ -19,7 +19,6 @@ const LoginPage = () => {
 
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
-      console.log("Submitting credentials:", credentials);
 
       const result = await login(
         String(credentials.email),

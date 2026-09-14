@@ -3,8 +3,6 @@ async function verifyOtp(otp: string, token: string | null) {
     return { error: true, message: "Missing OTP" };
   }
 
-  console.log(otp, token, "api");
-
   try {
     const res = await fetch("/api/v1/auth/verify-otp", {
       method: "POST",

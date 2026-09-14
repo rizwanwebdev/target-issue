@@ -6,7 +6,6 @@ async function register(name: string, email: string, password: string) {
   if (!emailRegex.test(email)) {
     return { error: true, message: "Invalid Email" };
   }
-  console.log(name, email, password);
 
   try {
     const res = await fetch("/api/v1/auth/register", {
