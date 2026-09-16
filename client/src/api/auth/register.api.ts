@@ -8,7 +8,7 @@ async function register(name: string, email: string, password: string) {
   }
 
   try {
-    const res = await fetch("/api/v1/auth/register", {
+    const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

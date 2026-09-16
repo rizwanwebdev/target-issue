@@ -1,6 +1,6 @@
 async function getMe() {
   try {
-    const response = await fetch("/api/v1/auth/get-me", {
+    const response = await fetch("/api/auth/get-me", {
       credentials: "include",
     });
 

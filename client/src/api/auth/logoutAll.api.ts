@@ -1,6 +1,6 @@
 async function logoutAll() {
   try {
-    const res = await fetch("/api/v1/auth/logout-all", {
+    const res = await fetch("/api/auth/logout-all", {
       credentials: "include",
     });
 

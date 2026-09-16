@@ -4,7 +4,7 @@ async function verifyOtp(otp: string, token: string | null) {
   }
 
   try {
-    const res = await fetch("/api/v1/auth/verify-otp", {
+    const res = await fetch("/api/auth/verify-otp", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

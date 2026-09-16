@@ -2,7 +2,7 @@ let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(): Promise<boolean> {
   if (!refreshPromise) {
-    refreshPromise = fetch("/api/v1/auth/refresh", {
+    refreshPromise = fetch("/api/auth/refresh", {
       method: "GET",
       credentials: "include",
     })
