@@ -23,6 +23,8 @@ const config = {
   GOOGLE_CLIENT_ID: getEnv("GOOGLE_CLIENT_ID"),
   GOOGLE_CLIENT_SECRET: getEnv("GOOGLE_CLIENT_SECRET"),
   GOOGLE_REFRESH_TOKEN: getEnv("GOOGLE_REFRESH_TOKEN"),
+  REDIS_HOST: getEnv("REDIS_HOST"),
+  REDIS_PORT: getEnv("REDIS_PORT"),
 };
 
 export default config;

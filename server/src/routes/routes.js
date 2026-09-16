@@ -3,6 +3,8 @@ import rateLimit from "express-rate-limit";
 // Strict Rate Limiter for Auth Routes
 
 import authRoutes from "./authRoutes.js";
+import orgRoutes from "./orgRoutes.js";
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // Limit each IP to 20 auth requests per window
@@ -17,5 +19,6 @@ const authLimiter = rateLimit({
 const router = express.Router();
 
 router.use("/auth", authLimiter, authRoutes);
+router.use("/org", authRoutes);
 
 export default router;

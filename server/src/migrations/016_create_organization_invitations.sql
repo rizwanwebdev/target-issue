@@ -1,4 +1,5 @@
 CREATE TABLE IF NOT EXISTS organization_invitations (
+
     id SERIAL PRIMARY KEY,
 
     organization_id INTEGER NOT NULL
@@ -21,3 +22,9 @@ CREATE TABLE IF NOT EXISTS organization_invitations (
     revoked_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_org_invitations_email
+ON organization_invitations(email);
+
+CREATE INDEX IF NOT EXISTS idx_org_invitations_organization
+ON organization_invitations(organization_id);
