@@ -6,11 +6,12 @@ import { emailQueue } from "../queue/email.queue.js";
 function generateInvitationToken() {
   return crypto.randomBytes(32).toString("hex");
 }
-
+function hashToken(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 /**
- * @method POST /org/create-org
- * @param {*} req
- * @param {*} res
+ * @method POST
+ * @route /org/create-org
  */
 export async function createOrg(req, res) {
   try {
@@ -46,8 +47,29 @@ export async function createOrg(req, res) {
   }
 }
 
-function hashToken(token) {
-  return crypto.createHash("sha256").update(token).digest("hex");
+/**
+ * @method GET
+ * @route /org/all-organizations
+ * @returns ALl Organizations
+ */
+export async function getAllOrganizations(req, res) {
+  const { id: userId } = req.user;
+  const reuslt = await pool.query(
+    "SELECT organization_id, role FROM organization_members WHERE user_id=$1 JOIN ON organization WHERE organization.id = organization_members.organization_id",
+    [userId],
+  );
+  if (result.rows.length === 0) {
+    return res.status(400).json({
+      error: true,
+      message: "No Organization found, create or join one",
+    });
+  }
+  console.log(result);
+  return res.status(200).json({
+    success: true,
+    message: "Found Organizations",
+    organizations: reuslt.rows,
+  });
 }
 
 /**

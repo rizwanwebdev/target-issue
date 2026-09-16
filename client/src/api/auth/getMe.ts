@@ -22,7 +22,7 @@ type GetMeResult = GetMeSuccess | GetMeError;
 
 async function getMe(): Promise<GetMeResult> {
   try {
-    const response = await apiFetch("/api/auth/get-me");
+    const response = await apiFetch("/api/v1/auth/get-me");
 
     const data = await response.json();
 

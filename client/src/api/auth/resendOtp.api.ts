@@ -4,7 +4,7 @@ async function resendOtp(token: string | null) {
   }
 
   try {
-    const res = await fetch("/api/auth/resend-otp", {
+    const res = await fetch("/api/v1/auth/resend-otp", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

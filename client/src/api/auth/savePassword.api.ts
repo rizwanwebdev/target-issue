@@ -4,7 +4,7 @@ async function savePassword(token: string, password: string) {
   }
 
   try {
-    const res = await fetch("/api/auth/save-password", {
+    const res = await fetch("/api/v1/auth/save-password", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
