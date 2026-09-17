@@ -15,7 +15,6 @@ function hashToken(token) {
  */
 export async function createOrg(req, res) {
   try {
-    console.log("createOrg");
     const { id } = req.user;
     const { name, slug, description } = req.body;
     if (!name || !slug || description) {
@@ -50,28 +49,53 @@ export async function createOrg(req, res) {
 /**
  * @method GET
  * @route /org/all-organizations
- * @returns ALl Organizations
+ * @returns All organizations for the authenticated user
  */
 export async function getAllOrganizations(req, res) {
-  const { id: userId } = req.user;
-  const reuslt = await pool.query(
-    "SELECT organization_id, role FROM organization_members WHERE user_id=$1 JOIN ON organization WHERE organization.id = organization_members.organization_id",
-    [userId],
-  );
-  if (result.rows.length === 0) {
-    return res.status(400).json({
+  try {
+    const { id: userId } = req.user;
+
+    const result = await pool.query(
+      `
+        SELECT
+          o.id,
+          o.name,
+          o.slug,
+          o.description,
+          o.logo_url,
+          o.created_at,
+          om.role,
+          om.joined_at
+        FROM organization_members om
+        INNER JOIN organization o
+          ON o.id = om.organization_id
+        WHERE om.user_id = $1
+        ORDER BY o.created_at DESC
+      `,
+      [userId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "No organizations found, create or join one",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Organizations found",
+      organizations: result.rows,
+    });
+  } catch (error) {
+    console.error("Get organizations error:", error);
+
+    return res.status(500).json({
       error: true,
-      message: "No Organization found, create or join one",
+      message: "Failed to fetch organizations",
     });
   }
-  console.log(result);
-  return res.status(200).json({
-    success: true,
-    message: "Found Organizations",
-    organizations: reuslt.rows,
-  });
 }
-
 /**
  * @method POST
  * @route /org/invite
@@ -237,54 +261,110 @@ export async function inviteMembers(req, res) {
     });
   }
 }
-
 /**
  * @method POST
  * @route /org/members
  */
-
+/**
+ * @method POST
+ * @route /org/members
+ */
 export async function getMembers(req, res) {
-  let { slug, page, limit } = req.body;
+  try {
+    let { slug, page = 1, limit = 20 } = req.body;
 
-  if (!slug || !page || !limit) {
-    return res.status(400).json({
+    page = Number(page);
+    limit = Number(limit);
+
+    if (!slug || !Number.isInteger(page) || page < 1) {
+      return res.status(400).json({
+        error: true,
+        message: "Valid organization slug and page are required",
+      });
+    }
+
+    if (!Number.isInteger(limit) || limit < 1) {
+      limit = 20;
+    }
+
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    const orgResult = await pool.query(
+      `
+        SELECT id
+        FROM organization
+        WHERE slug = $1
+      `,
+      [slug],
+    );
+
+    if (orgResult.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Organization not found",
+      });
+    }
+
+    const organizationId = orgResult.rows[0].id;
+
+    const offset = (page - 1) * limit;
+
+    const [membersResult, countResult] = await Promise.all([
+      pool.query(
+        `SELECT
+          om.id,
+          om.user_id,
+          u.full_name,
+          u.email,
+          u.avatar_url,
+          om.role,
+          om.joined_at
+          FROM organization_members om
+          JOIN users u
+              ON u.id = om.user_id
+          WHERE om.organization_id = $1
+          ORDER BY om.id
+          LIMIT $2
+          OFFSET $3
+          `,
+        [organizationId, limit, offset],
+      ),
+
+      pool.query(
+        `
+            SELECT COUNT(*)::integer AS total
+            FROM organization_members
+            WHERE organization_id = $1
+          `,
+        [organizationId],
+      ),
+    ]);
+
+    const total = countResult.rows[0].total;
+
+    return res.status(200).json({
+      success: true,
+      message: "Members found",
+
+      members: membersResult.rows,
+
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPreviousPage: page > 1,
+      },
+    });
+  } catch (error) {
+    console.error("Get members error:", error);
+
+    return res.status(500).json({
       error: true,
-      message: "Organization Slug is required with page number and limit",
+      message: "Failed to fetch organization members",
     });
   }
-  if (limit > 50) {
-    limit = 50;
-  }
-
-  const orgResult = await pool.query(
-    "SELECT id FROM organization WHERE slug=$1",
-    [slug],
-  );
-
-  if (orgResult.rows.length === 0) {
-    return res.status(400).json({
-      error: true,
-      message: "Organization Not Found",
-    });
-  }
-
-  const record = await pool.query(
-    "SELECT id, user_id, role FROM organization_members WHERE organization_id = $1 ORDER BY id LIMIT $2",
-    [orgResult.rows[0].id, limit],
-  );
-  if (record.rows.length === 0) {
-    return res.status(400).json({
-      message: "Currently there is no user in this organization",
-    });
-  }
-  return res.status(200).json({
-    success: true,
-    message: "Found Memebers",
-    memebers: record.rows,
-    pagination: {
-      page: page,
-      limit: limit,
-      total: 10,
-    },
-  });
 }

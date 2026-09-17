@@ -19,6 +19,6 @@ const authLimiter = rateLimit({
 const router = express.Router();
 
 router.use("/auth", authLimiter, authRoutes);
-router.use("/org", authRoutes);
+router.use("/org", orgRoutes);
 
 export default router;

@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../context/ToastProvider.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
-
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const { addToast } = useToast();

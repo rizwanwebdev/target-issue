@@ -13,6 +13,7 @@ import { ToastProvider } from "./context/ToastProvider";
 import { AuthProvider } from "./context/AuthContext";
 
 import Authorize from "./components/utils/Authorize";
+import DashOrganization from "./pages/DashOrganization.tsx";
 
 function App() {
   return (
@@ -30,6 +31,10 @@ function App() {
           {/* Protected routes */}
           <Route element={<Authorize />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/dashboard/organizations"
+              element={<DashOrganization />}
+            />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

@@ -17,13 +17,13 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 60_000, // 60 seconds
 });
 
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP connection failed:", error);
-  } else {
-    console.log("SMTP server is ready");
-  }
-});
+// transporter.verify((error, success) => {
+//   if (error) {
+//     console.error("SMTP connection failed:", error);
+//   } else {
+//     console.log("SMTP server is ready");
+//   }
+// });
 
 export default async function sendEmail(to, subject, html) {
   try {
