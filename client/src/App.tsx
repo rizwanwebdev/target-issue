@@ -14,6 +14,7 @@ import { AuthProvider } from "./context/AuthContext";
 
 import Authorize from "./components/utils/Authorize";
 import DashOrganization from "./pages/DashOrganization.tsx";
+import DashViewOrg from "./pages/DashViewOrg.tsx";
 
 function App() {
   return (
@@ -34,6 +35,10 @@ function App() {
             <Route
               path="/dashboard/organizations"
               element={<DashOrganization />}
+            />
+            <Route
+              path="/dashboard/organizations/:slug"
+              element={<DashViewOrg />}
             />
           </Route>
 

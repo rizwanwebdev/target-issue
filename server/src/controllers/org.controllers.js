@@ -17,13 +17,13 @@ export async function createOrg(req, res) {
   try {
     const { id } = req.user;
     const { name, slug, description } = req.body;
-    if (!name || !slug || description) {
+    if (!name || !slug || !description) {
       return res.status(400).json({
         error: true,
         message: "All Fields are required",
       });
     }
-    if (!name.length > 4 || !slug.length > 4 || description.length > 10) {
+    if (!name.length > 4) {
       return res.status(400).json({
         error: true,
         message: "All Fields are required with atmost 4 characters",
@@ -33,8 +33,8 @@ export async function createOrg(req, res) {
       `WITH new_org AS (
     INSERT INTO organization (name, slug,description, created_by) VALUES ($1,$2, $3, $4) RETURNING id
     )
-    INSERT INTO organization_members (organization_id, user_id, role, joined_at) VALUES ((SELECT id FROM new_org), $4, "admin", NOW())`,
-      [name, slug, description, id],
+    INSERT INTO organization_members (organization_id, user_id, role, joined_at) VALUES ((SELECT id FROM new_org), $4, $5, NOW())`,
+      [name, slug, description, id, "admin"],
     );
     return res.status(201).json({
       success: true,

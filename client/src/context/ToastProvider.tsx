@@ -3,9 +3,9 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   type ReactNode,
 } from "react";
-
 // --------------------------------------------------
 // Types
 // --------------------------------------------------
@@ -232,7 +232,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  const addToast = (message: string, type: ToastType = "info") => {
+  const addToast = useCallback((message: string, type: ToastType = "info") => {
     const id = crypto.randomUUID();
 
     setToasts((prev) => [
@@ -243,11 +243,11 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
         type,
       },
     ]);
-  };
+  }, []);
 
-  const removeToast = (id: string) => {
+  const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
+  }, []);
 
   return (
     <ToastContext.Provider value={{ addToast }}>

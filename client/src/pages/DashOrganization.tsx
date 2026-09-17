@@ -1,15 +1,13 @@
+import { Link } from "react-router-dom";
 import createOrg from "../api/org/createOrg.ts";
-import getAllOrganizations from "../api/org/getAllOrganizations.ts";
+import getAllOrganizations, {
+  type Organization,
+} from "../api/org/getAllOrganizations.ts";
 import { useToast } from "../context/ToastProvider.tsx";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 const DashOrganization = () => {
   const { addToast } = useToast();
-
-  addToast("Welcome", "success");
-
-  //   const [orgs, setOrgs] = useState("");
-
+  const [orgs, setOrgs] = useState<Organization[]>([]);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -31,6 +29,7 @@ const DashOrganization = () => {
       }
 
       addToast(result.message, "success");
+      form.reset();
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Something went wrong",
@@ -38,7 +37,6 @@ const DashOrganization = () => {
       );
     }
   };
-
   useEffect(() => {
     async function getAll() {
       const result = await getAllOrganizations();
@@ -48,20 +46,20 @@ const DashOrganization = () => {
         return;
       }
 
-      addToast(result.message, "success");
-      console.log(result);
+      setOrgs(result.organizations);
+      return;
     }
 
     getAll();
-  }, []);
+  }, [addToast]);
 
   return (
     <>
       <title>Organizations | Create & Manage</title>
       <meta name="description" content="Create and Manage Organizations" />
 
-      <main className="bg-gray-50 px-4 md:px-8">
-        <div className="min-h-screen flex flex-col items-center justify-center">
+      <main className="bg-gray-50 p-4 md:px-8">
+        <div className="min-h-screen flex flex-col items-center gap-4">
           <div className="max-w-md w-full">
             <form
               onSubmit={handleSubmit}
@@ -90,8 +88,30 @@ const DashOrganization = () => {
                 maxLength={200}
               ></textarea>
 
-              <button type="submit">Create ORG</button>
+              <button type="submit" className="cursor-pointer">
+                Create ORG
+              </button>
             </form>
+          </div>
+          <div className="flex flex-col items-center w-full gap-4">
+            {orgs.map((org) => (
+              <div
+                key={org.slug}
+                className="w-full flex flex-col flex-wrap justify-between border border-gray-400 p-2 rounded-lg"
+              >
+                <div className="flex flex-row flex-wrap justify-between ">
+                  <Link
+                    className="text-indigo-600"
+                    to={`/dashboard/organizations/${org.slug}`}
+                  >
+                    {org.name}
+                  </Link>
+                  <span>{org.logo_url}</span>
+                  <span className="text-green-600">{org.role}</span>
+                </div>
+                <span className="text-wrap">{org.description}</span>
+              </div>
+            ))}
           </div>
         </div>
       </main>
