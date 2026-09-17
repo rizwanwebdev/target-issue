@@ -5,12 +5,14 @@ const HomePage = () => {
   return (
     <>
       <div className="flex flex-col justify-center items-center min-h-screen">
-        <Link to="/register" className="border rounded p-3">
-          Register
-        </Link>
+        {!authenticated && (
+          <Link to="/register" className="border rounded p-3">
+            Register
+          </Link>
+        )}
 
         {authenticated && (
-          <div>
+          <div className="flex flex-col gap-2 items-center">
             <p>Dashboard</p>
 
             <p>{user?.fullName}</p>

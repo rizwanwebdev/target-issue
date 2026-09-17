@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/create-org", authorize, orgRoutes.createOrg);
 router.get("/all-organizations", authorize, orgRoutes.getAllOrganizations);
+router.post("/all-members", authorize, orgRoutes.getMembers);
 router.post("/invite", authorize, orgRoutes.inviteMembers);
-router.post("/members", authorize, orgRoutes.getMembers);
 
 export default router;

@@ -1,6 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastProvider.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const { addToast } = useToast();
@@ -20,10 +21,17 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen">
+    <div className="flex flex-col justify-center gap-4 items-center min-h-screen">
       <p>Dashboard</p>
 
       <p>{user?.fullName}</p>
+
+      <Link
+        to="/dashboard/organizations"
+        className="text-indigo-600 cursor-pointer"
+      >
+        Organizations
+      </Link>
 
       <button
         onClick={handleLogout}

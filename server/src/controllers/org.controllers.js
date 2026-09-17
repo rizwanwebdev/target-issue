@@ -2,12 +2,12 @@ import crypto from "crypto";
 import pool from "../db/connect.js";
 import config from "../config/config.js";
 import { emailQueue } from "../queue/email.queue.js";
-
+import bcrypt from "bcrypt";
 function generateInvitationToken() {
   return crypto.randomBytes(32).toString("hex");
 }
 function hashToken(token) {
-  return crypto.createHash("sha256").update(token).digest("hex");
+  return bcrypt.hash(token, 10);
 }
 /**
  * @method POST
@@ -188,7 +188,7 @@ export async function inviteMembers(req, res) {
 
       const invitationId = result.rows[0].id;
 
-      const inviteLink = `${config.CLIENT_URL}/invitations/${token}`;
+      const inviteLink = `${config.CLIENT_URL}/invitations?token=${token}`;
 
       invitations.push({
         invitationId,
@@ -196,52 +196,53 @@ export async function inviteMembers(req, res) {
         inviteLink,
       });
     }
+    console.log(invitations);
 
     // Add email jobs
-    await Promise.all(
-      invitations.map((invitation) =>
-        emailQueue.add(
-          "organization-invitation",
-          {
-            to: invitation.email,
+    // await Promise.all(
+    //   invitations.map((invitation) =>
+    //     emailQueue.add(
+    //       "organization-invitation",
+    //       {
+    //         to: invitation.email,
 
-            subject: `Invitation to join ${organization.name}`,
+    //         subject: `Invitation to join ${organization.name}`,
 
-            text: `You've been invited to join ${organization.name} on TargetIssue.\n\n${invitation.inviteLink}`,
+    //         text: `You've been invited to join ${organization.name} on TargetIssue.\n\n${invitation.inviteLink}`,
 
-            html: `
-              <h2>You're invited!</h2>
+    //         html: `
+    //           <h2>You're invited!</h2>
 
-              <p>
-                You've been invited to join
-                <strong>${organization.name}</strong>
-                on TargetIssue.
-              </p>
+    //           <p>
+    //             You've been invited to join
+    //             <strong>${organization.name}</strong>
+    //             on TargetIssue.
+    //           </p>
 
-              <p>
-                <a href="${invitation.inviteLink}">
-                  Accept Invitation
-                </a>
-              </p>
+    //           <p>
+    //             <a href="${invitation.inviteLink}">
+    //               Accept Invitation
+    //             </a>
+    //           </p>
 
-              <p>
-                This invitation expires in 24 hours.
-              </p>
-            `,
-          },
-          {
-            attempts: 3,
+    //           <p>
+    //             This invitation expires in 24 hours.
+    //           </p>
+    //         `,
+    //       },
+    //       {
+    //         attempts: 3,
 
-            backoff: {
-              type: "exponential",
-              delay: 5000,
-            },
+    //         backoff: {
+    //           type: "exponential",
+    //           delay: 5000,
+    //         },
 
-            removeOnComplete: true,
-          },
-        ),
-      ),
-    );
+    //         removeOnComplete: true,
+    //       },
+    //     ),
+    //   ),
+    // );
 
     return res.status(202).json({
       success: true,
@@ -261,13 +262,10 @@ export async function inviteMembers(req, res) {
     });
   }
 }
+
 /**
  * @method POST
- * @route /org/members
- */
-/**
- * @method POST
- * @route /org/members
+ * @route /org/all-members
  */
 export async function getMembers(req, res) {
   try {
@@ -275,7 +273,6 @@ export async function getMembers(req, res) {
 
     page = Number(page);
     limit = Number(limit);
-
     if (!slug || !Number.isInteger(page) || page < 1) {
       return res.status(400).json({
         error: true,
@@ -301,7 +298,7 @@ export async function getMembers(req, res) {
     );
 
     if (orgResult.rows.length === 0) {
-      return res.status(404).json({
+      return res.status(401).json({
         error: true,
         message: "Organization not found",
       });
@@ -367,4 +364,14 @@ export async function getMembers(req, res) {
       message: "Failed to fetch organization members",
     });
   }
+}
+
+/**
+ * @method POST
+ * @route /accept-invitations
+ */
+
+export async function acceptInvitation(req, res) {
+  const { id: userId } = req.user;
+  const { token } = req.body;
 }
