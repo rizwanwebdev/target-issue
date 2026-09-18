@@ -6,12 +6,17 @@ export type Members = {
   avatar_url: string;
   joined_at: string;
 };
+type Requester = {
+  role: string;
+  isAdmin: boolean;
+};
 
 type GetMembersSuccess = {
   error: false;
   success: true;
   message: string;
   members: Members[];
+  requester: Requester;
 };
 
 type GetMembersError = {

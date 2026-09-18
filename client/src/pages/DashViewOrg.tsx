@@ -14,10 +14,13 @@ const DashViewOrg = () => {
   const { addToast } = useToast();
   const [emails, setEmails] = useState<[...string[]]>([]);
   const [members, setMembers] = useState<Members[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  console.log(members);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loadingOrg, setLoadingOrg] = useState(true);
+
   useEffect(() => {
     async function getOrganization() {
       if (!slug) {
@@ -64,6 +67,9 @@ const DashViewOrg = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isAdmin) {
+      return;
+    }
 
     try {
       if (emails.length === 0) {
@@ -89,7 +95,11 @@ const DashViewOrg = () => {
       );
     }
   };
-
+  useEffect(() => {
+    document.title = organization
+      ? `${organization.name} | Create & Manage`
+      : "Organization | Create & Manage";
+  }, [organization]);
   useEffect(() => {
     if (!organization || !slug) {
       return;
@@ -109,35 +119,43 @@ const DashViewOrg = () => {
       }
 
       setMembers(result.members);
+      setIsAdmin(result.requester.isAdmin);
       return;
     }
 
     getAll();
   }, [organization, slug, page, limit, addToast]);
+
+  console.log(organization);
   return (
     <>
-      <title>Members | Create & Manage</title>
       <meta name="description" content="Create and Manage Organizations" />
 
       <main className="bg-gray-50 p-4 md:px-8">
         <div className="min-h-screen flex flex-col items-center gap-4">
-          <div className="max-w-md w-full">
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col *:border *:p-2 gap-3"
-            >
-              <textarea
-                name="description"
-                id="description"
-                onChange={handleChanage}
-                rows={6}
-              ></textarea>
-
-              <button type="submit" className="cursor-pointer">
-                Invite Memebers
-              </button>
-            </form>
+          <div className="p-4 border w-full">
+            <p>{organization?.name}</p>
+            <p>{organization?.description}</p>
           </div>
+          {isAdmin && (
+            <div className="max-w-md w-full">
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col *:border *:p-2 gap-3"
+              >
+                <textarea
+                  name="description"
+                  id="description"
+                  onChange={handleChanage}
+                  rows={6}
+                ></textarea>
+
+                <button type="submit" className="cursor-pointer">
+                  Invite Memebers
+                </button>
+              </form>
+            </div>
+          )}
           <div className="flex flex-col items-center w-full gap-4">
             {members.map((member) => (
               <div

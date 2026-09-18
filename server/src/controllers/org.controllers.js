@@ -61,7 +61,6 @@ export async function getOrg(req, res) {
     }
 
     const organization = orgResult.rows[0];
-    console.log(organization);
 
     return res.status(200).json({
       success: true,
@@ -360,6 +359,7 @@ export async function getMembers(req, res) {
 
     page = Number(page);
     limit = Number(limit);
+
     if (!slug || !Number.isInteger(page) || page < 1) {
       return res.status(400).json({
         error: true,
@@ -375,6 +375,7 @@ export async function getMembers(req, res) {
       limit = 50;
     }
 
+    // Find organization
     const orgResult = await pool.query(
       `
         SELECT id
@@ -385,7 +386,7 @@ export async function getMembers(req, res) {
     );
 
     if (orgResult.rows.length === 0) {
-      return res.status(401).json({
+      return res.status(404).json({
         error: true,
         message: "Organization not found",
       });
@@ -393,44 +394,68 @@ export async function getMembers(req, res) {
 
     const organizationId = orgResult.rows[0].id;
 
+    // Check requesting user's membership + role
+    const requesterResult = await pool.query(
+      `
+        SELECT role
+        FROM organization_members
+        WHERE organization_id = $1
+          AND user_id = $2
+      `,
+      [organizationId, req.user.id],
+    );
+
+    if (requesterResult.rows.length === 0) {
+      return res.status(403).json({
+        error: true,
+        message: "You are not a member of this organization",
+      });
+    }
+
+    const requesterRole = requesterResult.rows[0].role;
+
     const offset = (page - 1) * limit;
 
     const [membersResult, countResult] = await Promise.all([
       pool.query(
-        `SELECT
-          om.id,
-          om.user_id,
-          u.full_name,
-          u.email,
-          u.avatar_url,
-          om.role,
-          om.joined_at
+        `
+          SELECT
+            om.id,
+            om.user_id,
+            u.full_name,
+            u.email,
+            u.avatar_url,
+            om.role,
+            om.joined_at
           FROM organization_members om
           JOIN users u
-              ON u.id = om.user_id
+            ON u.id = om.user_id
           WHERE om.organization_id = $1
           ORDER BY om.id
-          LIMIT $2
-          OFFSET $3
-          `,
-        [organizationId, limit, offset],
+        `,
+        [organizationId],
       ),
 
       pool.query(
         `
-            SELECT COUNT(*)::integer AS total
-            FROM organization_members
-            WHERE organization_id = $1
-          `,
+          SELECT COUNT(*)::integer AS total
+          FROM organization_members
+          WHERE organization_id = $1
+        `,
         [organizationId],
       ),
     ]);
 
     const total = countResult.rows[0].total;
-
+    console.log(membersResult.rows, total);
     return res.status(200).json({
       success: true,
       message: "Members found",
+
+      requester: {
+        role: requesterRole,
+        isAdmin: requesterRole === "admin",
+      },
 
       members: membersResult.rows,
 

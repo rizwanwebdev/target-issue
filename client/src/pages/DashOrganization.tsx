@@ -8,11 +8,12 @@ import { useEffect, useState } from "react";
 const DashOrganization = () => {
   const { addToast } = useToast();
   const [orgs, setOrgs] = useState<Organization[]>([]);
+  console.log(orgs);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = e.currentTarget;
-
     try {
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
