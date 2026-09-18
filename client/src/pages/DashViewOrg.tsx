@@ -5,6 +5,8 @@ import inviteMemebers from "../api/org/inviteMembers.api.ts";
 import getAllMembersApi, {
   type Members,
 } from "../api/org/getAllMembers.api.ts";
+import getOrg, { type Organization } from "../api/org/getOrg.api.ts";
+
 const DashViewOrg = () => {
   const params = useParams();
   const slug = params.slug;
@@ -14,6 +16,37 @@ const DashViewOrg = () => {
   const [members, setMembers] = useState<Members[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [loadingOrg, setLoadingOrg] = useState(true);
+  useEffect(() => {
+    async function getOrganization() {
+      if (!slug) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      setLoadingOrg(true);
+
+      const result = await getOrg(slug);
+
+      if (result.error || !result.organization) {
+        setLoadingOrg(false);
+
+        if (result.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
+
+        addToast(result.message, "error");
+        return;
+      }
+
+      setOrganization(result.organization);
+      setLoadingOrg(false);
+    }
+
+    getOrganization();
+  }, [slug, navigate, addToast]);
 
   const handleChanage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     console.log(e.target.value);
@@ -38,7 +71,7 @@ const DashViewOrg = () => {
         return;
       }
       if (!slug) {
-        navigate(-1);
+        navigate("/dashboard");
         return;
       }
       const result = await inviteMemebers(slug, emails);
@@ -58,9 +91,13 @@ const DashViewOrg = () => {
   };
 
   useEffect(() => {
+    if (!organization || !slug) {
+      return;
+    }
+
     async function getAll() {
       if (!slug) {
-        navigate(-1);
+        navigate("/dashboard");
         return;
       }
       const result = await getAllMembersApi(slug, page, limit);
@@ -76,7 +113,7 @@ const DashViewOrg = () => {
     }
 
     getAll();
-  }, [addToast]);
+  }, [organization, slug, page, limit, addToast]);
   return (
     <>
       <title>Members | Create & Manage</title>

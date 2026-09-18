@@ -15,6 +15,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Authorize from "./components/utils/Authorize";
 import DashOrganization from "./pages/DashOrganization.tsx";
 import DashViewOrg from "./pages/DashViewOrg.tsx";
+import Invitations from "./pages/Invitations.tsx";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/verify-otp" element={<OtpVerificationPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/save-password" element={<SavePasswordPage />} />
+          <Route path="/invitations" element={<Invitations />} />
 
           {/* Protected routes */}
           <Route element={<Authorize />}>

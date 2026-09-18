@@ -2,13 +2,82 @@ import crypto from "crypto";
 import pool from "../db/connect.js";
 import config from "../config/config.js";
 import { emailQueue } from "../queue/email.queue.js";
-import bcrypt from "bcrypt";
 function generateInvitationToken() {
   return crypto.randomBytes(32).toString("hex");
 }
+
 function hashToken(token) {
-  return bcrypt.hash(token, 10);
+  return crypto.createHash("sha256").update(token).digest("hex");
 }
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+function isValidEmail(email) {
+  return EMAIL_REGEX.test(email);
+}
+
+/**
+ * @method POST
+ * @route /org/get-org
+ */
+export async function getOrg(req, res) {
+  try {
+    const { id: userId } = req.user;
+    const { slug } = req.body;
+
+    if (!slug) {
+      return res.status(400).json({
+        error: true,
+        message: "Organization slug is required",
+      });
+    }
+
+    const orgResult = await pool.query(
+      `
+        SELECT
+          o.id,
+          o.slug,
+          o.name,
+          o.description,
+          o.logo_url,
+          o.created_at,
+          om.role,
+          om.user_id,
+          om.organization_id,
+          om.joined_at
+        FROM organization o
+        JOIN organization_members om
+          ON o.id = om.organization_id
+        WHERE o.slug = $1
+          AND om.user_id = $2
+      `,
+      [slug, userId],
+    );
+
+    if (orgResult.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Organization not found",
+      });
+    }
+
+    const organization = orgResult.rows[0];
+    console.log(organization);
+
+    return res.status(200).json({
+      success: true,
+      message: "Organization found",
+      organization,
+    });
+  } catch (error) {
+    console.error("Get organization error:", error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Failed to fetch organization",
+    });
+  }
+}
+
 /**
  * @method POST
  * @route /org/create-org
@@ -118,12 +187,29 @@ export async function inviteMembers(req, res) {
         message: "Add one or more emails",
       });
     }
+    const normalizedEmails = emails.map((email) =>
+      String(email).trim().toLowerCase(),
+    );
 
-    // Remove duplicates
-    const uniqueEmails = [
-      ...new Set(emails.map((email) => email.trim().toLowerCase())),
-    ];
+    const uniqueEmails = [...new Set(normalizedEmails)];
+    const validEmails = [];
+    const invalidEmails = [];
 
+    for (const email of uniqueEmails) {
+      if (isValidEmail(email)) {
+        validEmails.push(email);
+      } else {
+        invalidEmails.push(email);
+      }
+    }
+
+    if (validEmails.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "No valid email addresses provided",
+        invalidEmails,
+      });
+    }
     // Find organization + user's role
     const organizationResult = await pool.query(
       `
@@ -161,7 +247,7 @@ export async function inviteMembers(req, res) {
 
     const invitations = [];
 
-    for (const email of uniqueEmails) {
+    for (const email of validEmails) {
       const token = generateInvitationToken();
       const tokenHash = hashToken(token);
 
@@ -252,6 +338,7 @@ export async function inviteMembers(req, res) {
         invitationId,
         email,
       })),
+      invalidEmails: invalidEmails,
     });
   } catch (error) {
     console.error("Invite members error:", error);
@@ -374,4 +461,87 @@ export async function getMembers(req, res) {
 export async function acceptInvitation(req, res) {
   const { id: userId } = req.user;
   const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({
+      error: true,
+      message: "Token is required",
+    });
+  }
+  const tokenHash = hashToken(token);
+
+  const tokenResult = await pool.query(
+    `
+      SELECT
+        oi.id,
+        oi.organization_id,
+        oi.email,
+        oi.expires_at,
+        oi.accepted_at,
+        oi.role,
+        oi.revoked_at,
+        u.id AS user_id,
+        u.email AS user_email
+      FROM organization_invitations oi
+      JOIN users u
+        ON LOWER(u.email) = LOWER(oi.email)
+      WHERE oi.token_hash = $1
+        AND u.id = $2
+        AND oi.expires_at > NOW()
+        AND oi.accepted_at IS NULL
+        AND oi.revoked_at IS NULL
+    `,
+    [tokenHash, userId],
+  );
+  if (tokenResult.rows.length === 0) {
+    return res.status(400).json({
+      error: true,
+      message: "Invalid or expired invitation",
+    });
+  }
+
+  const invitation = tokenResult.rows[0];
+
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    await client.query(
+      `
+        INSERT INTO organization_members
+          (organization_id, user_id, role, joined_at)
+        VALUES ($1, $2, $3, NOW())
+      `,
+      [invitation.organization_id, userId, invitation.role],
+    );
+
+    await client.query(
+      `
+        UPDATE organization_invitations
+        SET accepted_at = NOW()
+        WHERE id = $1
+          AND accepted_at IS NULL
+      `,
+      [invitation.id],
+    );
+
+    await client.query("COMMIT");
+
+    return res.status(201).json({
+      success: true,
+      message: "You have joined a new organization.",
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+
+    console.error("Accept invitation error:", error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Failed to accept invitation",
+    });
+  } finally {
+    client.release();
+  }
 }
