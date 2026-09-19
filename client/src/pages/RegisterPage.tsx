@@ -86,185 +86,193 @@ const RegisterPage = () => {
   };
 
   return (
-    <main className="px-4 md:px-8 min-h-screen flex flex-col items-center justify-center">
-      <div className="max-w-md w-full">
-        <div className="p-6 rounded-lg bg-white border border-slate-300 shadow-xs md:p-6">
-          <h1 className="text-slate-900 text-center text-2xl font-bold">
-            Create an account
-          </h1>
+    <>
+      <title>Register| Target Issue</title>
 
-          <form className="space-y-6 mt-10" onSubmit={handleSubmit}>
-            <div>
-              <label
-                htmlFor="name"
-                className="mb-2 text-slate-900 font-medium text-sm inline-block"
-              >
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                minLength={4}
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter Your Name"
-                required
-                className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
-              />
-            </div>
+      <main className="px-4 md:px-8 min-h-screen flex flex-col items-center justify-center">
+        <div className="max-w-md w-full">
+          <div className="p-6 rounded-lg bg-white border border-slate-300 shadow-xs md:p-6">
+            <h1 className="text-slate-900 text-center text-2xl font-bold">
+              Create an account
+            </h1>
 
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 text-slate-900 font-medium text-sm inline-block"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="john@readymadeui.com"
-                required
-                className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 text-slate-900 font-medium text-sm inline-block"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  minLength={8}
-                  required
-                  className="px-3 py-2.5 pr-10 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3 cursor-pointer top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
+            <form className="space-y-6 mt-10" onSubmit={handleSubmit}>
+              <div>
+                <label
+                  htmlFor="name"
+                  className="mb-2 text-slate-900 font-medium text-sm inline-block"
                 >
-                  {showPassword ? (
-                    /* Eye Slash Icon (Hide) */
-                    <svg
-                      className="size-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                      />
-                    </svg>
-                  ) : (
-                    /* Eye Icon (Show) */
-                    <svg
-                      className="size-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.036 12c1.274 4.057 5.065 7 9.542 7 4.477 0 8.268-2.943 9.542-7-1.274-4.057-5.064-7-9.542-7-4.477 0-8.268 2.943-9.542 7z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  )}
-                </button>
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  minLength={4}
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter Your Name"
+                  required
+                  className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+                />
               </div>
 
-              {/* Show errors only when input is not empty AND validation failed */}
-              {passwordCheck && !passwordCheck.isValid && (
-                <ul className="mt-2 text-xs text-red-600 space-y-1 list-disc list-inside">
-                  {passwordCheck.errors.map((errKey) => (
-                    <li key={errKey}>{PASSWORD_ERROR_MESSAGES[errKey]}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className="flex items-start flex-wrap gap-2">
-              <label className="flex items-center group has-[input:checked]:text-slate-900">
-                <input
-                  id="terms"
-                  name="terms"
-                  type="checkbox"
-                  checked={formData.terms}
-                  onChange={handleInputChange}
-                  required
-                  className="sr-only"
-                />
-                <span
-                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded outline-1 outline-slate-300 bg-white group-has-[input:checked]:bg-blue-600 group-has-[input:checked]:outline-blue-600 group-focus-within:outline-2 group-focus-within:outline-blue-600"
-                  aria-hidden="true"
+              <div>
+                <label
+                  htmlFor="email"
+                  className="mb-2 text-slate-900 font-medium text-sm inline-block"
                 >
-                  <svg
-                    className="size-3 text-white opacity-0 group-has-[input:checked]:opacity-100"
-                    viewBox="0 0 12 10"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M1 5l3 3 7-7" />
-                  </svg>
-                </span>
-                <span className="ml-3 text-sm text-slate-700">
-                  I accept the
-                </span>
-              </label>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="john@readymadeui.com"
+                  required
+                  className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+                />
+              </div>
 
-              <Link
-                to="#"
-                className="ml-1 text-sm font-medium text-blue-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+              <div>
+                <label
+                  htmlFor="password"
+                  className="mb-2 text-slate-900 font-medium text-sm inline-block"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="••••••••"
+                    minLength={8}
+                    required
+                    className="px-3 py-2.5 pr-10 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    className="absolute right-3 cursor-pointer top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      /* Eye Slash Icon (Hide) */
+                      <svg
+                        className="size-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                        />
+                      </svg>
+                    ) : (
+                      /* Eye Icon (Show) */
+                      <svg
+                        className="size-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.036 12c1.274 4.057 5.065 7 9.542 7 4.477 0 8.268-2.943 9.542-7-1.274-4.057-5.064-7-9.542-7-4.477 0-8.268 2.943-9.542 7z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+
+                {/* Show errors only when input is not empty AND validation failed */}
+                {passwordCheck && !passwordCheck.isValid && (
+                  <ul className="mt-2 text-xs text-red-600 space-y-1 list-disc list-inside">
+                    {passwordCheck.errors.map((errKey) => (
+                      <li key={errKey}>{PASSWORD_ERROR_MESSAGES[errKey]}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="flex items-start flex-wrap gap-2">
+                <label className="flex items-center group has-[input:checked]:text-slate-900">
+                  <input
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                    checked={formData.terms}
+                    onChange={handleInputChange}
+                    required
+                    className="sr-only"
+                  />
+                  <span
+                    className="flex h-4 w-4 shrink-0 items-center justify-center rounded outline-1 outline-slate-300 bg-white group-has-[input:checked]:bg-blue-600 group-has-[input:checked]:outline-blue-600 group-focus-within:outline-2 group-focus-within:outline-blue-600"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      className="size-3 text-white opacity-0 group-has-[input:checked]:opacity-100"
+                      viewBox="0 0 12 10"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M1 5l3 3 7-7" />
+                    </svg>
+                  </span>
+                  <span className="ml-3 text-sm text-slate-700">
+                    I accept the
+                  </span>
+                </label>
+
+                <Link
+                  to="#"
+                  className="ml-1 text-sm font-medium text-blue-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                >
+                  Terms and Conditions
+                </Link>
+              </div>
+
+              <button
+                disabled={
+                  loading || (!!passwordCheck && !passwordCheck.isValid)
+                }
+                type="submit"
+                className="w-full py-2 px-3.5 text-sm rounded-md font-semibold cursor-pointer tracking-wide text-white border border-blue-600 bg-blue-600 hover:bg-blue-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Terms and Conditions
+                {loading ? "Creating..." : "Create an account"}
+              </button>
+            </form>
+
+            <div className="mt-6 text-slate-900 text-sm text-center">
+              Already have an account?
+              <Link
+                to="/login"
+                className="text-blue-700 hover:underline ml-1 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+              >
+                Login here
               </Link>
             </div>
-
-            <button
-              disabled={loading || (!!passwordCheck && !passwordCheck.isValid)}
-              type="submit"
-              className="w-full py-2 px-3.5 text-sm rounded-md font-semibold cursor-pointer tracking-wide text-white border border-blue-600 bg-blue-600 hover:bg-blue-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creating..." : "Create an account"}
-            </button>
-          </form>
-
-          <div className="mt-6 text-slate-900 text-sm text-center">
-            Already have an account?
-            <Link
-              to="/login"
-              className="text-blue-700 hover:underline ml-1 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
-            >
-              Login here
-            </Link>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 };
 export default RegisterPage;

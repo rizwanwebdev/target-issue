@@ -4,6 +4,8 @@ const HomePage = () => {
   const { user, authenticated } = useAuth();
   return (
     <>
+      <title>Target Issue</title>
+
       <div className="flex flex-col justify-center items-center min-h-screen">
         {!authenticated && (
           <Link to="/register" className="border rounded p-3">

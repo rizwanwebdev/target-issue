@@ -43,6 +43,8 @@ const OtpVerificationPage = () => {
   };
   return (
     <>
+      <title>OTP Verification| Target Issue</title>
+
       <OtpVerification
         length={6}
         verificationToken={token}

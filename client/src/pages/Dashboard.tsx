@@ -21,25 +21,29 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center gap-4 items-center min-h-screen">
-      <p>Dashboard</p>
+    <>
+      <title>Dashboard | Create & Manage</title>
 
-      <p>{user?.fullName}</p>
+      <div className="flex flex-col justify-center gap-4 items-center min-h-screen">
+        <p>Dashboard</p>
 
-      <Link
-        to="/dashboard/organizations"
-        className="text-indigo-600 cursor-pointer"
-      >
-        Organizations
-      </Link>
+        <p>{user?.fullName}</p>
 
-      <button
-        onClick={handleLogout}
-        className="bg-indigo-600 text-white px-3 py-2 rounded-xl cursor-pointer"
-      >
-        Logout
-      </button>
-    </div>
+        <Link
+          to="/dashboard/organizations"
+          className="text-indigo-600 cursor-pointer"
+        >
+          Organizations
+        </Link>
+
+        <button
+          onClick={handleLogout}
+          className="bg-indigo-600 text-white px-3 py-2 rounded-xl cursor-pointer"
+        >
+          Logout
+        </button>
+      </div>
+    </>
   );
 };
 
