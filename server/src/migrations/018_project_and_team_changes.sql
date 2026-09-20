@@ -1,0 +1,13 @@
+ALTER TABLE project
+ADD COLUMN IF NOT EXISTS created_by INTEGER NOT NULL REFERENCES users(id),
+ADD COLUMN IF NOT EXISTS start_date TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS target_date TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+
+
+ALTER TABLE project_members
+DROP COLUMN IF EXISTS team_id,
+ADD COLUMN IF NOT EXISTS project_id INTEGER NOT NULL REFERENCES project(id),
+ADD CONSTRAINT project_members_project_user_unique
+    UNIQUE (project_id, user_id);

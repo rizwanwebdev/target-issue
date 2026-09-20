@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS session (
     session_id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
+    user_id INTEGER  NOT NULL REFERENCES users(id),
     ip_address INET,
     user_agent TEXT,
     device_name VARCHAR(255),
