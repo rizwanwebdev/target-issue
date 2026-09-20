@@ -6,6 +6,8 @@ import getAllMembersApi, {
 } from "../api/org/getAllMembers.api.ts";
 import getOrg, { type Organization } from "../api/org/getOrg.api.ts";
 import InviteMemebersForm from "../components/utils/InviteMemebersForm.tsx";
+import CreateProjectForm from "../components/utils/CreateProjectForm.tsx";
+import CreateTeamForm from "../components/utils/CreateTeamForm.tsx";
 const DashViewOrg = () => {
   const params = useParams();
   const slug = params.slug;
@@ -18,6 +20,7 @@ const DashViewOrg = () => {
   const [limit, setLimit] = useState(1);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loadingOrg, setLoadingOrg] = useState(true);
+  const [isActive, setIsActive] = useState("invite");
   useEffect(() => {
     async function getOrganization() {
       if (!slug) {
@@ -93,8 +96,38 @@ const DashViewOrg = () => {
             <p>{organization?.description}</p>
           </div>
           {isAdmin && (
-            <div className="max-w-md w-full">
-              <InviteMemebersForm isAdmin={isAdmin} />
+            <div className="max-w-md w-full space-y-4">
+              <div className="flex flex-row flex-wrap items-center justify-between gap-2 w-full border p-4 *:border *:rounded-lg *:p-2 *:cursor-pointer ">
+                <button
+                  className={`${isActive === "invite" ? "bg-black text-white font-semibold" : ""}`}
+                  onClick={() => setIsActive("invite")}
+                >
+                  Invite Members
+                </button>
+                <button
+                  className={`${isActive === "project" ? "bg-black text-white font-semibold" : ""}`}
+                  onClick={() => setIsActive("project")}
+                >
+                  Create Project
+                </button>
+                <button
+                  className={`${isActive === "team" ? "bg-black text-white font-semibold" : ""}`}
+                  onClick={() => setIsActive("team")}
+                >
+                  Create Team
+                </button>
+              </div>
+              <div>
+                {isActive === "invite" ? (
+                  <InviteMemebersForm isAdmin={isAdmin} />
+                ) : isActive === "project" ? (
+                  <CreateProjectForm isAdmin={isAdmin} />
+                ) : isActive === "team" ? (
+                  <CreateTeamForm isAdmin={isAdmin} />
+                ) : (
+                  <InviteMemebersForm isAdmin={isAdmin} />
+                )}
+              </div>
             </div>
           )}
           <div className="flex flex-col items-center w-full gap-4">
