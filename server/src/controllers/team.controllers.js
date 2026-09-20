@@ -87,7 +87,8 @@ export async function getTeams(req, res) {
   const result = await pool.query(
     `SELECT 
     t.id,
-    t.organization_id,name,
+    t.organization_id,
+    t.name,
     t.color,
     tm.user_id,
     tm.role,

@@ -61,3 +61,70 @@ export async function createProject(req, res) {
     },
   });
 }
+
+/**
+ * @method POST
+ * @route /get-projects
+ */
+export async function getProjects(req, res) {
+  const { id: USERID } = req.user;
+  const { slug } = req.body;
+  if (!slug) {
+    return res.status(400).json({
+      error: true,
+      message: "First join or create an organization to be in a project",
+    });
+  }
+  const orgResult = await pool.query(
+    `
+    SELECT 
+    o.slug,
+    o.id,
+    om.organization_id,
+    om.user_id
+    FROM organization_members om 
+    INNER JOIN organization o ON
+    om.organization_id = o.id
+    WHERE o.slug =$1 AND om.user_id =$1
+    `,
+    [slug, USERID],
+  );
+
+  if (orgResult.rows.length === 0) {
+    return res.status(400).json({
+      error: true,
+      message:
+        "Organization dose not found OR you are not a part of this Organization",
+    });
+  }
+  const result = await pool.query(
+    `SELECT 
+    p.id,
+    p.organization_id,
+    p.name,
+    p.status,
+    p.description,
+    p.start_date,
+    p.target_date,
+    pm.user_id,
+    pm.role,
+    pm.project_id
+    FROM project_members pm 
+    INNER JOIN project p ON pm.project_id = p.id
+    WHERE p.organization_id=$1 AND pm.user_id =$1`,
+    [orgResult.rows[0].organization_id, USERID],
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(400).json({
+      error: true,
+      message: "Project dose not found OR you are not a part of any Project",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Found Projects",
+    projects: result.rows,
+  });
+}

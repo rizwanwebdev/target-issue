@@ -447,7 +447,6 @@ export async function getMembers(req, res) {
     ]);
 
     const total = countResult.rows[0].total;
-    console.log(membersResult.rows, total);
     return res.status(200).json({
       success: true,
       message: "Members found",

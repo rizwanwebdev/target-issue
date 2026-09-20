@@ -1,5 +1,6 @@
-async function inviteMemebers(slug: string, emails: [...string[]]) {
+async function inviteMemebers(slug: string, emails: string[]) {
   try {
+    console.log(emails);
     const res = await fetch("/api/v1/org/invite", {
       method: "POST",
       credentials: "include",

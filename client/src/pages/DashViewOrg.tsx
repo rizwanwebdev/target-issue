@@ -1,26 +1,23 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useToast } from "../context/ToastProvider.tsx";
 import { useEffect, useState } from "react";
-import inviteMemebers from "../api/org/inviteMembers.api.ts";
 import getAllMembersApi, {
   type Members,
 } from "../api/org/getAllMembers.api.ts";
 import getOrg, { type Organization } from "../api/org/getOrg.api.ts";
-
+import InviteMemebersForm from "../components/utils/InviteMemebersForm.tsx";
 const DashViewOrg = () => {
   const params = useParams();
   const slug = params.slug;
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const [emails, setEmails] = useState<[...string[]]>([]);
+
   const [members, setMembers] = useState<Members[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  console.log(members);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loadingOrg, setLoadingOrg] = useState(true);
-
   useEffect(() => {
     async function getOrganization() {
       if (!slug) {
@@ -51,50 +48,10 @@ const DashViewOrg = () => {
     getOrganization();
   }, [slug, navigate, addToast]);
 
-  const handleChanage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    console.log(e.target.value);
+  useEffect(() => {
+    console.log("members changed:", members);
+  }, [members]);
 
-    const mails = e.target.value;
-    const EMAILREGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-    mails.split(",").some((mail) => {
-      if (!EMAILREGEX.test(mail)) {
-        addToast(`Invalid Emails: ${mail}`, "warning");
-      }
-    });
-    setEmails(mails.split(","));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!isAdmin) {
-      return;
-    }
-
-    try {
-      if (emails.length === 0) {
-        addToast("There is no email to invite");
-        return;
-      }
-      if (!slug) {
-        navigate("/dashboard");
-        return;
-      }
-      const result = await inviteMemebers(slug, emails);
-      if (result.error) {
-        addToast(result.message, "error");
-        return;
-      }
-
-      addToast(result.message, "success");
-      setEmails([]);
-    } catch (error) {
-      addToast(
-        error instanceof Error ? error.message : "Something went wrong",
-        "error",
-      );
-    }
-  };
   useEffect(() => {
     document.title = organization
       ? `${organization.name} | Create & Manage`
@@ -111,7 +68,6 @@ const DashViewOrg = () => {
         return;
       }
       const result = await getAllMembersApi(slug, page, limit);
-      console.log(result);
 
       if (result.error) {
         addToast(result.message, "error");
@@ -126,7 +82,6 @@ const DashViewOrg = () => {
     getAll();
   }, [organization, slug, page, limit, addToast]);
 
-  console.log(organization);
   return (
     <>
       <meta name="description" content="Create and Manage Organizations" />
@@ -139,21 +94,7 @@ const DashViewOrg = () => {
           </div>
           {isAdmin && (
             <div className="max-w-md w-full">
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col *:border *:p-2 gap-3"
-              >
-                <textarea
-                  name="description"
-                  id="description"
-                  onChange={handleChanage}
-                  rows={6}
-                ></textarea>
-
-                <button type="submit" className="cursor-pointer">
-                  Invite Memebers
-                </button>
-              </form>
+              <InviteMemebersForm isAdmin={isAdmin} />
             </div>
           )}
           <div className="flex flex-col items-center w-full gap-4">
