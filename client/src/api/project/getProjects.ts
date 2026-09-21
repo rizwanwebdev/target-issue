@@ -1,3 +1,9 @@
+export type Project = {
+  name: string;
+  id: number;
+  start_date: string;
+  target_date: string;
+};
 async function getProjects(slug: string) {
   if (!slug) {
     return { error: true, message: "Slug is required to find projects" };

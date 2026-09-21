@@ -1,27 +1,15 @@
 import createProject from "../../api/project/createProject.api.ts";
 import { useToast } from "../../context/ToastProvider.tsx";
-import { useNavigate, useParams } from "react-router-dom";
 
 type Params = {
-  isAdmin: boolean;
+  slug: string;
 };
 
-const CreateProjectForm = ({ isAdmin }: Params) => {
+const CreateProjectForm = ({ slug }: Params) => {
   const { addToast } = useToast();
-  const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!isAdmin) {
-      return;
-    }
-
-    if (!slug) {
-      navigate("/dashboard");
-      return;
-    }
 
     const form = e.currentTarget;
     //  startDate, targetDate
@@ -36,6 +24,7 @@ const CreateProjectForm = ({ isAdmin }: Params) => {
         String(credentials.startDate),
         String(credentials.targetDate),
       );
+      console.log(result);
 
       if (result.error) {
         addToast(result.message, "error");
@@ -59,9 +48,21 @@ const CreateProjectForm = ({ isAdmin }: Params) => {
       onSubmit={handleSubmit}
       className="flex flex-col gap-3 *:border *:p-2"
     >
-      <input type="text" name="name" id="name" required />
+      <input
+        type="text"
+        name="name"
+        id="name"
+        required
+        placeholder="Enter Project Name"
+      />
 
-      <input type="text" name="description" id="description" required />
+      <input
+        type="text"
+        name="description"
+        id="description"
+        placeholder="Enter Project Description"
+        required
+      />
       <input
         type="date"
         name="startDate"
@@ -69,7 +70,6 @@ const CreateProjectForm = ({ isAdmin }: Params) => {
         min={today}
         required
       />
-
       <input
         type="date"
         name="targetDate"

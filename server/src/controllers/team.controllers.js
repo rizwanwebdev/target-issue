@@ -72,7 +72,7 @@ export async function getTeams(req, res) {
     FROM organization_members om 
     INNER JOIN organization o ON
     om.organization_id = o.id
-    WHERE o.slug =$1 AND om.user_id =$1
+    WHERE o.slug =$1 AND om.user_id =$2
     `,
     [slug, USERID],
   );
@@ -95,7 +95,7 @@ export async function getTeams(req, res) {
     tm.team_id
     FROM team_members tm 
     INNER JOIN team t ON tm.team_id = t.id
-    WHERE tm.organization_id=$1 AND tm.user_id =$1`,
+    WHERE tm.organization_id=$1 AND tm.user_id =$2`,
     [orgResult.rows[0].organization_id, USERID],
   );
 

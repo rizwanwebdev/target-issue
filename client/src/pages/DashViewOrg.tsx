@@ -1,26 +1,24 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "../context/ToastProvider.tsx";
 import { useEffect, useState } from "react";
-import getAllMembersApi, {
-  type Members,
-} from "../api/org/getAllMembers.api.ts";
+
 import getOrg, { type Organization } from "../api/org/getOrg.api.ts";
 import InviteMemebersForm from "../components/utils/InviteMemebersForm.tsx";
 import CreateProjectForm from "../components/utils/CreateProjectForm.tsx";
 import CreateTeamForm from "../components/utils/CreateTeamForm.tsx";
+import OrganizationMembers from "../components/utils/OrganizationMembers.tsx";
+import OrganizationProjects from "../components/utils/OrganizationProjects.tsx";
+
 const DashViewOrg = () => {
-  const params = useParams();
-  const slug = params.slug;
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { addToast } = useToast();
 
-  const [members, setMembers] = useState<Members[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(1);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loadingOrg, setLoadingOrg] = useState(true);
   const [isActive, setIsActive] = useState("invite");
+
   useEffect(() => {
     async function getOrganization() {
       if (!slug) {
@@ -52,38 +50,14 @@ const DashViewOrg = () => {
   }, [slug, navigate, addToast]);
 
   useEffect(() => {
-    console.log("members changed:", members);
-  }, [members]);
-
-  useEffect(() => {
     document.title = organization
       ? `${organization.name} | Create & Manage`
       : "Organization | Create & Manage";
   }, [organization]);
-  useEffect(() => {
-    if (!organization || !slug) {
-      return;
-    }
 
-    async function getAll() {
-      if (!slug) {
-        navigate("/dashboard");
-        return;
-      }
-      const result = await getAllMembersApi(slug, page, limit);
-
-      if (result.error) {
-        addToast(result.message, "error");
-        return;
-      }
-
-      setMembers(result.members);
-      setIsAdmin(result.requester.isAdmin);
-      return;
-    }
-
-    getAll();
-  }, [organization, slug, page, limit, addToast]);
+  if (loadingOrg) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -95,61 +69,66 @@ const DashViewOrg = () => {
             <p>{organization?.name}</p>
             <p>{organization?.description}</p>
           </div>
+
           {isAdmin && (
-            <div className="max-w-md w-full space-y-4">
-              <div className="flex flex-row flex-wrap items-center justify-between gap-2 w-full border p-4 *:border *:rounded-lg *:p-2 *:cursor-pointer ">
+            <div className="w-full space-y-4">
+              <div className="flex flex-row flex-wrap items-center justify-between gap-2 w-full border p-4 *:border *:rounded-lg *:p-2 *:cursor-pointer">
                 <button
-                  className={`${isActive === "invite" ? "bg-black text-white font-semibold" : ""}`}
+                  className={
+                    isActive === "invite"
+                      ? "bg-black text-white font-semibold"
+                      : ""
+                  }
                   onClick={() => setIsActive("invite")}
                 >
                   Invite Members
                 </button>
+
                 <button
-                  className={`${isActive === "project" ? "bg-black text-white font-semibold" : ""}`}
+                  className={
+                    isActive === "project"
+                      ? "bg-black text-white font-semibold"
+                      : ""
+                  }
                   onClick={() => setIsActive("project")}
                 >
                   Create Project
                 </button>
+
                 <button
-                  className={`${isActive === "team" ? "bg-black text-white font-semibold" : ""}`}
+                  className={
+                    isActive === "team"
+                      ? "bg-black text-white font-semibold"
+                      : ""
+                  }
                   onClick={() => setIsActive("team")}
                 >
                   Create Team
                 </button>
               </div>
-              <div>
-                {isActive === "invite" ? (
-                  <InviteMemebersForm isAdmin={isAdmin} />
-                ) : isActive === "project" ? (
-                  <CreateProjectForm isAdmin={isAdmin} />
-                ) : isActive === "team" ? (
-                  <CreateTeamForm isAdmin={isAdmin} />
-                ) : (
-                  <InviteMemebersForm isAdmin={isAdmin} />
-                )}
-              </div>
+
+              {slug && isAdmin && (
+                <div>
+                  {isActive === "invite" && <InviteMemebersForm slug={slug} />}
+
+                  {isActive === "project" && <CreateProjectForm slug={slug} />}
+
+                  {isActive === "team" && <CreateTeamForm slug={slug} />}
+                </div>
+              )}
             </div>
           )}
-          <div className="flex flex-col items-center w-full gap-4">
-            {members.map((member) => (
-              <div
-                key={member.user_id}
-                className="w-full flex flex-col flex-wrap justify-between border border-gray-400 p-2 rounded-lg"
-              >
-                <div className="flex flex-row flex-wrap justify-between ">
-                  <Link
-                    className="text-indigo-600"
-                    to={`/dashboard/organizations/${slug}/members/${member.user_id}`}
-                  >
-                    {member.full_name}
-                  </Link>
-                  <span className="text-green-600">{member.role}</span>
-                  <span className="text-green-600">{member.joined_at}</span>
-                </div>
-                <span>{member.email}</span>
-              </div>
-            ))}
-          </div>
+
+          {slug && organization && (
+            <>
+              <OrganizationProjects slug={slug} organization={organization} />
+              <OrganizationMembers
+                slug={slug}
+                organization={organization}
+                setIsAdmin={setIsAdmin}
+              />
+            </>
+          )}
         </div>
       </main>
     </>

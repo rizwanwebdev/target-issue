@@ -67,16 +67,17 @@ export async function createProject(req, res) {
  * @route /get-projects
  */
 export async function getProjects(req, res) {
-  const { id: USERID } = req.user;
-  const { slug } = req.body;
-  if (!slug) {
-    return res.status(400).json({
-      error: true,
-      message: "First join or create an organization to be in a project",
-    });
-  }
-  const orgResult = await pool.query(
-    `
+  try {
+    const { id: USERID } = req.user;
+    const { slug } = req.body;
+    if (!slug) {
+      return res.status(400).json({
+        error: true,
+        message: "First join or create an organization to be in a project",
+      });
+    }
+    const orgResult = await pool.query(
+      `
     SELECT 
     o.slug,
     o.id,
@@ -85,20 +86,23 @@ export async function getProjects(req, res) {
     FROM organization_members om 
     INNER JOIN organization o ON
     om.organization_id = o.id
-    WHERE o.slug =$1 AND om.user_id =$1
+    WHERE o.slug =$1 AND om.user_id =$2
     `,
-    [slug, USERID],
-  );
+      [slug, USERID],
+    );
+    console.log("============", orgResult.rows[0].id);
 
-  if (orgResult.rows.length === 0) {
-    return res.status(400).json({
-      error: true,
-      message:
-        "Organization dose not found OR you are not a part of this Organization",
-    });
-  }
-  const result = await pool.query(
-    `SELECT 
+    if (orgResult.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message:
+          "Organization dose not found OR you are not a part of this Organization",
+      });
+    }
+    const test = await pool.query("SELECT COUNT(*) FROM project");
+    console.log(test.rows[0].count, "-------");
+    const result = await pool.query(
+      `SELECT 
     p.id,
     p.organization_id,
     p.name,
@@ -110,21 +114,27 @@ export async function getProjects(req, res) {
     pm.role,
     pm.project_id
     FROM project_members pm 
-    INNER JOIN project p ON pm.project_id = p.id
-    WHERE p.organization_id=$1 AND pm.user_id =$1`,
-    [orgResult.rows[0].organization_id, USERID],
-  );
+    INNER JOIN project p ON p.id = pm.project_id
+    WHERE p.organization_id=$1 AND pm.user_id =$2`,
+      [orgResult.rows[0].id, USERID],
+    );
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Project dose not found OR you are not a part of any Project",
+      });
+    }
 
-  if (result.rows.length === 0) {
-    return res.status(400).json({
+    return res.status(200).json({
+      success: true,
+      message: "Found Projects",
+      projects: result.rows,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
       error: true,
-      message: "Project dose not found OR you are not a part of any Project",
+      message: "Internal Server Error",
     });
   }
-
-  return res.status(200).json({
-    success: true,
-    message: "Found Projects",
-    projects: result.rows,
-  });
 }
