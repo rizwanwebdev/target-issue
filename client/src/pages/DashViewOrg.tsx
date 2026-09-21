@@ -8,6 +8,7 @@ import CreateProjectForm from "../components/utils/CreateProjectForm.tsx";
 import CreateTeamForm from "../components/utils/CreateTeamForm.tsx";
 import OrganizationMembers from "../components/utils/OrganizationMembers.tsx";
 import OrganizationProjects from "../components/utils/OrganizationProjects.tsx";
+import OragnizationTeams from "../components/utils/OragnizationTeams.tsx";
 
 const DashViewOrg = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -121,6 +122,7 @@ const DashViewOrg = () => {
 
           {slug && organization && (
             <>
+              <OragnizationTeams slug={slug} organization={organization} />
               <OrganizationProjects slug={slug} organization={organization} />
               <OrganizationMembers
                 slug={slug}
