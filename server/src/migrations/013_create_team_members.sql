@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS team_members(
         NOT NULL
         DEFAULT 'member'
         CHECK (role IN ('member', 'admin', 'viewer')),
-   joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+   joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    UNIQUE (team_id, user_id)
 );

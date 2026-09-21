@@ -23,6 +23,7 @@ const CreateProjectForm = ({ slug }: Params) => {
         String(credentials.description),
         String(credentials.startDate),
         String(credentials.targetDate),
+        String(credentials.project_status),
       );
       console.log(result);
 
@@ -77,6 +78,12 @@ const CreateProjectForm = ({ slug }: Params) => {
         min={today}
         required
       />
+      <select name="project_status" defaultValue="new" id="project_status">
+        <option value="new">New</option>
+        <option value="ongoing">On Going</option>
+        <option value="completed">Completed</option>
+        <option value="archive">Archive</option>
+      </select>
 
       <button
         type="submit"

@@ -1,8 +1,14 @@
 export type Project = {
-  name: string;
+  description: string;
   id: number;
+  name: string;
+  organization_id: number;
+  project_id: number;
+  role: string;
   start_date: string;
+  status: string;
   target_date: string;
+  user_id: number;
 };
 async function getProjects(slug: string) {
   if (!slug) {

@@ -60,9 +60,16 @@ const OrganizationMembers = ({ slug, organization, setIsAdmin }: Props) => {
                 {member.full_name}
               </Link>
 
-              <span className="text-green-600">{member.role}</span>
+              <span
+                className="text-green-600"
+                aria-label="Member role in this oraganization"
+              >
+                {member.role}
+              </span>
 
-              <span className="text-green-600">{member.joined_at}</span>
+              <span className="text-green-600" aria-label="Joinged At Date">
+                {member.joined_at.split("T")[0]}
+              </span>
             </div>
 
             <span>{member.email}</span>

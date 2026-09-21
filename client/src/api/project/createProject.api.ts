@@ -4,13 +4,21 @@ async function createProject(
   description: string,
   startDate: string,
   targetDate: string,
+  project_status: string,
 ) {
   try {
-    if (!slug || !name || !description || !startDate || !targetDate) {
+    if (
+      !slug ||
+      !name ||
+      !description ||
+      !startDate ||
+      !targetDate ||
+      !project_status
+    ) {
       return {
         error: true,
         message:
-          "All fileds are required i.e slug, name, description, startDate, targetDate",
+          "All fileds are required i.e slug, name, description, startDate, targetDate, project_status",
       };
     }
     const result = await fetch("/api/v1/project/create-project", {
@@ -22,6 +30,7 @@ async function createProject(
       body: JSON.stringify({
         slug: slug,
         name: name,
+        project_status: project_status,
         description: description,
         startDate: startDate,
         targetDate: targetDate,

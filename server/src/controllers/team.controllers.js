@@ -35,17 +35,16 @@ export async function createTeam(req, res) {
   }
 
   const result = await pool.query(
-    "INSERT INTO team (organization_id, name, description, color) VALUES ($1, $2, $3, $4) RETURNING id",
-    [findOrg.rows[0].id, name, description, color],
+    `WITH new_team AS (INSERT INTO team 
+    (organization_id, name, description, color, create_by)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id)
+     INSERT INTO team_members (team_id, user_id, role) VALUES ((SELECT id FROM new_team), $5, $6
+     `,
+    [findOrg.rows[0].id, name, description, color, USERID, "admin"],
   );
   return res.status(201).json({
     success: true,
     message: "Team Created",
-    team: {
-      teamId: result.rows[0].id,
-      name: name,
-      color: color,
-    },
   });
 }
 

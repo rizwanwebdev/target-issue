@@ -3,7 +3,14 @@ import pool from "../db/connect.js";
 export async function createProject(req, res) {
   const { id: USERID } = req.user;
 
-  const { slug, name, description, startDate, targetDate } = req.body;
+  const {
+    slug,
+    name,
+    description,
+    status: PROJECT_STATUS,
+    startDate,
+    targetDate,
+  } = req.body;
   if (!slug || !name) {
     return res.status(400).json({
       error: true,
@@ -12,7 +19,10 @@ export async function createProject(req, res) {
   }
   const start = new Date(startDate);
   const target = new Date(targetDate);
-
+  const PROJECT_STATUSES = ["new", "ongoing", "completed", "archive"];
+  if ((!PROJECT_STATUS) in PROJECT_STATUSES) {
+    PROJECT_STATUS = "ongoing";
+  }
   if (Number.isNaN(start.getTime()) || Number.isNaN(target.getTime())) {
     return res.status(400).json({
       error: true,
@@ -49,16 +59,16 @@ export async function createProject(req, res) {
   }
 
   const result = await pool.query(
-    "INSERT INTO project (organization_id, name, description, created_by,start_date, target_date) VALUES ($1, $2, $3, $4,$5,$6) RETURNING id",
-    [findOrg.rows[0].id, name, description, USERID, start, target],
+    `WITH new_project AS (
+    INSERT INTO project (organization_id, name, description, created_by,start_date, target_date) VALUES ($1, $2, $3, $4,$5,$6) RETURNING id
+    )
+    INSERT INTO project_members (project_id, user_id, role) VALUES ((SELECT id FROM new_project), $4, $7)
+    `,
+    [findOrg.rows[0].id, name, description, USERID, start, target, "admin"],
   );
   return res.status(201).json({
     success: true,
     message: "Project Created",
-    project: {
-      projectId: result.rows[0].id,
-      name: name,
-    },
   });
 }
 
@@ -90,7 +100,6 @@ export async function getProjects(req, res) {
     `,
       [slug, USERID],
     );
-    console.log("============", orgResult.rows[0].id);
 
     if (orgResult.rows.length === 0) {
       return res.status(400).json({
@@ -100,7 +109,6 @@ export async function getProjects(req, res) {
       });
     }
     const test = await pool.query("SELECT COUNT(*) FROM project");
-    console.log(test.rows[0].count, "-------");
     const result = await pool.query(
       `SELECT 
     p.id,

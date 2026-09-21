@@ -52,10 +52,19 @@ const OrganizationProjects = ({ slug, organization }: Props) => {
                 >
                   {project.name}
                 </Link>
-
-                <span className="text-green-600">{project.start_date}</span>
-
-                <span className="text-green-600">{project.target_date}</span>
+                <span className="text-green-600">{project.status}</span>
+                <span className="text-indigo-600">{project.role}</span>
+              </div>
+              <div className="flex flex-col">
+                <span>{project.description}</span>
+                <div className="flex flex-col">
+                  <span className="text-indigo-600">
+                    Start Date:{project.start_date.split("T")[0]}
+                  </span>
+                  <span className="text-green-600">
+                    Target Date: {project.target_date.split("T")[0]}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
