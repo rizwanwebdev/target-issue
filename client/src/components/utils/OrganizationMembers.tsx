@@ -37,7 +37,7 @@ const OrganizationMembers = ({ slug, organization }: Props) => {
   }, [organization, slug, page, limit, addToast]);
 
   return (
-    <div className="w-full py-4">
+    <section className="w-full py-4">
       <div>
         <h2 className="text-4xl font-semibold text-center my-2">
           Organization Members
@@ -74,7 +74,7 @@ const OrganizationMembers = ({ slug, organization }: Props) => {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

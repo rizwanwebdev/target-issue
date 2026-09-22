@@ -46,47 +46,49 @@ const InviteMemebersForm = ({ slug }: Params) => {
   };
   return (
     <>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col *:border *:p-2 gap-3"
-      >
-        <textarea
-          name="description"
-          id="description"
-          onChange={handleChange}
-          value={emails}
-          rows={6}
-          required
-          placeholder="Enter Emails Comma seprated or on new line"
-        ></textarea>
-        {emails.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {emails.map((email, index) => {
-              const isValid = EMAIL_REGEX.test(email);
-
-              return (
-                <span
-                  key={`${email}-${index}`}
-                  className={`rounded-md px-2 py-1 text-sm ${
-                    isValid
-                      ? "bg-yellow-200 text-yellow-900"
-                      : "bg-red-200 text-red-900"
-                  }`}
-                >
-                  {email}
-                </span>
-              );
-            })}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          className="cursor-pointer active:scale-95 transition-all duration-200"
+      <section>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col *:border *:p-2 gap-3"
         >
-          Invite Memebers
-        </button>
-      </form>
+          <textarea
+            name="description"
+            id="description"
+            onChange={handleChange}
+            value={emails}
+            rows={6}
+            required
+            placeholder="Enter Emails Comma seprated or on new line"
+          ></textarea>
+          {emails.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {emails.map((email, index) => {
+                const isValid = EMAIL_REGEX.test(email);
+
+                return (
+                  <span
+                    key={`${email}-${index}`}
+                    className={`rounded-md px-2 py-1 text-sm ${
+                      isValid
+                        ? "bg-yellow-200 text-yellow-900"
+                        : "bg-red-200 text-red-900"
+                    }`}
+                  >
+                    {email}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="cursor-pointer active:scale-95 transition-all duration-200"
+          >
+            Invite Memebers
+          </button>
+        </form>
+      </section>
     </>
   );
 };

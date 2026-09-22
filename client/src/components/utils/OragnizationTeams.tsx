@@ -30,7 +30,7 @@ const OragnizationTeams = ({ slug, organization }: Props) => {
 
   return (
     teams.length > 0 && (
-      <div className="w-full py-4">
+      <section className="w-full py-4">
         <div>
           <h2 className="text-4xl font-semibold text-center my-2">
             Organization Teams
@@ -58,7 +58,7 @@ const OragnizationTeams = ({ slug, organization }: Props) => {
             </div>
           ))}
         </div>
-      </div>
+      </section>
     )
   );
 };

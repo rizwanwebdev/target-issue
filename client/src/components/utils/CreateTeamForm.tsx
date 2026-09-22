@@ -41,46 +41,50 @@ const CreateTeamForm = ({ slug }: Params) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 *:border *:p-2"
-    >
-      <input
-        type="text"
-        name="name"
-        id="name"
-        required
-        placeholder="Enter Team Name"
-      />
+    <>
+      <section>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3 *:border *:p-2"
+        >
+          <input
+            type="text"
+            name="name"
+            id="name"
+            required
+            placeholder="Enter Team Name"
+          />
 
-      <input
-        type="text"
-        name="description"
-        id="description"
-        required
-        placeholder="Enter Team Description"
-      />
+          <input
+            type="text"
+            name="description"
+            id="description"
+            required
+            placeholder="Enter Team Description"
+          />
 
-      <div className="flex items-center flex-row gap-2">
-        <input
-          type="color"
-          name="color"
-          id="color"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          required
-        />
+          <div className="flex items-center flex-row gap-2">
+            <input
+              type="color"
+              name="color"
+              id="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              required
+            />
 
-        <p>{color}</p>
-      </div>
+            <p>{color}</p>
+          </div>
 
-      <button
-        type="submit"
-        className="cursor-pointer transition-all duration-200 active:scale-95"
-      >
-        Create Team
-      </button>
-    </form>
+          <button
+            type="submit"
+            className="cursor-pointer transition-all duration-200 active:scale-95"
+          >
+            Create Team
+          </button>
+        </form>
+      </section>
+    </>
   );
 };
 
