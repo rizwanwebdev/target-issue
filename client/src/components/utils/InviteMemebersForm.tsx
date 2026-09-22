@@ -56,6 +56,7 @@ const InviteMemebersForm = ({ slug }: Params) => {
           onChange={handleChange}
           value={emails}
           rows={6}
+          required
           placeholder="Enter Emails Comma seprated or on new line"
         ></textarea>
         {emails.length > 0 && (

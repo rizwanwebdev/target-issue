@@ -1,7 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
 import { useToast } from "../context/ToastProvider.tsx";
-export const Aside = () => {
+type Props = {
+  slug: string | undefined;
+};
+export const Aside = ({ slug }: Props) => {
   const { logout } = useAuth();
   const { addToast } = useToast();
 
@@ -19,15 +22,21 @@ export const Aside = () => {
     navigate("/", { replace: true });
   };
 
-  const asideLink = [
+  const asideLinks = [
     { linkName: "Organizations", to: "/dashboard/organizations" },
-    { linkName: "Projects", to: "/dashboard/organizations" },
-    { linkName: "Teams", to: "/dashboard/organizations" },
-    { linkName: "Issues", to: "/dashboard/organizations" },
+    { linkName: "Logs", to: "/dashboard/organizations" },
+    { linkName: "Insights", to: "/dashboard/organizations" },
+    { linkName: "Account", to: "/dashboard/organizations" },
+  ];
+  const asideOrgLinks = [
+    { linkName: "Organizations", to: "/dashboard/organizations" },
+    { linkName: "Projects", to: `/dashboard/organizations/${slug}/projects` },
+    { linkName: "Teams", to: `/dashboard/organizations/${slug}/teams` },
+    { linkName: "Issues", to: `/dashboard/organizations/${slug}/members` },
   ];
   return (
     <>
-      <aside className="max-h-screen flex py-6 flex-col gap-6 items-center border border-gray-300  max-lg:hidden  w-fit">
+      <aside className="max-h-screen h-screen  flex py-6 flex-col gap-6 items-center border border-gray-300  max-lg:hidden  w-fit">
         <div className="px-6">
           <Link
             to="/dashboard"
@@ -42,16 +51,27 @@ export const Aside = () => {
           </Link>
         </div>
         <div className="w-full h-px bg-gray-200 rounded-full"></div>
-        <div className="flex-1 flex gap-4 flex-col px-6">
-          {asideLink.map((l) => (
-            <Link
-              key={l.linkName}
-              to={l.to}
-              className="px-5 py-2 active:bg-black bg-indigo-500 rounded-full text-white font-medium"
-            >
-              {l.linkName}
-            </Link>
-          ))}
+        <div className="flex-1 flex gap-4 flex-col px-6 w-full">
+          {!slug &&
+            asideLinks.map((l) => (
+              <Link
+                key={l.linkName}
+                to={l.to}
+                className="px-5 py-2 active:bg-black bg-indigo-500 rounded-full text-white font-medium"
+              >
+                {l.linkName}
+              </Link>
+            ))}
+          {slug &&
+            asideOrgLinks.map((l) => (
+              <Link
+                key={l.linkName}
+                to={l.to}
+                className="px-5 py-2 w-full active:bg-black bg-indigo-500 rounded-full text-white font-medium"
+              >
+                {l.linkName}
+              </Link>
+            ))}
         </div>
         <div className="w-full flex px-6">
           <button
