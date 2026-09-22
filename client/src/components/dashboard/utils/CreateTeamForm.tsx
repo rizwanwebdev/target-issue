@@ -1,5 +1,5 @@
-import { useToast } from "../../context/ToastProvider.tsx";
-import createTeam from "../../api/team/createTeam.api.ts";
+import { useToast } from "../../../context/ToastProvider.tsx";
+import createTeam from "../../../api/team/createTeam.api.ts";
 import { useState } from "react";
 
 type Params = {

@@ -1,6 +1,6 @@
-import { Aside } from "../components/Aside.tsx";
 import { Navigate, Outlet, useParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.tsx";
+import { useAuth } from "../../../context/AuthContext.tsx";
+import { Aside } from "./Aside.tsx";
 const DashboardLayout = () => {
   const { loading, authenticated } = useAuth();
   const { slug } = useParams<{ slug: string }>();

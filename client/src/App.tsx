@@ -5,25 +5,25 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import OtpVerificationPage from "./pages/OtpVerificationPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/Dashboard";
 import SavePasswordPage from "./pages/SavePasswordPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 import { ToastProvider } from "./context/ToastProvider";
 import { AuthProvider } from "./context/AuthContext";
 
-import DashOrganization from "./pages/DashOrganization.tsx";
-import DashViewOrg from "./pages/DashViewOrg.tsx";
+import DashOrganization from "./pages/dashboard/DashOrganization.tsx";
+import DashViewOrg from "./pages/dashboard/DashViewOrg.tsx";
 import Invitations from "./pages/Invitations.tsx";
-import OrgTeam from "./pages/OrgTeam.tsx";
-import OrganizationTeamsPage from "./pages/OrganizationTeamsPage.tsx";
-import OrganizationProjectsPage from "./pages/OrganizationProjectsPage.tsx";
-import OrgProject from "./pages/OrgProject.tsx";
-import OrganizationMemebersPage from "./pages/OrganizationMembersPage.tsx";
-import OrgMember from "./pages/OrgMember.tsx";
+import OrgTeam from "./pages/dashboard/OrgTeam.tsx";
+import OrganizationTeamsPage from "./pages/dashboard/OrganizationTeamsPage.tsx";
+import OrganizationProjectsPage from "./pages/dashboard/OrganizationProjectsPage.tsx";
+import OrgProject from "./pages/dashboard/OrgProject.tsx";
+import OrganizationMemebersPage from "./pages/dashboard/OrganizationMembersPage.tsx";
+import OrgMember from "./pages/dashboard/OrgMember.tsx";
 import NotAuthorized from "./components/utils/NotAuthorized.tsx";
-import DashboardLayout from "./components/DashboradLayout.tsx";
-import OrganizationLayout from "./components/OrganizationLayout.tsx";
+import DashboardLayout from "./components/dashboard/layout/DashboradLayout.tsx";
+import OrganizationLayout from "./components/dashboard/layout/OrganizationLayout.tsx";
 
 function App() {
   return (

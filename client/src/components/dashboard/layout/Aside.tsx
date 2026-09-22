@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.tsx";
-import { useToast } from "../context/ToastProvider.tsx";
+import { useAuth } from "../../../context/AuthContext.tsx";
+import { useToast } from "../../../context/ToastProvider.tsx";
 type Props = {
   slug: string | undefined;
 };
@@ -73,10 +73,10 @@ export const Aside = ({ slug }: Props) => {
                 to={l.to}
                 end={l.linkName === "Organization"}
                 className={({ isActive }) =>
-                  `px-5 py-2 w-full rounded-full font-medium ${
+                  `px-5 py-2 w-full rounded-full transition-all duration-200 font-medium ${
                     isActive
-                      ? "bg-green-700 text-white"
-                      : "bg-indigo-500 text-white"
+                      ? "bg-green-700 text-white hover:bg-green-800"
+                      : "bg-indigo-500 text-white hover:bg-indigo-700"
                   }`
                 }
               >
@@ -87,7 +87,7 @@ export const Aside = ({ slug }: Props) => {
         <div className="w-full flex px-6">
           <button
             onClick={handleLogout}
-            className="px-5 py-2.5 bg-indigo-500 w-full text-center rounded-full text-white font-medium"
+            className="px-5 py-2.5 bg-indigo-500 transition-all duration-200 hover:bg-indigo-700 w-full text-center rounded-full text-white font-medium"
           >
             Logout
           </button>

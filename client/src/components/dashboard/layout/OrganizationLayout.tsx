@@ -1,10 +1,8 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import getOrg, { type Organization } from "../api/org/getOrg.api.ts";
-
-import { useToast } from "../context/ToastProvider.tsx";
-
+import { useToast } from "../../../context/ToastProvider.tsx";
+import getOrg, { type Organization } from "../../../api/org/getOrg.api.ts";
 const OrganizationLayout = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();

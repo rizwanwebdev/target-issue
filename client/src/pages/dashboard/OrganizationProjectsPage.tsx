@@ -1,8 +1,8 @@
-import OrganizationProjects from "../components/utils/OrganizationProjects.tsx";
+import OrganizationProjects from "../../components/dashboard/utils/OrganizationProjects.tsx";
 
 import { useOutletContext, useParams } from "react-router-dom";
-import type { Organization } from "../api/org/getOrg.api";
-import CreateProjectForm from "../components/utils/CreateProjectForm.tsx";
+import type { Organization } from "../../api/org/getOrg.api";
+import CreateProjectForm from "../../components/dashboard/utils/CreateProjectForm.tsx";
 
 type OrganizationContext = {
   organization: Organization;

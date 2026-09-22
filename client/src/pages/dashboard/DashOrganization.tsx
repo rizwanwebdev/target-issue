@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import createOrg from "../api/org/createOrg.ts";
+import createOrg from "../../api/org/createOrg.ts";
 import getAllOrganizations, {
   type Organization,
-} from "../api/org/getAllOrganizations.ts";
-import { useToast } from "../context/ToastProvider.tsx";
+} from "../../api/org/getAllOrganizations.ts";
+import { useToast } from "../../context/ToastProvider.tsx";
 import { useEffect, useState } from "react";
 const DashOrganization = () => {
   const { addToast } = useToast();

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useToast } from "../context/ToastProvider.tsx";
 import getSingleMember, {
   type Member,
-} from "../api/org/getSingleMember.api.ts";
+} from "../../api/org/getSingleMember.api.ts";
+import { useToast } from "../../context/ToastProvider.tsx";
 
 const OrgMember = () => {
   const { slug, member } = useParams<{ slug: string; member: string }>();

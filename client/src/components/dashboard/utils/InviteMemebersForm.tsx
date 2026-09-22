@@ -1,6 +1,6 @@
 import { useState } from "react";
-import inviteMemebers from "../../api/org/inviteMembers.api.ts";
-import { useToast } from "../../context/ToastProvider.tsx";
+import inviteMemebers from "../../../api/org/inviteMembers.api.ts";
+import { useToast } from "../../../context/ToastProvider.tsx";
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 type Params = {
   slug: string;

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useToast } from "../context/ToastProvider.tsx";
+import { useToast } from "../../context/ToastProvider.tsx";
 import getSingleproject, {
   type Project,
-} from "../api/project/getSingleproject.api.ts";
+} from "../../api/project/getSingleproject.api.ts";
 
 const OrgProject = () => {
   const { slug, project } = useParams<{ slug: string; project: string }>();

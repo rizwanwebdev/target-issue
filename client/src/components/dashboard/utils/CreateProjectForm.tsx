@@ -1,5 +1,5 @@
-import createProject from "../../api/project/createProject.api.ts";
-import { useToast } from "../../context/ToastProvider.tsx";
+import createProject from "../../../api/project/createProject.api.ts";
+import { useToast } from "../../../context/ToastProvider.tsx";
 
 type Params = {
   slug: string;
