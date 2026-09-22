@@ -1,16 +1,28 @@
-import { useParams } from "react-router-dom";
 import OrganizationMembers from "../components/utils/OrganizationMembers.tsx";
+
+import { useOutletContext, useParams } from "react-router-dom";
+import type { Organization } from "../api/org/getOrg.api";
+import InviteMemebersForm from "../components/utils/InviteMemebersForm.tsx";
+
+type OrganizationContext = {
+  organization: Organization;
+};
+
 const OrganizationMemebersPage = () => {
   const { slug } = useParams<{ slug: string }>();
+
+  const { organization } = useOutletContext<OrganizationContext>();
+
+  const isAdmin = organization.role === "admin";
+
   return (
-    <main className="bg-gray-50 p-4 md:px-8">
-      <div className="min-h-screen flex flex-col items-center gap-4">
-        <div className="p-4 border w-full">
-          {slug && <OrganizationMembers slug={slug} />}
-        </div>
-      </div>
+    <main>
+      <h1>{organization.name}</h1>
+
+      {isAdmin && slug && <InviteMemebersForm slug={slug} />}
+      {slug && <OrganizationMembers slug={slug} />}
+      {/* projects */}
     </main>
   );
 };
-
 export default OrganizationMemebersPage;

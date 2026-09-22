@@ -6,7 +6,11 @@ const DashboardLayout = () => {
   const { slug } = useParams<{ slug: string }>();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   if (!authenticated) {
@@ -16,7 +20,7 @@ const DashboardLayout = () => {
     <>
       <div className="flex flex-row">
         <Aside slug={slug} />
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full p-6">
           <Outlet />
         </div>
       </div>

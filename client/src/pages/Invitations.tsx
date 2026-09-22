@@ -39,7 +39,11 @@ const Invitations = () => {
       <title>Accept Organization Invitation| Target Issue</title>
       <div className="flex min-h-screen justify-center items-center gap-2">
         <div>Invitations {token}</div>
-        {loading && <div>Loading......</div>}
+        {loading && (
+          <div className="w-full h-screen flex justify-center items-center">
+            <p>Loading...</p>
+          </div>
+        )}
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
 import { useToast } from "../context/ToastProvider.tsx";
 type Props = {
@@ -29,10 +29,14 @@ export const Aside = ({ slug }: Props) => {
     { linkName: "Account", to: "/dashboard/organizations" },
   ];
   const asideOrgLinks = [
-    { linkName: "Organizations", to: "/dashboard/organizations" },
+    {
+      linkName: "Organization",
+      to: `/dashboard/organizations/${slug}`,
+    },
     { linkName: "Projects", to: `/dashboard/organizations/${slug}/projects` },
     { linkName: "Teams", to: `/dashboard/organizations/${slug}/teams` },
-    { linkName: "Issues", to: `/dashboard/organizations/${slug}/members` },
+    { linkName: "Members", to: `/dashboard/organizations/${slug}/members` },
+    { linkName: "Issues", to: `/dashboard/organizations/${slug}/issues` },
   ];
   return (
     <>
@@ -64,13 +68,20 @@ export const Aside = ({ slug }: Props) => {
             ))}
           {slug &&
             asideOrgLinks.map((l) => (
-              <Link
+              <NavLink
                 key={l.linkName}
                 to={l.to}
-                className="px-5 py-2 w-full active:bg-black bg-indigo-500 rounded-full text-white font-medium"
+                end={l.linkName === "Organization"}
+                className={({ isActive }) =>
+                  `px-5 py-2 w-full rounded-full font-medium ${
+                    isActive
+                      ? "bg-green-700 text-white"
+                      : "bg-indigo-500 text-white"
+                  }`
+                }
               >
                 {l.linkName}
-              </Link>
+              </NavLink>
             ))}
         </div>
         <div className="w-full flex px-6">

@@ -5,7 +5,11 @@ const NotAuthorized = () => {
   const { loading, authenticated } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   if (authenticated) {

@@ -12,7 +12,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { ToastProvider } from "./context/ToastProvider";
 import { AuthProvider } from "./context/AuthContext";
 
-// import Authorize from "./components/utils/Authorize";
 import DashOrganization from "./pages/DashOrganization.tsx";
 import DashViewOrg from "./pages/DashViewOrg.tsx";
 import Invitations from "./pages/Invitations.tsx";
@@ -24,6 +23,7 @@ import OrganizationMemebersPage from "./pages/OrganizationMembersPage.tsx";
 import OrgMember from "./pages/OrgMember.tsx";
 import NotAuthorized from "./components/utils/NotAuthorized.tsx";
 import DashboardLayout from "./components/DashboradLayout.tsx";
+import OrganizationLayout from "./components/OrganizationLayout.tsx";
 
 function App() {
   return (
@@ -44,38 +44,30 @@ function App() {
           {/* Protected routes */}
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+
             <Route
               path="/dashboard/organizations"
               element={<DashOrganization />}
             />
+
             <Route
               path="/dashboard/organizations/:slug"
-              element={<DashViewOrg />}
-            />
-            <Route
-              path="/dashboard/organizations/:slug/teams"
-              element={<OrganizationTeamsPage />}
-            />
-            <Route
-              path="/dashboard/organizations/:slug/projects"
-              element={<OrganizationProjectsPage />}
-            />
-            <Route
-              path="/dashboard/organizations/:slug/members"
-              element={<OrganizationMemebersPage />}
-            />
-            <Route
-              path="/dashboard/organizations/:slug/teams/:team"
-              element={<OrgTeam />}
-            />
-            <Route
-              path="/dashboard/organizations/:slug/projects/:project"
-              element={<OrgProject />}
-            />
-            <Route
-              path="/dashboard/organizations/:slug/members/:member"
-              element={<OrgMember />}
-            />
+              element={<OrganizationLayout />}
+            >
+              <Route index element={<DashViewOrg />} />
+
+              <Route path="teams" element={<OrganizationTeamsPage />} />
+
+              <Route path="projects" element={<OrganizationProjectsPage />} />
+
+              <Route path="members" element={<OrganizationMemebersPage />} />
+
+              <Route path="teams/:team" element={<OrgTeam />} />
+
+              <Route path="projects/:project" element={<OrgProject />} />
+
+              <Route path="members/:member" element={<OrgMember />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />
