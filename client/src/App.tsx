@@ -16,6 +16,12 @@ import Authorize from "./components/utils/Authorize";
 import DashOrganization from "./pages/DashOrganization.tsx";
 import DashViewOrg from "./pages/DashViewOrg.tsx";
 import Invitations from "./pages/Invitations.tsx";
+import OrgTeam from "./pages/OrgTeam.tsx";
+import OrganizationTeamsPage from "./pages/OrganizationTeamsPage.tsx";
+import OrganizationProjectsPage from "./pages/OrganizationProjectsPage.tsx";
+import OrgProject from "./pages/OrgProject.tsx";
+import OrganizationMemebersPage from "./pages/OrganizationMembersPage.tsx";
+import OrgMember from "./pages/OrgMember.tsx";
 
 function App() {
   return (
@@ -41,6 +47,30 @@ function App() {
             <Route
               path="/dashboard/organizations/:slug"
               element={<DashViewOrg />}
+            />
+            <Route
+              path="/dashboard/organizations/:slug/teams"
+              element={<OrganizationTeamsPage />}
+            />
+            <Route
+              path="/dashboard/organizations/:slug/projects"
+              element={<OrganizationProjectsPage />}
+            />
+            <Route
+              path="/dashboard/organizations/:slug/projects"
+              element={<OrganizationMemebersPage />}
+            />
+            <Route
+              path="/dashboard/organizations/:slug/teams/:team"
+              element={<OrgTeam />}
+            />
+            <Route
+              path="/dashboard/organizations/:slug/projects/:project"
+              element={<OrgProject />}
+            />
+            <Route
+              path="/dashboard/organizations/:slug/members/:member"
+              element={<OrgMember />}
             />
           </Route>
 

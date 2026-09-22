@@ -129,3 +129,21 @@ export async function getTeams(req, res) {
     });
   }
 }
+
+/**
+ * @method POST
+ * @route /team
+ */
+
+export async function getSingleTeam(req, res) {
+  try {
+    const { id: USERID } = req.user;
+    const { teamSlug, orgSlug } = req.body;
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: "Internal Server Error",
+    });
+  }
+}

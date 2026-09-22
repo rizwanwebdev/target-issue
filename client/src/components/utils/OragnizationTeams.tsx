@@ -6,7 +6,7 @@ import type { Organization } from "../../api/org/getOrg.api.ts";
 import getTeams, { type Team } from "../../api/team/getTeams.api.ts";
 type Props = {
   slug: string;
-  organization: Organization;
+  organization?: Organization;
 };
 
 const OragnizationTeams = ({ slug, organization }: Props) => {

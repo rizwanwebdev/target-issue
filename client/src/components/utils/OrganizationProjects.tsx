@@ -9,7 +9,7 @@ import type { Organization } from "../../api/org/getOrg.api.ts";
 
 type Props = {
   slug: string;
-  organization: Organization;
+  organization?: Organization;
 };
 
 const OrganizationProjects = ({ slug, organization }: Props) => {
