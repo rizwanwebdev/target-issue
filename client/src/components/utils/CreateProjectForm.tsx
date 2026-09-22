@@ -25,7 +25,6 @@ const CreateProjectForm = ({ slug }: Params) => {
         String(credentials.targetDate),
         String(credentials.project_status),
       );
-      console.log(result);
 
       if (result.error) {
         addToast(result.message, "error");

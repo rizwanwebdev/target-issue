@@ -12,7 +12,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { ToastProvider } from "./context/ToastProvider";
 import { AuthProvider } from "./context/AuthContext";
 
-import Authorize from "./components/utils/Authorize";
+// import Authorize from "./components/utils/Authorize";
 import DashOrganization from "./pages/DashOrganization.tsx";
 import DashViewOrg from "./pages/DashViewOrg.tsx";
 import Invitations from "./pages/Invitations.tsx";
@@ -23,6 +23,7 @@ import OrgProject from "./pages/OrgProject.tsx";
 import OrganizationMemebersPage from "./pages/OrganizationMembersPage.tsx";
 import OrgMember from "./pages/OrgMember.tsx";
 import NotAuthorized from "./components/utils/NotAuthorized.tsx";
+import DashboardLayout from "./components/DashboradLayout.tsx";
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function App() {
           <Route path="/invitations" element={<Invitations />} />
 
           {/* Protected routes */}
-          <Route element={<Authorize />}>
+          <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route
               path="/dashboard/organizations"

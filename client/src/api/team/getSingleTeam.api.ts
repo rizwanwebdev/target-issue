@@ -15,9 +15,7 @@ async function getSingleTeam(teamId: number, slug: string) {
       message: "Team id and Slug is required to find a team",
     };
   }
-  console.log("adpi", teamId, slug);
   try {
-    console.log("try", teamId, slug);
     const result = await fetch("/api/v1/team/team", {
       method: "POST",
       credentials: "include",

@@ -21,9 +21,9 @@ export const Aside = () => {
 
   const asideLink = [
     { linkName: "Organizations", to: "/dashboard/organizations" },
-    { linkName: "Projects", to: "/dashboard/organizations/projects" },
-    { linkName: "Teams", to: "/dashboard/organizations/teams" },
-    { linkName: "Issues", to: "/dashboard/organizations/issues" },
+    { linkName: "Projects", to: "/dashboard/organizations" },
+    { linkName: "Teams", to: "/dashboard/organizations" },
+    { linkName: "Issues", to: "/dashboard/organizations" },
   ];
   return (
     <>

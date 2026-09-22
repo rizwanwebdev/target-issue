@@ -179,7 +179,6 @@ export async function getSingleProject(req, res) {
       `SELECT * FROM project WHERE id=$1 and organization_id=$2`,
       [projectId, orgId],
     );
-    console.log(orgId, USERID, result);
 
     if (result.rows.length === 0) {
       return res.status(400).json({

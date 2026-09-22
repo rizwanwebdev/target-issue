@@ -16,7 +16,6 @@ const OrgProject = () => {
         return;
       }
       const res = await getSingleproject(Number(project), slug);
-      console.log(res);
       if (res.error) {
         addToast(res.message, "error");
       }

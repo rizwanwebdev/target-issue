@@ -18,9 +18,7 @@ async function getSingleproject(projectId: number, slug: string) {
       message: "Team id and Slug is required to find a project",
     };
   }
-  console.log("adpi", projectId, slug);
   try {
-    console.log("try", projectId, slug);
     const result = await fetch("/api/v1/project/project", {
       method: "POST",
       credentials: "include",

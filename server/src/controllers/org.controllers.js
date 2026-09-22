@@ -619,7 +619,6 @@ export async function getSingleMember(req, res) {
   `,
       [memberId, orgId],
     );
-    console.log(orgId, memberId, result);
 
     if (result.rows.length === 0) {
       return res.status(400).json({

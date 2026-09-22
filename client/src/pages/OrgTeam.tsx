@@ -14,7 +14,6 @@ const OrgTeam = () => {
         return;
       }
       const res = await getSingleTeam(Number(team), slug);
-      console.log(res);
       if (res.error) {
         addToast(res.message, "error");
       }

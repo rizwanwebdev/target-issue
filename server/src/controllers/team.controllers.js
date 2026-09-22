@@ -162,7 +162,6 @@ export async function getSingleTeam(req, res) {
       `SELECT * FROM team WHERE id=$1 and organization_id=$2`,
       [teamId, orgId],
     );
-    console.log(orgId, USERID, result);
 
     if (result.rows.length === 0) {
       return res.status(400).json({

@@ -1,5 +1,4 @@
 import { useAuth } from "../context/AuthContext.tsx";
-import { Aside } from "../components/Aside.tsx";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
@@ -8,9 +7,7 @@ const Dashboard = () => {
   return (
     <>
       <title>Dashboard | Create & Manage</title>
-      <div className="flex flex-row">
-        <Aside />
-
+      <div className="flex flex-row w-full">
         <div className="flex flex-col justify-center flex-1 gap-4 p-4 items-center min-h-screen">
           <p>Dashboard</p>
 
