@@ -4,4 +4,5 @@ import express from "express";
 const router = express.Router();
 router.post("/create-team", authorize, teamRoutes.createTeam);
 router.post("/get-teams", authorize, teamRoutes.getTeams);
+router.post("/team", authorize, teamRoutes.getSingleTeam);
 export default router;

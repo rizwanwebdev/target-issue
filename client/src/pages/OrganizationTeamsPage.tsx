@@ -2,7 +2,15 @@ import { useParams } from "react-router-dom";
 import OragnizationTeams from "../components/utils/OragnizationTeams.tsx";
 const OrganizationTeamsPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  return slug && <OragnizationTeams slug={slug} />;
+  return (
+    <main className="bg-gray-50 p-4 md:px-8">
+      <div className="min-h-screen flex flex-col items-center gap-4">
+        <div className="p-4 border w-full">
+          {slug && <OragnizationTeams slug={slug} />}
+        </div>
+      </div>
+    </main>
+  );
 };
 
 export default OrganizationTeamsPage;

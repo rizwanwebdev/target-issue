@@ -17,6 +17,7 @@ const OragnizationTeams = ({ slug, organization }: Props) => {
   useEffect(() => {
     async function getAll() {
       const result = await getTeams(slug);
+      console.log(result);
       if (result.error) {
         addToast(result.message, "error");
         return;

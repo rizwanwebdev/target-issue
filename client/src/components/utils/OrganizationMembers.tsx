@@ -7,11 +7,14 @@ import getAllMembersApi, {
   type Members,
 } from "../../api/org/getAllMembers.api.ts";
 
+import type { Organization } from "../../api/org/getOrg.api.ts";
+
 type Props = {
   slug: string;
+  organization?: Organization;
 };
 
-const OrganizationMembers = ({ slug }: Props) => {
+const OrganizationMembers = ({ slug, organization }: Props) => {
   const [members, setMembers] = useState<Members[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
@@ -31,7 +34,7 @@ const OrganizationMembers = ({ slug }: Props) => {
     }
 
     getAll();
-  }, [slug, page, limit, addToast]);
+  }, [organization, slug, page, limit, addToast]);
 
   return (
     <div className="w-full py-4">

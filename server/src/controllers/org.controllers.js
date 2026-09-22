@@ -569,3 +569,75 @@ export async function acceptInvitation(req, res) {
     client.release();
   }
 }
+
+/**
+ * @method POST
+ * @route /member
+ */
+
+export async function getSingleMember(req, res) {
+  try {
+    const { id: USERID } = req.user;
+    const { memberId, slug } = req.body;
+    if (!memberId || !slug) {
+      return res.status(400).json({
+        error: true,
+        message: "Member Not Found",
+      });
+    }
+    const orgResult = await pool.query(
+      "SELECT id FROM organization WHERE slug=$1",
+      [slug],
+    );
+
+    if (orgResult.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Organization Not Found",
+      });
+    }
+    const orgId = orgResult.rows[0].id;
+
+    const result = await pool.query(
+      `
+  SELECT
+    u.id,
+    u.email,
+    u.full_name,
+    u.status,
+    u.avatar_url,
+    u.email_verified,
+    u.created_at,
+    om.organization_id,
+    om.role,
+    om.joined_at
+  FROM users u
+  INNER JOIN organization_members om
+    ON u.id = om.user_id
+  WHERE u.id = $1
+    AND om.organization_id = $2
+  `,
+      [memberId, orgId],
+    );
+    console.log(orgId, memberId, result);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Memeber dose not found OR you are not a part of any Memeber",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Found Memeber",
+      member: result.rows[0],
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: "Internal Server Error",
+    });
+  }
+}

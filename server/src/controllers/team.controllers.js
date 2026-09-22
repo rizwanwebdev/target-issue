@@ -138,7 +138,44 @@ export async function getTeams(req, res) {
 export async function getSingleTeam(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { teamSlug, orgSlug } = req.body;
+    const { teamId, slug } = req.body;
+    if (!teamId || !slug) {
+      return res.status(400).json({
+        error: true,
+        message: "Team Not Found",
+      });
+    }
+    const orgResult = await pool.query(
+      "SELECT id FROM organization WHERE slug=$1",
+      [slug],
+    );
+
+    if (orgResult.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Team Not Found",
+      });
+    }
+    const orgId = orgResult.rows[0].id;
+
+    const result = await pool.query(
+      `SELECT * FROM team WHERE id=$1 and organization_id=$2`,
+      [teamId, orgId],
+    );
+    console.log(orgId, USERID, result);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Team dose not found OR you are not a part of any Team",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Found Team",
+      team: result.rows[0],
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
