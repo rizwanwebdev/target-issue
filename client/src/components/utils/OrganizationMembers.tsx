@@ -7,15 +7,11 @@ import getAllMembersApi, {
   type Members,
 } from "../../api/org/getAllMembers.api.ts";
 
-import type { Organization } from "../../api/org/getOrg.api.ts";
-
 type Props = {
   slug: string;
-  organization?: Organization;
-  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const OrganizationMembers = ({ slug, organization, setIsAdmin }: Props) => {
+const OrganizationMembers = ({ slug }: Props) => {
   const [members, setMembers] = useState<Members[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
@@ -32,11 +28,10 @@ const OrganizationMembers = ({ slug, organization, setIsAdmin }: Props) => {
       }
 
       setMembers(result.members);
-      setIsAdmin(result.requester.isAdmin);
     }
 
     getAll();
-  }, [organization, slug, page, limit, addToast, setIsAdmin]);
+  }, [slug, page, limit, addToast]);
 
   return (
     <div className="w-full py-4">

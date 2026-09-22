@@ -15,8 +15,8 @@ const DashViewOrg = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
 
-  const [isAdmin, setIsAdmin] = useState(false);
   const [organization, setOrganization] = useState<Organization | null>(null);
+
   const [loadingOrg, setLoadingOrg] = useState(true);
   const [isActive, setIsActive] = useState("invite");
 
@@ -59,7 +59,7 @@ const DashViewOrg = () => {
   if (loadingOrg) {
     return <div>Loading...</div>;
   }
-
+  const isAdmin = organization?.role === "admin";
   return (
     <>
       <meta name="description" content="Create and Manage Organizations" />
@@ -124,11 +124,7 @@ const DashViewOrg = () => {
             <>
               <OragnizationTeams slug={slug} organization={organization} />
               <OrganizationProjects slug={slug} organization={organization} />
-              <OrganizationMembers
-                slug={slug}
-                organization={organization}
-                setIsAdmin={setIsAdmin}
-              />
+              <OrganizationMembers slug={slug} organization={organization} />
             </>
           )}
         </div>

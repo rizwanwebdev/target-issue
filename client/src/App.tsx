@@ -22,6 +22,7 @@ import OrganizationProjectsPage from "./pages/OrganizationProjectsPage.tsx";
 import OrgProject from "./pages/OrgProject.tsx";
 import OrganizationMemebersPage from "./pages/OrganizationMembersPage.tsx";
 import OrgMember from "./pages/OrgMember.tsx";
+import NotAuthorized from "./components/utils/NotAuthorized.tsx";
 
 function App() {
   return (
@@ -29,12 +30,14 @@ function App() {
       <ToastProvider>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/verify-otp" element={<OtpVerificationPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/save-password" element={<SavePasswordPage />} />
+          <Route element={<NotAuthorized />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/verify-otp" element={<OtpVerificationPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/save-password" element={<SavePasswordPage />} />
+          </Route>
           <Route path="/invitations" element={<Invitations />} />
 
           {/* Protected routes */}
@@ -57,7 +60,7 @@ function App() {
               element={<OrganizationProjectsPage />}
             />
             <Route
-              path="/dashboard/organizations/:slug/projects"
+              path="/dashboard/organizations/:slug/members"
               element={<OrganizationMemebersPage />}
             />
             <Route

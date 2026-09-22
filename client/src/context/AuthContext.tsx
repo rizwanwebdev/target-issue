@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import getMe from "../api/auth/getMe";
 import logoutApi from "../api/auth/logout.api.ts";
+import { useToast } from "./ToastProvider.tsx";
 
 interface User {
   fullName: string;
@@ -19,17 +20,20 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadUser() {
     const result = await getMe();
+    console.log(result);
 
     if (!result.error) {
       setUser(result.user);
     } else {
+      if (result.status === 429) {
+        console.log(result.message || "Too Many Requests", "warning");
+      }
       setUser(null);
     }
   }

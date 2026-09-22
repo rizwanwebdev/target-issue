@@ -34,7 +34,6 @@ const SavePasswordPage = () => {
       ) {
         setErr("Password Dose Not Matched");
       }
-      console.log(credentials);
       const result = await savePassword(token, String(credentials.password));
       if (result.error && result.message.includes("Token")) {
         addToast(result.message, "error");

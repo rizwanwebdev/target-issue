@@ -8,7 +8,7 @@ import projectRoutes from "./projectRoutes.js";
 import teamRoutes from "./teamRoutes.js";
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Limit each IP to 20 auth requests per window
+  max: 50, // Limit each IP to 20 auth requests per window
   message: {
     error: true,
     message: "Too many requests, please try again later.",
