@@ -40,7 +40,7 @@ export const Aside = ({ slug }: Props) => {
   ];
   return (
     <>
-      <aside className="max-h-screen h-screen  flex py-6 flex-col gap-6 items-center border border-gray-300  max-lg:hidden  w-fit">
+      <aside className="h-screen shrink-0 flex py-6 flex-col gap-6 items-center border border-gray-300 max-lg:hidden w-fit">
         <div className="px-6">
           <Link
             to="/dashboard"
