@@ -24,6 +24,8 @@ import OrgMember from "@/pages/dashboard/OrgMember.tsx";
 import NotAuthorized from "@/components/utils/NotAuthorized.tsx";
 import DashboardLayout from "@/components/dashboard/layout/DashboradLayout.tsx";
 import OrganizationLayout from "@/components/dashboard/layout/OrganizationLayout.tsx";
+import InsightsPage from "@/pages/dashboard/InsightsPage";
+import AccountAndSettingsPage from "@/pages/dashboard/AccountAndSettingsPage";
 
 function App() {
   return (
@@ -48,6 +50,11 @@ function App() {
             <Route
               path="/dashboard/organizations"
               element={<DashOrganization />}
+            />
+            <Route path="/dashboard/insights" element={<InsightsPage />} />
+            <Route
+              path="/dashboard/account"
+              element={<AccountAndSettingsPage />}
             />
 
             <Route

@@ -25,9 +25,8 @@ export const Aside = ({ slug }: Props) => {
 
   const asideLinks = [
     { linkName: "Organizations", to: "/dashboard/organizations" },
-    { linkName: "Logs", to: "/dashboard/organizations" },
-    { linkName: "Insights", to: "/dashboard/organizations" },
-    { linkName: "Account", to: "/dashboard/organizations" },
+    { linkName: "Insights", to: "/dashboard/insights" },
+    { linkName: "Account", to: "/dashboard/account" },
   ];
   const asideOrgLinks = [
     {
