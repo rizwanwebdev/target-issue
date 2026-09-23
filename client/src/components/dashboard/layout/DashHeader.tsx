@@ -4,7 +4,7 @@ const DashHeader = () => {
   const { user } = useAuth();
   return (
     <>
-      <header className="flex justify-between w-full">
+      <header className="flex justify-between w-full sticky top-0 px-6 py-4 border-b border-b-gray-300">
         <div>
           <input
             type="text"
@@ -15,6 +15,7 @@ const DashHeader = () => {
             className="border border-gray-400 rounded p-2 min-w-30"
           />
         </div>
+
         <div className="flex gap-2">
           <div className="relative">
             <div className=" h-full aspect-square bg-red-500 rounded-full shadow"></div>

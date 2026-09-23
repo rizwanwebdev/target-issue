@@ -58,7 +58,7 @@ const DashOrganization = () => {
       <title>Organizations | Create & Manage</title>
       <meta name="description" content="Create and Manage Organizations" />
 
-      <main className="bg-gray-50 p-4 md:px-8">
+      <main className="bg-gray-50">
         <div className="min-h-screen flex flex-col items-center gap-4">
           <div className="max-w-md w-full">
             <form

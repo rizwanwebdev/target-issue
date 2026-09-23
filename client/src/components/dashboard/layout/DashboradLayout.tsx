@@ -8,7 +8,7 @@ const DashboardLayout = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-screen flex justify-center items-center">
+      <div className="w-full min-h-screen flex justify-center items-center">
         <p>Loading...</p>
       </div>
     );
@@ -17,16 +17,18 @@ const DashboardLayout = () => {
   if (!authenticated) {
     return <Navigate to="/login" replace />;
   }
+
   return (
-    <>
-      <div className="flex h-screen overflow-hidden">
-        <Aside slug={slug} />
-        <div className="flex-1 min-w-0 overflow-y-auto p-6">
-          <DashHeader />
+    <div className="flex">
+      <Aside slug={slug} />
+
+      <div className="flex-1 min-w-0">
+        <DashHeader />
+        <main className="p-6">
           <Outlet />
-        </div>
+        </main>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -26,7 +26,7 @@ const OrgMember = () => {
 
   return (
     <>
-      <main className="bg-gray-50 p-4 md:px-8">
+      <main className="bg-gray-50">
         <div className="min-h-screen flex flex-col items-center gap-4">
           <div className="p-4 border w-full">
             <p>Name: {result?.full_name}</p>
