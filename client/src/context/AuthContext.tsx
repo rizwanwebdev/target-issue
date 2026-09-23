@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import getMe from "../api/auth/getMe";
-import logoutApi from "../api/auth/logout.api.ts";
+import getMe from "@/api/auth/getMe";
+import logoutApi from "@/api/auth/logout.api.ts";
 
 interface User {
   fullName: string;

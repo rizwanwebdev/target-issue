@@ -1,7 +1,7 @@
 import { useSearchParams } from "react-router-dom";
-import OtpVerification from "../components/utils/OtpVerification.tsx";
-import { useToast } from "../context/ToastProvider.tsx";
-import verifyOtp from "../api/auth/verifyOtp.api.ts";
+import OtpVerification from "@/components/utils/OtpVerification.tsx";
+import { useToast } from "@/context/ToastProvider.tsx";
+import verifyOtp from "@/api/auth/verifyOtp.api.ts";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 const OtpVerificationPage = () => {

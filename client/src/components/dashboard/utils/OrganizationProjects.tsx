@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useToast } from "../../../context/ToastProvider.tsx";
-import getProjects, {
-  type Project,
-} from "../../../api/project/getProjects.api.ts";
-import type { Organization } from "../../../api/org/getOrg.api.ts";
+import { useToast } from "@/context/ToastProvider.tsx";
+import getProjects, { type Project } from "@/api/project/getProjects.api.ts";
+import type { Organization } from "@/api/org/getOrg.api.ts";
 
 type Props = {
   slug: string;

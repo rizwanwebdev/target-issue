@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import acceptInvitation from "../api/org/acceptInvitation.api.ts";
+import acceptInvitation from "@/api/org/acceptInvitation.api.ts";
 import { useEffect, useState } from "react";
-import { useToast } from "../context/ToastProvider.tsx";
+import { useToast } from "@/context/ToastProvider.tsx";
 
 const Invitations = () => {
   const [searchParams] = useSearchParams();

@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import checkPasswordStrength, {
   type PasswordCheckRule,
   type PasswordStrengthResult,
-} from "../utils/CheckStrongPassowrd";
-import { useToast } from "../context/ToastProvider.tsx";
-import register from "../api/auth/register.api.ts";
+} from "@/utils/CheckStrongPassowrd";
+import { useToast } from "@/context/ToastProvider.tsx";
+import register from "@/api/auth/register.api.ts";
 
 // Readable messages for each validation rule key
 const PASSWORD_ERROR_MESSAGES: Record<PasswordCheckRule, string> = {

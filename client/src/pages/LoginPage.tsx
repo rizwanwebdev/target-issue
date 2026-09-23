@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import login from "../api/auth/login.api.ts";
-import { useToast } from "../context/ToastProvider.tsx";
-import { useAuth } from "../context/AuthContext.tsx";
+import login from "@/api/auth/login.api.ts";
+import { useToast } from "@/context/ToastProvider.tsx";
+import { useAuth } from "@/context/AuthContext.tsx";
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

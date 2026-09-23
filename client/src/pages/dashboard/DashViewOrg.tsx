@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import type { Organization } from "../api/org/getAllOrganizations.ts";
+import type { Organization } from "@/api/org/getAllOrganizations.ts";
 import { useEffect } from "react";
 
 type OrganizationContext = {

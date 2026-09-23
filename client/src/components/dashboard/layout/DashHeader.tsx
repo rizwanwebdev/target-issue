@@ -1,4 +1,4 @@
-import { useAuth } from "../../../context/AuthContext.tsx";
+import { useAuth } from "@/context/AuthContext.tsx";
 
 const DashHeader = () => {
   const { user } = useAuth();

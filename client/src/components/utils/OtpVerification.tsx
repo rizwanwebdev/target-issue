@@ -7,13 +7,13 @@ import {
   type ClipboardEvent,
   type FormEvent,
 } from "react";
-import { useToast } from "../../context/ToastProvider.tsx";
+import { useToast } from "@/context/ToastProvider.tsx";
 interface OtpVerificationProps {
   length?: number;
   verificationToken: string | null;
   onVerify: (otp: string) => void;
 }
-import resendOtp from "../../api/auth/resendOtp.api.ts";
+import resendOtp from "@/api/auth/resendOtp.api.ts";
 export default function OtpVerification({
   length = 6,
   onVerify,

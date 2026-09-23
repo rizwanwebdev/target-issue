@@ -1,6 +1,6 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import savePassword from "../api/auth/savePassword.api.ts";
-import { useToast } from "../context/ToastProvider.tsx";
+import savePassword from "@/api/auth/savePassword.api.ts";
+import { useToast } from "@/context/ToastProvider.tsx";
 import { useState, useEffect } from "react";
 
 const SavePasswordPage = () => {
