@@ -16,8 +16,6 @@ const OrganizationTeamsPage = () => {
 
   return (
     <main>
-      <h1>{organization.name}</h1>
-
       {isAdmin && slug && <CreateTeamForm slug={slug} />}
       {slug && <OragnizationTeams slug={slug} />}
       {/* projects */}

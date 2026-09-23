@@ -26,6 +26,7 @@ import DashboardLayout from "@/components/dashboard/layout/DashboradLayout.tsx";
 import OrganizationLayout from "@/components/dashboard/layout/OrganizationLayout.tsx";
 import InsightsPage from "@/pages/dashboard/InsightsPage";
 import AccountAndSettingsPage from "@/pages/dashboard/AccountAndSettingsPage";
+import OrganizationIssuesPage from "@/pages/dashboard/OrganizationIssuesPage";
 
 function App() {
   return (
@@ -68,12 +69,13 @@ function App() {
               <Route path="projects" element={<OrganizationProjectsPage />} />
 
               <Route path="members" element={<OrganizationMemebersPage />} />
+              <Route path="issues" element={<OrganizationIssuesPage />} />
 
-              <Route path="teams/:team" element={<OrgTeam />} />
+              <Route path="teams/:teamId" element={<OrgTeam />} />
 
-              <Route path="projects/:project" element={<OrgProject />} />
+              <Route path="projects/:projectId" element={<OrgProject />} />
 
-              <Route path="members/:member" element={<OrgMember />} />
+              <Route path="members/:memberId" element={<OrgMember />} />
             </Route>
           </Route>
 

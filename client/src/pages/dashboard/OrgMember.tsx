@@ -4,28 +4,28 @@ import getSingleMember, { type Member } from "@/api/org/getSingleMember.api.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
 
 const OrgMember = () => {
-  const { slug, member } = useParams<{ slug: string; member: string }>();
+  const { slug, memberId } = useParams<{ slug: string; memberId: string }>();
   const { addToast } = useToast();
   const [result, setResult] = useState<Member | null>(null);
 
   useEffect(() => {
     const getResults = async () => {
-      if (!slug || !member) {
+      if (!slug || !memberId) {
         return;
       }
-      const res = await getSingleMember(Number(member), slug);
+      const res = await getSingleMember(Number(memberId), slug);
       if (res.error) {
         addToast(res.message, "error");
       }
       setResult(res.member);
     };
     getResults();
-  }, [slug, member]);
+  }, [slug, memberId]);
 
   return (
     <>
       <main className="bg-gray-50">
-        <div className="min-h-screen flex flex-col items-center gap-4">
+        <div className=" flex flex-col items-center gap-4">
           <div className="p-4 border w-full">
             <p>Name: {result?.full_name}</p>
             <p>Role: {result?.role}</p>

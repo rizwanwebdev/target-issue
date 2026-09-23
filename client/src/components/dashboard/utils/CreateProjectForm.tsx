@@ -79,7 +79,12 @@ const CreateProjectForm = ({ slug }: Params) => {
             min={today}
             required
           />
-          <select name="project_status" defaultValue="new" id="project_status">
+          <select
+            name="project_status"
+            defaultValue="new"
+            id="project_status"
+            required
+          >
             <option value="new">New</option>
             <option value="ongoing">On Going</option>
             <option value="completed">Completed</option>

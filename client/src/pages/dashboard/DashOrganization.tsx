@@ -59,7 +59,7 @@ const DashOrganization = () => {
       <meta name="description" content="Create and Manage Organizations" />
 
       <main className="bg-gray-50">
-        <div className="min-h-screen flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4">
           <div className="max-w-md w-full">
             <form
               onSubmit={handleSubmit}
