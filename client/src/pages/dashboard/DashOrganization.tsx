@@ -1,42 +1,14 @@
 import { Link } from "react-router-dom";
-import createOrg from "@/api/org/createOrg.ts";
 import getAllOrganizations, {
   type Organization,
 } from "@/api/org/getAllOrganizations.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
 import { useEffect, useState } from "react";
+import CreateOrgModal from "@/components/modals/CreateOrgModal";
 const DashOrganization = () => {
   const { addToast } = useToast();
   const [orgs, setOrgs] = useState<Organization[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const form = e.currentTarget;
-    try {
-      const formData = new FormData(form);
-      const credentials = Object.fromEntries(formData.entries());
-
-      const result = await createOrg({
-        name: String(credentials.name),
-        slug: String(credentials.slug),
-        description: String(credentials.description),
-      });
-
-      if (result.error) {
-        addToast(result.message, "error");
-        return;
-      }
-
-      addToast(result.message, "success");
-      form.reset();
-    } catch (error) {
-      addToast(
-        error instanceof Error ? error.message : "Something went wrong",
-        "error",
-      );
-    }
-  };
   useEffect(() => {
     async function getAll() {
       const result = await getAllOrganizations();
@@ -57,64 +29,72 @@ const DashOrganization = () => {
     <>
       <title>Organizations | Create & Manage</title>
       <meta name="description" content="Create and Manage Organizations" />
-
-      <main className="bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="max-w-md w-full">
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col *:border *:p-2 gap-3"
-            >
-              <input
-                type="text"
-                name="name"
-                minLength={4}
-                placeholder="Enter Organization Name"
-                required
-              />
-
-              <input
-                type="text"
-                name="slug"
-                minLength={6}
-                placeholder="Enter Organization Slug like my-org"
-                required
-              />
-
-              <textarea
-                name="description"
-                id="description"
-                rows={6}
-                maxLength={200}
-              ></textarea>
-
-              <button type="submit" className="cursor-pointer">
-                Create ORG
-              </button>
-            </form>
+      <section className="mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold text-text">
+              Your Organizations
+            </h1>
+            <p className="text-sm text-gray-500">
+              Manage the organizations you belong to.
+            </p>
           </div>
-          <div className="flex flex-col items-center w-full gap-4">
-            {orgs.map((org) => (
-              <div
-                key={org.slug}
-                className="w-full flex flex-col flex-wrap justify-between border border-gray-400 p-2 rounded-lg"
-              >
-                <div className="flex flex-row flex-wrap justify-between ">
+
+          <CreateOrgModal />
+        </div>
+      </section>
+
+      <section>
+        <div className="flex w-full flex-col gap-3">
+          {orgs.map((org) => (
+            <div
+              key={org.slug}
+              className="group flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md"
+            >
+              {/* Organization info */}
+              <div className="flex min-w-0 items-center gap-4">
+                {/* Logo */}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
+                  {org.logo_url ? (
+                    <img
+                      src={org.logo_url}
+                      alt={`${org.name} logo`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    org.name.charAt(0).toUpperCase()
+                  )}
+                </div>
+
+                {/* Name + description */}
+                <div className="min-w-0">
                   <Link
-                    className="text-indigo-600"
                     to={`/dashboard/organizations/${org.slug}`}
+                    className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
                   >
                     {org.name}
                   </Link>
-                  <span>{org.logo_url}</span>
-                  <span className="text-green-600">{org.role}</span>
+
+                  <p className="mt-1 line-clamp-2 text-sm text-gray-500">
+                    {org.description || "No description provided."}
+                  </p>
                 </div>
-                <span className="text-wrap">{org.description}</span>
               </div>
-            ))}
-          </div>
+
+              {/* Role */}
+              <span
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                  org.role === "admin"
+                    ? "bg-accent/10 text-accent"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {org.role}
+              </span>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
     </>
   );
 };

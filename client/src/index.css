@@ -8,14 +8,19 @@
   --hover-color: #3e92cc;
   --background-color: #fffaff;
   --accent-color: #10b981;
+  --modal-color: #00000050;
 }
-
+hr {
+  color: #d1d5dc;
+  margin-block: 12px;
+}
 @theme {
   --color-text: var(--text-color);
   --color-primary: var(--primary-color);
   --color-hover: var(--hover-color);
   --color-background: var(--background-color);
   --color-accent: var(--accent-color);
+  --color-modal: var(--modal-color);
 }
 
 @layer base {
@@ -32,10 +37,10 @@
 @layer components {
   .btn {
     @apply inline-flex items-center;
-    @apply rounded-full px-4 py-2 w-full;
+    @apply rounded-full! px-4 py-2;
     @apply font-sans font-medium;
     @apply shadow-sm transition-all duration-200;
-    @apply active:scale-90 focus:outline-yellow-300;
+    @apply active:scale-95;
   }
 
   .btn-primary {
@@ -46,6 +51,9 @@
     @apply bg-accent text-white hover:bg-hover;
   }
 
+  .btn-secondry {
+    @apply bg-hover text-white hover:bg-accent;
+  }
   .btn-dark {
     @apply bg-text text-white hover:bg-hover;
   }

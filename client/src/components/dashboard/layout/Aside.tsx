@@ -126,7 +126,7 @@ export const Aside = ({ slug }: Props) => {
           </div>
         </div>
         <div className="w-full flex px-6">
-          <button onClick={handleLogout} className="btn btn-dark">
+          <button onClick={handleLogout} className="btn btn-dark w-full">
             Logout
           </button>
         </div>
