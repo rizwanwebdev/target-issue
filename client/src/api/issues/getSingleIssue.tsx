@@ -8,7 +8,7 @@ export type Issue = {
   priority: string;
   severity: string;
 };
-async function getAllIssues(organizationId: number) {
+async function getSingleIssue(organizationId: number) {
   try {
     if (!organizationId) {
       return {
@@ -16,7 +16,7 @@ async function getAllIssues(organizationId: number) {
         message: "Organization Id is required to find issues,",
       };
     }
-    const result = await fetch("/api/v1/issues/get-issues", {
+    const result = await fetch("/api/v1/issues/issue", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -34,4 +34,4 @@ async function getAllIssues(organizationId: number) {
     };
   }
 }
-export default getAllIssues;
+export default getSingleIssue;
