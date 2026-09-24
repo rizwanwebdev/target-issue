@@ -9,11 +9,11 @@ CREATE TABLE IF NOT EXISTS todos(
     status VARCHAR(20)
         NOT NULL
         DEFAULT 'orphan'
-        CHECK (role IN ('orphan','assigned', 'completed', 'archive')),
+        CHECK (status IN ('orphan','assigned', 'completed', 'archive')),
     priority VARCHAR(20)
         NOT NULL
         DEFAULT 'low'
-        CHECK (role IN ('low', 'medium', 'high')),
+        CHECK (priority IN ('low', 'medium', 'high')),
     due_date TIMESTAMPTZ NOT NULL,
     completed_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,

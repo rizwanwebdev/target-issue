@@ -1,7 +1,7 @@
 export type Issue = {
   organizationId: number;
   projectId: number;
-  name: string;
+  title: string;
   description: string;
   due_date: string;
   issue_status: string;

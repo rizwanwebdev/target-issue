@@ -7,7 +7,7 @@ export async function createProject(req, res) {
     slug,
     name,
     description,
-    status: PROJECT_STATUS,
+    status: project_status,
     startDate,
     targetDate,
   } = req.body;
@@ -20,8 +20,8 @@ export async function createProject(req, res) {
   const start = new Date(startDate);
   const target = new Date(targetDate);
   const PROJECT_STATUSES = ["new", "ongoing", "completed", "archive"];
-  if ((!PROJECT_STATUS) in PROJECT_STATUSES) {
-    PROJECT_STATUS = "ongoing";
+  if (!PROJECT_STATUSES.includes(project_status.toLowerCase())) {
+    project_status = "ongoing";
   }
   if (Number.isNaN(start.getTime()) || Number.isNaN(target.getTime())) {
     return res.status(400).json({

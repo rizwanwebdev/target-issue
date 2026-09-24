@@ -3,22 +3,22 @@ CREATE TABLE IF NOT EXISTS issues(
     organization_id INTEGER NOT NULL REFERENCES organization(id),
     project_id INTEGER NOT NULL REFERENCES project(id),
     created_by INTEGER NOT NULL REFERENCES users(id),
-    reporter_id INTEGER NOT NULL REFERENCES users(id),
+    -- reporter_id INTEGER NOT NULL REFERENCES users(id),
     issue_number INTEGER NOT NULL DEFAULT 0,
     title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     status VARCHAR(20)
         NOT NULL
         DEFAULT 'orphan'
-        CHECK (role IN ('orphan','assigned', 'completed', 'archive')),
+        CHECK (status IN ('orphan','assigned', 'resolved', 'archive', 'closed')),
     priority VARCHAR(20)
         NOT NULL
         DEFAULT 'low'
-        CHECK (role IN ('low', 'medium', 'high')),
+        CHECK (priority IN ('low', 'medium', 'high')),
     severity VARCHAR(20)
         NOT NULL
         DEFAULT 'minor'
-        CHECK (role IN ('critical', 'major', 'minor','trival')),
+        CHECK (severity IN ('critical', 'major', 'minor','trival')),
     due_date TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '30 minutes',
     resolved_at TIMESTAMPTZ,
     closed_at TIMESTAMPTZ,

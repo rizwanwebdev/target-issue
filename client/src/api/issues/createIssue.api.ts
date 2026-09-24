@@ -1,7 +1,7 @@
 async function createIssue(
   organizationId: number,
   projectId: number,
-  name: string,
+  title: string,
   description: string,
   due_date: string,
   issue_status: string,
@@ -11,7 +11,7 @@ async function createIssue(
   try {
     if (
       !organizationId ||
-      !name ||
+      !title ||
       !description ||
       !projectId ||
       !due_date ||
@@ -22,7 +22,7 @@ async function createIssue(
       return {
         error: true,
         message:
-          "All fileds are required i.e organizationId, name, description, projectId, due_date, issue_status, priority, severity",
+          "All fileds are required i.e organizationId, title, description, projectId, due_date, issue_status, priority, severity",
       };
     }
     const result = await fetch("/api/v1/issues/create-issue", {
@@ -34,7 +34,7 @@ async function createIssue(
       body: JSON.stringify({
         organizationId: organizationId,
         projectId: projectId,
-        name: name,
+        title: title,
         description: description,
         due_date: due_date,
         issue_status: issue_status,
