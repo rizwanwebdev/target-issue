@@ -2,11 +2,13 @@ let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(): Promise<boolean> {
   if (!refreshPromise) {
-    refreshPromise = fetch("/api/v1/auth/refresh", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then(async (response) => {
+    refreshPromise = (async () => {
+      try {
+        const response = await fetch("/api/v1/auth/refresh", {
+          method: "GET",
+          credentials: "include",
+        });
+
         const data = await response
           .clone()
           .json()
@@ -19,14 +21,13 @@ async function refreshAccessToken(): Promise<boolean> {
         });
 
         return response.ok;
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("[AUTH REFRESH ERROR]", error);
         return false;
-      })
-      .finally(() => {
+      } finally {
         refreshPromise = null;
-      });
+      }
+    })();
   }
 
   return refreshPromise;
@@ -39,12 +40,12 @@ async function apiFetch(input: RequestInfo | URL, options: RequestInit = {}) {
       credentials: "include",
     });
 
-  // First attempt
+  // First request
   let response = await request();
 
   console.log("[API]", input, response.status);
 
-  // Everything except 401 continues normally
+  // Not unauthorized
   if (response.status !== 401) {
     return response;
   }
@@ -60,10 +61,7 @@ async function apiFetch(input: RequestInfo | URL, options: RequestInit = {}) {
     data,
   });
 
-  // Refresh when:
-  // - access token expired
-  // - access token doesn't exist
-  const shouldRefresh = ["ACCESS_TOKEN_EXPIRED", "NO_ACCESS_TOKEN"].includes(
+  const shouldRefresh = ["TOKEN_EXPIRED", "NO_ACCESS_TOKEN"].includes(
     data?.code,
   );
 
@@ -79,11 +77,13 @@ async function apiFetch(input: RequestInfo | URL, options: RequestInit = {}) {
   console.log("[AUTH] Refresh result:", refreshed);
 
   if (!refreshed) {
+    console.log("[AUTH] Refresh failed");
     return response;
   }
 
-  console.log("[AUTH] Retrying original request...");
+  console.log("[AUTH] Refresh succeeded → retrying original request");
 
+  // Retry with the newly issued access-token cookie
   return request();
 }
 

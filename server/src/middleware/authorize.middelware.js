@@ -50,13 +50,10 @@ export default async function authorize(req, res, next) {
       id: decoded.id,
       sessionId: decoded.sessionId,
     };
-    console.log(
-      {
-        USER_ID: decoded.id,
-        SESSION_ID: decoded.sessionId,
-      },
-      "--------------------",
-    );
+    console.log({
+      USER_ID: decoded.id,
+      SESSION_ID: decoded.sessionId,
+    });
 
     next();
   } catch (error) {

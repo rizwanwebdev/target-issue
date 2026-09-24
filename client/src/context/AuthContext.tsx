@@ -6,10 +6,12 @@ interface User {
   fullName: string;
   email: string;
 }
+
 interface LogoutResult {
   error: boolean;
   message: string;
 }
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -19,33 +21,34 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadUser() {
-    const result = await getMe();
+    setLoading(true);
 
-    if (!result.error) {
-      setUser(result.user);
-    } else {
+    try {
+      const result = await getMe();
+
+      if (!result.error) {
+        setUser(result.user);
+        return;
+      }
+
       if (result.status === 429) {
         console.log(result.message || "Too Many Requests", "warning");
       }
+
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    async function initializeAuth() {
-      try {
-        await loadUser();
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    initializeAuth();
+    loadUser();
   }, []);
 
   async function refreshUser() {
