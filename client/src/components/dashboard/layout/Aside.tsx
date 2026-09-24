@@ -5,6 +5,30 @@ import { useAuth } from "@/context/AuthContext.tsx";
 type Props = {
   slug: string | undefined;
 };
+
+type AsideLink = {
+  linkName: string;
+  to: string;
+};
+
+const AsideNavLink = ({ linkName, to }: AsideLink) => {
+  return (
+    <NavLink
+      to={to}
+      end
+      className={({ isActive }) =>
+        `px-5 py-2 w-full rounded-full transition-all duration-200 font-medium ${
+          isActive
+            ? "bg-green-700 text-white"
+            : "bg-indigo-500 text-white hover:bg-indigo-700"
+        }`
+      }
+    >
+      {linkName}
+    </NavLink>
+  );
+};
+
 export const Aside = ({ slug }: Props) => {
   const { logout } = useAuth();
   const { addToast } = useToast();
@@ -23,20 +47,49 @@ export const Aside = ({ slug }: Props) => {
     navigate("/", { replace: true });
   };
 
-  const asideLinks = [
-    { linkName: "Organizations", to: "/dashboard/organizations" },
-    { linkName: "Insights", to: "/dashboard/insights" },
-    { linkName: "Account", to: "/dashboard/account" },
+  const commonLinks = [
+    {
+      linkName: "Insights",
+      to: "/dashboard/insights",
+    },
+    {
+      linkName: "Account",
+      to: "/dashboard/account",
+    },
   ];
-  const asideOrgLinks = [
+
+  const dashboardLinks = [
+    {
+      linkName: "Overview",
+      to: "/dashboard",
+    },
+    {
+      linkName: "Organizations",
+      to: "/dashboard/organizations",
+    },
+  ];
+
+  const organizationLinks = [
     {
       linkName: "Organization",
       to: `/dashboard/organizations/${slug}`,
     },
-    { linkName: "Projects", to: `/dashboard/organizations/${slug}/projects` },
-    { linkName: "Teams", to: `/dashboard/organizations/${slug}/teams` },
-    { linkName: "Members", to: `/dashboard/organizations/${slug}/members` },
-    { linkName: "Issues", to: `/dashboard/organizations/${slug}/issues` },
+    {
+      linkName: "Projects",
+      to: `/dashboard/organizations/${slug}/projects`,
+    },
+    {
+      linkName: "Teams",
+      to: `/dashboard/organizations/${slug}/teams`,
+    },
+    {
+      linkName: "Members",
+      to: `/dashboard/organizations/${slug}/members`,
+    },
+    {
+      linkName: "Issues",
+      to: `/dashboard/organizations/${slug}/issues`,
+    },
   ];
   return (
     <>
@@ -55,34 +108,26 @@ export const Aside = ({ slug }: Props) => {
           </Link>
         </div>
         <div className="w-full h-px bg-gray-200 rounded-full"></div>
-        <div className="flex-1 flex gap-4 flex-col px-6 w-full">
-          {!slug &&
-            asideLinks.map((l) => (
-              <Link
-                key={l.linkName}
-                to={l.to}
-                className="px-5 py-2 active:bg-black bg-indigo-500 rounded-full text-white font-medium"
-              >
-                {l.linkName}
-              </Link>
+        <div className="flex-1 flex gap-4 flex-col justify-between px-6 w-full *:flex *:flex-col *:gap-3">
+          {!slug && (
+            <div>
+              {dashboardLinks.map((link) => (
+                <AsideNavLink key={link.linkName} {...link} />
+              ))}
+            </div>
+          )}
+          {slug && (
+            <div>
+              {organizationLinks.map((link) => (
+                <AsideNavLink key={link.linkName} {...link} />
+              ))}
+            </div>
+          )}
+          <div>
+            {commonLinks.map((link) => (
+              <AsideNavLink key={link.linkName} {...link} />
             ))}
-          {slug &&
-            asideOrgLinks.map((l) => (
-              <NavLink
-                key={l.linkName}
-                to={l.to}
-                end={l.linkName === "Organization"}
-                className={({ isActive }) =>
-                  `px-5 py-2 w-full rounded-full transition-all duration-200 font-medium ${
-                    isActive
-                      ? "bg-green-700 text-white hover:bg-green-800"
-                      : "bg-indigo-500 text-white hover:bg-indigo-700"
-                  }`
-                }
-              >
-                {l.linkName}
-              </NavLink>
-            ))}
+          </div>
         </div>
         <div className="w-full flex px-6">
           <button
