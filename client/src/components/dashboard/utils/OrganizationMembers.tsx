@@ -32,7 +32,7 @@ const OrganizationMembers = ({ slug, organization }: Props) => {
     }
 
     getAll();
-  }, [organization, slug, page, limit, addToast]);
+  }, [organization, slug, page, limit]);
 
   return (
     <section className="w-full py-4">

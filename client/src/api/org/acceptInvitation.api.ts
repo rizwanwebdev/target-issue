@@ -1,6 +1,8 @@
+import apiFetch from "@/api/auth/client.ts";
+
 async function acceptInvitation(token: string) {
   try {
-    const res = await fetch("/api/v1/org/accept-invitation", {
+    const res = await apiFetch("/api/v1/org/accept-invitation", {
       method: "POST",
       credentials: "include",
       headers: {

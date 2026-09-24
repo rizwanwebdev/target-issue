@@ -34,7 +34,7 @@ async function getSingleMember(memberId: number, slug: string) {
   } catch (error) {
     return {
       error: true,
-      message: "Something Went Wrong",
+      message: error instanceof Error ? error.message : "Something went wrong",
     };
   }
 }

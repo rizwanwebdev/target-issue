@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 type Field = {
   name: string;
   slug: string;
@@ -5,7 +7,7 @@ type Field = {
 };
 async function createOrg(fields: Field) {
   try {
-    const res = await fetch("/api/v1/org/create-org", {
+    const res = await apiFetch("/api/v1/org/create-org", {
       method: "POST",
       credentials: "include",
       headers: {

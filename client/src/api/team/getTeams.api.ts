@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 export type Team = {
   team_id: string;
   id: number;
@@ -13,7 +15,7 @@ async function getTeams(slug: string) {
     return { error: true, message: "Slug is required to find Teams" };
   }
   try {
-    const result = await fetch("/api/v1/team/get-teams", {
+    const result = await apiFetch("/api/v1/team/get-teams", {
       method: "POST",
       credentials: "include",
       headers: {

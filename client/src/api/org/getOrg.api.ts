@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 export type OrganizationRole = "admin" | "member" | "viewer";
 
 export interface Organization {
@@ -24,7 +26,7 @@ export interface GetOrgResponse {
 
 async function getOrg(slug: string): Promise<GetOrgResponse> {
   try {
-    const res = await fetch("/api/v1/org/get-org", {
+    const res = await apiFetch("/api/v1/org/get-org", {
       method: "POST",
       credentials: "include",
       headers: {

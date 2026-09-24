@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 async function createIssue(
   organizationId: number,
   projectId: number,
@@ -25,7 +27,7 @@ async function createIssue(
           "All fileds are required i.e organizationId, title, description, projectId, due_date, issue_status, priority, severity",
       };
     }
-    const result = await fetch("/api/v1/issues/create-issue", {
+    const result = await apiFetch("/api/v1/issues/create-issue", {
       method: "POST",
       credentials: "include",
       headers: {

@@ -51,7 +51,7 @@ const DashOrganization = () => {
     }
 
     getAll();
-  }, [addToast]);
+  }, []);
 
   return (
     <>

@@ -1,6 +1,8 @@
+import apiFetch from "@/api/auth/client.ts";
+
 async function inviteMemebers(slug: string, emails: string[]) {
   try {
-    const res = await fetch("/api/v1/org/invite", {
+    const res = await apiFetch("/api/v1/org/invite", {
       method: "POST",
       credentials: "include",
       headers: {

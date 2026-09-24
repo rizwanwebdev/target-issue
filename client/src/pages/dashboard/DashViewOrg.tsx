@@ -16,7 +16,6 @@ const DashViewOrg = () => {
   return (
     <>
       <meta name="description" content="Create and Manage Organizations" />
-
       <main className="bg-gray-50">
         <div className="min-h-screen flex flex-col items-center gap-4">
           <div className="p-4 border w-full">

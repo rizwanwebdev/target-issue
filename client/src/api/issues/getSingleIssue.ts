@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 export type Issue = {
   organizationId: number;
   projectId: number;
@@ -16,7 +18,7 @@ async function getSingleIssue(organizationId: number) {
         message: "Organization Id is required to find issues,",
       };
     }
-    const result = await fetch("/api/v1/issues/issue", {
+    const result = await apiFetch("/api/v1/issues/issue", {
       method: "POST",
       credentials: "include",
       headers: {

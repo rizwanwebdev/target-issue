@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 export type Issue = {
   slug: string;
   projectId: number;
@@ -16,7 +18,7 @@ async function getAllIssues(slug: string) {
         message: "Slug is required to find issues,",
       };
     }
-    const result = await fetch("/api/v1/issues/get-issues", {
+    const result = await apiFetch("/api/v1/issues/get-issues", {
       method: "POST",
       credentials: "include",
       headers: {

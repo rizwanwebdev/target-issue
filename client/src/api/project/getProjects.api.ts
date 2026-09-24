@@ -1,3 +1,4 @@
+import apiFetch from "@/api/auth/client.ts";
 export type Project = {
   description: string;
   id: number;
@@ -15,7 +16,7 @@ async function getProjects(slug: string) {
     return { error: true, message: "Slug is required to find projects" };
   }
   try {
-    const result = await fetch("/api/v1/project/get-projects", {
+    const result = await apiFetch("/api/v1/project/get-projects", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -27,7 +28,10 @@ async function getProjects(slug: string) {
     });
     return await result.json();
   } catch (error: any) {
-    return { error: true, message: error.message };
+    return {
+      error: true,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    };
   }
 }
 export default getProjects;

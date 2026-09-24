@@ -38,7 +38,7 @@ const OrganizationLayout = () => {
     }
 
     loadOrganization();
-  }, [slug, navigate, addToast]);
+  }, [slug, addToast]);
 
   if (loading) {
     return (

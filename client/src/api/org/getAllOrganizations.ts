@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 export type Organization = {
   id: number;
   name: string;
@@ -28,7 +30,7 @@ export type GetOrganizationsResponse =
 
 async function getAllOrganizations(): Promise<GetOrganizationsResponse> {
   try {
-    const res = await fetch("/api/v1/org/all-organizations", {
+    const res = await apiFetch("/api/v1/org/all-organizations", {
       credentials: "include",
     });
 

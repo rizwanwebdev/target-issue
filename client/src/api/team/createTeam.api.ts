@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 async function createTeam(
   slug: string,
   name: string,
@@ -11,7 +13,7 @@ async function createTeam(
         message: "All fileds are required i.e slug, name, description, color",
       };
     }
-    const result = await fetch("/api/v1/team/create-team", {
+    const result = await apiFetch("/api/v1/team/create-team", {
       method: "POST",
       credentials: "include",
       headers: {

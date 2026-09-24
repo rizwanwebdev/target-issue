@@ -1,6 +1,8 @@
+import apiFetch from "@/api/auth/client.ts";
+
 async function logoutApi() {
   try {
-    const res = await fetch("/api/v1/auth/logout", {
+    const res = await apiFetch("/api/v1/auth/logout", {
       credentials: "include",
     });
 

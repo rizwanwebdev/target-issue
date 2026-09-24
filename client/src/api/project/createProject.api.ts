@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 async function createProject(
   slug: string,
   name: string,
@@ -18,30 +20,32 @@ async function createProject(
       return {
         error: true,
         message:
-          "All fileds are required i.e slug, name, description, startDate, targetDate, project_status",
+          "All fields are required i.e slug, name, description, startDate, targetDate, project_status",
       };
     }
-    const result = await fetch("/api/v1/project/create-project", {
+
+    const response = await apiFetch("/api/v1/project/create-project", {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
-        name: name,
-        project_status: project_status,
-        description: description,
-        startDate: startDate,
-        targetDate: targetDate,
+        slug,
+        name,
+        project_status,
+        description,
+        startDate,
+        targetDate,
       }),
     });
-    return await result.json();
-  } catch (error: any) {
+
+    return await response.json();
+  } catch (error) {
     return {
       error: true,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Something went wrong",
     };
   }
 }
+
 export default createProject;

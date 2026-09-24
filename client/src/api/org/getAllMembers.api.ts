@@ -1,3 +1,5 @@
+import apiFetch from "@/api/auth/client.ts";
+
 export type Members = {
   user_id: number;
   email: string;
@@ -33,7 +35,7 @@ async function getAllMembersApi(
   limit: number,
 ): Promise<GetMembersResponse> {
   try {
-    const res = await fetch("/api/v1/org/all-members", {
+    const res = await apiFetch("/api/v1/org/all-members", {
       credentials: "include",
       method: "POST",
       headers: {
