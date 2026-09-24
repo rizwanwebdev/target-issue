@@ -17,11 +17,7 @@ const AsideNavLink = ({ linkName, to }: AsideLink) => {
       to={to}
       end
       className={({ isActive }) =>
-        `px-5 py-2 w-full rounded-full transition-all duration-200 font-medium ${
-          isActive
-            ? "bg-green-700 text-white"
-            : "bg-indigo-500 text-white hover:bg-indigo-700"
-        }`
+        isActive ? "btn btn-accent" : "btn btn-primary"
       }
     >
       {linkName}
@@ -130,10 +126,7 @@ export const Aside = ({ slug }: Props) => {
           </div>
         </div>
         <div className="w-full flex px-6">
-          <button
-            onClick={handleLogout}
-            className="px-5 py-2.5 bg-indigo-500 transition-all duration-200 hover:bg-indigo-700 w-full text-center rounded-full text-white font-medium"
-          >
+          <button onClick={handleLogout} className="btn btn-dark">
             Logout
           </button>
         </div>

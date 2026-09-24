@@ -14,6 +14,8 @@ const OrganizationIssuesPage = () => {
 
   return (
     <>
+      <title>Issues | Create & Manage</title>
+      <meta name="description" content="Create and Manage Issues" />
       <div className="flex flex-col gap-4 ">
         <p>{organization.name}</p>
         {slug && <OrganizationMembers slug={slug} />}

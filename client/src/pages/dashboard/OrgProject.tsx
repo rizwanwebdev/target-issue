@@ -33,6 +33,8 @@ const OrgProject = () => {
 
   return (
     <>
+      <title>Project | About</title>
+      <meta name="description" content="Information about Project" />
       <div className="flex flex-col gap-4">
         <section className="bg-gray-50">
           <div className="flex flex-col items-center gap-4">

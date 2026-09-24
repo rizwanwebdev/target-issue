@@ -1,7 +1,57 @@
 @import "tailwindcss";
-body {
-  position: relative;
+
+@import "tailwindcss";
+
+:root {
+  --text-color: #0c1618;
+  --primary-color: #0a2463;
+  --hover-color: #3e92cc;
+  --background-color: #fffaff;
+  --accent-color: #10b981;
 }
-button {
-  cursor: pointer;
+
+@theme {
+  --color-text: var(--text-color);
+  --color-primary: var(--primary-color);
+  --color-hover: var(--hover-color);
+  --color-background: var(--background-color);
+  --color-accent: var(--accent-color);
+}
+
+@layer base {
+  body {
+    position: relative;
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+@layer components {
+  .btn {
+    @apply inline-flex items-center;
+    @apply rounded-full px-4 py-2 w-full;
+    @apply font-sans font-medium;
+    @apply shadow-sm transition-all duration-200;
+    @apply active:scale-90 focus:outline-yellow-300;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-hover;
+  }
+
+  .btn-accent {
+    @apply bg-accent text-white hover:bg-hover;
+  }
+
+  .btn-dark {
+    @apply bg-text text-white hover:bg-hover;
+  }
+
+  .btn-light {
+    @apply bg-background text-text border border-gray-200;
+    @apply hover:bg-gray-100;
+  }
 }

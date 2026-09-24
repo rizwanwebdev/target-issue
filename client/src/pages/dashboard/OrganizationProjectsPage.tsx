@@ -16,11 +16,13 @@ const OrganizationProjectsPage = () => {
   const isAdmin = organization.role === "admin";
 
   return (
-    <main>
+    <>
+      <title>Projects | Create & Manage</title>
+      <meta name="description" content="Create and Manage Projects" />
       {isAdmin && slug && <CreateProjectForm slug={slug} />}
       {slug && <OrganizationProjects slug={slug} />}
       {/* projects */}
-    </main>
+    </>
   );
 };
 export default OrganizationProjectsPage;

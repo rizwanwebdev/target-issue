@@ -15,11 +15,12 @@ const OrganizationTeamsPage = () => {
   const isAdmin = organization.role === "admin";
 
   return (
-    <main>
+    <>
+      <title>Teams | Create & Manage</title>
+      <meta name="description" content="Create and Manage Teams" />
       {isAdmin && slug && <CreateTeamForm slug={slug} />}
       {slug && <OragnizationTeams slug={slug} />}
-      {/* projects */}
-    </main>
+    </>
   );
 };
 export default OrganizationTeamsPage;
