@@ -25,8 +25,7 @@ const OrgMember = () => {
   return (
     <>
       <title>Member | About</title>
-      <meta name="description" content="Information about member" />
-      <main className="bg-gray-50">
+      <main>
         <div className=" flex flex-col items-center gap-4">
           <div className="p-4 border w-full">
             <p>Name: {result?.full_name}</p>

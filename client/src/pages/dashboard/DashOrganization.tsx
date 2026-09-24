@@ -28,7 +28,6 @@ const DashOrganization = () => {
   return (
     <>
       <title>Organizations | Create & Manage</title>
-      <meta name="description" content="Create and Manage Organizations" />
       <section className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

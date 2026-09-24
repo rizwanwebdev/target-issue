@@ -56,7 +56,7 @@ const SavePasswordPage = () => {
     <>
       <title>Save New Password| Target Issue</title>
 
-      <main className="bg-gray-50 px-4 md:px-8">
+      <main className="px-4 md:px-8">
         <div className="min-h-screen flex flex-col items-center justify-center">
           <div className="max-w-md w-full">
             <Link to="/">

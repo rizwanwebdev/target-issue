@@ -18,7 +18,6 @@ const OrganizationMemebersPage = () => {
   return (
     <>
       <title>Members | Create & Manage</title>
-      <meta name="description" content="Create and Manage Members" />
       {isAdmin && slug && <InviteMemebersForm slug={slug} />}
       {slug && <OrganizationMembers slug={slug} />}
       {/* projects */}

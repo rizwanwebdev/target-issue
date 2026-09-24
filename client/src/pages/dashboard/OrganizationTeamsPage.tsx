@@ -17,7 +17,6 @@ const OrganizationTeamsPage = () => {
   return (
     <>
       <title>Teams | Create & Manage</title>
-      <meta name="description" content="Create and Manage Teams" />
       {isAdmin && slug && <CreateTeamForm slug={slug} />}
       {slug && <OragnizationTeams slug={slug} />}
     </>

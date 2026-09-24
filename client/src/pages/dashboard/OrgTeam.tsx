@@ -25,8 +25,7 @@ const OrgTeam = () => {
   return (
     <>
       <title>Team | About</title>
-      <meta name="description" content="Information about Team" />
-      <main className="bg-gray-50">
+      <main>
         <div className="flex flex-col items-center gap-4">
           <div className="p-4 border w-full">
             <p>{result?.name}</p>
