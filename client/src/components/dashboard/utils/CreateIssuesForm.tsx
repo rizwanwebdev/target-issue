@@ -1,11 +1,12 @@
-import createProject from "@/api/project/createProject.api.ts";
+import createIssue from "@/api/issues/createIssue.api";
 import { useToast } from "@/context/ToastProvider.tsx";
 
 type Params = {
-  slug: string;
+  organizationId: number;
+  projectId: number;
 };
 
-const CreateIssuesForm = ({ slug }: Params) => {
+const CreateIssuesForm = ({ organizationId, projectId }: Params) => {
   const { addToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -17,13 +18,15 @@ const CreateIssuesForm = ({ slug }: Params) => {
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
 
-      const result = await createProject(
-        slug,
+      const result = await createIssue(
+        organizationId,
+        projectId,
         String(credentials.name),
         String(credentials.description),
-        String(credentials.startDate),
-        String(credentials.targetDate),
-        String(credentials.project_status),
+        String(credentials.due_date),
+        String(credentials.issue_status),
+        String(credentials.priority),
+        String(credentials.severity),
       );
 
       if (result.error) {

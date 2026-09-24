@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { useToast } from "@/context/ToastProvider.tsx";
 import getSingleproject, {
   type Project,
 } from "@/api/project/getSingleproject.api.ts";
 import CreateIssuesForm from "@/components/dashboard/utils/CreateIssuesForm";
+import type { Organization } from "@/api/org/getAllOrganizations";
+
+type OrganizationContext = {
+  organization: Organization;
+};
 
 const OrgProject = () => {
   const { slug, projectId } = useParams<{ slug: string; projectId: string }>();
   const { addToast } = useToast();
   const [result, setResult] = useState<Project | null>(null);
+  const { organization } = useOutletContext<OrganizationContext>();
 
   useEffect(() => {
     const getResults = async () => {
@@ -36,7 +42,12 @@ const OrgProject = () => {
             </div>
           </div>
         </section>
-        {slug && <CreateIssuesForm slug={slug} />}
+        {slug && (
+          <CreateIssuesForm
+            organizationId={organization.id}
+            projectId={Number(projectId)}
+          />
+        )}
       </div>
     </>
   );
