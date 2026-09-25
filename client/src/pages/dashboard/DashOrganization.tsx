@@ -6,6 +6,7 @@ import { useToast } from "@/context/ToastProvider.tsx";
 import { useEffect, useState } from "react";
 import CreateOrgModal from "@/components/modals/CreateOrgModal";
 const DashOrganization = () => {
+  const [fetchAgain, setFetchAgain] = useState(false);
   const { addToast } = useToast();
   const [orgs, setOrgs] = useState<Organization[]>([]);
 
@@ -23,7 +24,7 @@ const DashOrganization = () => {
     }
 
     getAll();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <>
@@ -39,7 +40,10 @@ const DashOrganization = () => {
             </p>
           </div>
 
-          <CreateOrgModal />
+          <CreateOrgModal
+            fetchAgain={fetchAgain}
+            setFetchAgain={setFetchAgain}
+          />
         </div>
       </section>
 

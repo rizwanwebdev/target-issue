@@ -6,6 +6,8 @@ import authRoutes from "./authRoutes.js";
 import orgRoutes from "./orgRoutes.js";
 import projectRoutes from "./projectRoutes.js";
 import teamRoutes from "./teamRoutes.js";
+import issueRoutes from "./issueRoutes.js";
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50, // Limit each IP to 20 auth requests per window
@@ -23,5 +25,6 @@ router.use("/auth", authLimiter, authRoutes);
 router.use("/org", orgRoutes);
 router.use("/project", projectRoutes);
 router.use("/team", teamRoutes);
+router.use("/issues", issueRoutes);
 
 export default router;

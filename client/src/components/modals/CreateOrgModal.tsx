@@ -1,8 +1,11 @@
 import createOrg from "@/api/org/createOrg";
 import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
-
-const CreateOrgModal = () => {
+type Props = {
+  fetchAgain: boolean;
+  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const CreateOrgModal = ({ setFetchAgain, fetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
 
@@ -25,7 +28,7 @@ const CreateOrgModal = () => {
         addToast(result.message, "error");
         return;
       }
-
+      setFetchAgain(!fetchAgain);
       addToast(result.message, "success");
       form.reset();
       setOpenModal(false);
@@ -66,7 +69,7 @@ const CreateOrgModal = () => {
               <button
                 type="button"
                 onClick={() => setOpenModal(false)}
-                className="rounded-full px-2 py-1 text-xl text-gray-500 transition hover:bg-gray-100 hover:text-text"
+                className="btn btn-primary"
                 aria-label="Close modal"
               >
                 ×
@@ -88,7 +91,7 @@ const CreateOrgModal = () => {
                   minLength={4}
                   placeholder="Enter organization name"
                   required
-                  className="rounded-lg border border-gray-300 px-3 py-2 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="input-style"
                 />
               </div>
 
@@ -97,15 +100,22 @@ const CreateOrgModal = () => {
                 <label htmlFor="slug" className="text-sm font-medium text-text">
                   Organization Slug
                 </label>
-
                 <input
                   id="slug"
                   type="text"
                   name="slug"
                   minLength={6}
-                  placeholder="Enter organization slug, e.g. my-org"
+                  placeholder="Enter organization slug, e.g. target-issue"
+                  pattern="(?=.{6,}$)[a-z]+(?:-[a-z]+)*"
+                  title="More than 6 chracter. Use lowercase letters and single hyphens only, e.g. target-issue"
+                  onInput={(e) => {
+                    e.currentTarget.value = e.currentTarget.value
+                      .toLowerCase()
+                      .replace(/[^a-z-]/g, "")
+                      .replace(/-+/g, "-");
+                  }}
                   required
-                  className="rounded-lg border border-gray-300 px-3 py-2 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="input-style"
                 />
               </div>
 
@@ -116,9 +126,6 @@ const CreateOrgModal = () => {
                   className="text-sm font-medium text-text"
                 >
                   Description
-                  <span className="ml-1 font-normal text-gray-400">
-                    (optional)
-                  </span>
                 </label>
 
                 <textarea
@@ -126,8 +133,10 @@ const CreateOrgModal = () => {
                   name="description"
                   placeholder="Enter organization description"
                   rows={5}
+                  title="Please Fill Organization Description"
                   maxLength={200}
-                  className="resize-none rounded-lg border border-gray-300 px-3 py-2 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  required
+                  className="resize-none input-style"
                 />
               </div>
 

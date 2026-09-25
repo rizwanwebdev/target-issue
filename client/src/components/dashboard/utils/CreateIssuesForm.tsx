@@ -24,7 +24,6 @@ const CreateIssuesForm = ({ organizationId, projectId }: Params) => {
         String(credentials.name),
         String(credentials.description),
         String(credentials.due_date),
-        String(credentials.issue_status),
         String(credentials.priority),
         String(credentials.severity),
       );
@@ -94,22 +93,6 @@ const CreateIssuesForm = ({ organizationId, projectId }: Params) => {
               required
             />
           </div>
-          <div>
-            <label htmlFor="issue_status">Enter Issue Status</label>
-            <select
-              className="border p-2"
-              name="issue_status"
-              defaultValue="orphan"
-              id="issue_status"
-              required
-            >
-              <option value="orphan">Orphan</option>
-              <option value="assigned">Assigned</option>
-              <option value="completed">Completed</option>
-              <option value="archive">Archived</option>
-            </select>
-          </div>
-
           <div>
             <label htmlFor="priority">Enter Issue Priority</label>
             <select

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS todos(
 
 CREATE TABLE IF NOT EXISTS todo_assignees(
     id SERIAL PRIMARY KEY,
-    todo_id INTEGER NOT NULL REFERENCES todos(id),
+    todo_id INTEGER NOT NULL REFERENCES todos(id) ON DELETE CASCADE,
     user_id INTEGER NOT NULL REFERENCES users(id),
     assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (todo_id, user_id)

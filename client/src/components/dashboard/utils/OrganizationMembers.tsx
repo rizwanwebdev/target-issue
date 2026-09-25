@@ -35,40 +35,53 @@ const OrganizationMembers = ({ slug, organization }: Props) => {
   }, [organization, slug, page, limit]);
 
   return (
-    <section className="w-full py-4">
-      <div>
-        <h2 className="text-4xl font-semibold text-center my-2">
-          Organization Members
-        </h2>
-      </div>
-
-      <div className="flex w-full flex-col items-center gap-4">
+    <section className="my-4">
+      <div className="flex w-full flex-col gap-3">
         {members.map((member) => (
           <div
             key={member.user_id}
-            className="w-full flex flex-col flex-wrap justify-between border border-gray-400 p-2 rounded-lg"
+            className="group flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md"
           >
-            <div className="flex flex-row flex-wrap justify-between">
-              <Link
-                className="text-indigo-600"
-                to={`/dashboard/organizations/${slug}/members/${member.user_id}`}
-              >
-                {member.full_name}
-              </Link>
+            {/* Organization info */}
+            <div className="flex min-w-0 items-center gap-4">
+              {/* Logo */}
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
+                {member.avatar_url ? (
+                  <img
+                    src={member.avatar_url}
+                    alt={`${member.full_name} logo`}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  member.full_name.charAt(0).toUpperCase()
+                )}
+              </div>
 
-              <span
-                className="text-green-600"
-                aria-label="Member role in this oraganization"
-              >
-                {member.role}
-              </span>
+              {/* Name + description */}
+              <div className="min-w-0">
+                <Link
+                  to={`/dashboard/organizations/${slug}/members/${member.user_id}`}
+                  className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
+                >
+                  {member.full_name}
+                </Link>
 
-              <span className="text-green-600" aria-label="Joinged At Date">
-                {member.joined_at.split("T")[0]}
-              </span>
+                <p className="mt-1 line-clamp-2 text-sm text-gray-500">
+                  {member.email || "No description provided."}
+                </p>
+              </div>
             </div>
 
-            <span>{member.email}</span>
+            {/* Role */}
+            <span
+              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                member.role === "admin"
+                  ? "bg-accent/10 text-accent"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {member.role}
+            </span>
           </div>
         ))}
       </div>

@@ -13,7 +13,6 @@ export async function createIssue(req, res) {
       description,
       projectId,
       due_date,
-      issue_status,
       priority,
       severity,
     } = req.body;
@@ -24,14 +23,13 @@ export async function createIssue(req, res) {
       !description ||
       !projectId ||
       !due_date ||
-      !issue_status ||
       !priority ||
       !severity
     ) {
       return res.status(400).json({
         error: true,
         message:
-          "All fileds are required i.e organizationId, name, description, projectId, due_date, issue_status, priority, severity",
+          "All fileds are required i.e organizationId, name, description, projectId, due_date, priority, severity",
       });
     }
     const orgResult = await pool.query(
@@ -39,10 +37,10 @@ export async function createIssue(req, res) {
     SELECT
     o.id,
     om.organization_id,
-    om.user_id,
-    FROM organization o INNER JOIN organization_member om ON
+    om.user_id
+    FROM organization o INNER JOIN organization_members om ON
     o.id = om.organization_id
-    WHERE o.organization_id =$1 AND om.user_id = $2
+    WHERE o.id =$1 AND om.user_id = $2
     `,
       [organizationId, USERID],
     );
@@ -55,14 +53,13 @@ export async function createIssue(req, res) {
     }
 
     const result = await pool.query(
-      `INSERT INTO issues (organization_id, project_id, created_by, title, description, status, priority, severity, due_date) VALUES ($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
+      `INSERT INTO issues (organization_id, project_id, created_by, title, description, priority, severity, due_date) VALUES ($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
       [
         organizationId,
         projectId,
         USERID,
         title,
         description,
-        issue_status,
         priority,
         severity,
         due_date,

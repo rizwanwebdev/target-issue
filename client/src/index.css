@@ -9,9 +9,10 @@
   --background-color: #fffaff;
   --accent-color: #10b981;
   --modal-color: #00000050;
+  --border-color: #e5e7eb;
 }
 hr {
-  color: #d1d5dc;
+  color: #e5e7eb;
   margin-block: 12px;
 }
 @theme {
@@ -21,6 +22,7 @@ hr {
   --color-background: var(--background-color);
   --color-accent: var(--accent-color);
   --color-modal: var(--modal-color);
+  --color-border: var(--border-color);
 }
 
 @layer base {
@@ -35,6 +37,9 @@ hr {
   }
 }
 @layer components {
+  .input-style {
+    @apply rounded-lg border border-gray-300 px-3 py-2 outline-none transition-all duration-150 focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
   .btn {
     @apply inline-flex items-center;
     @apply rounded-full! px-4 py-2;

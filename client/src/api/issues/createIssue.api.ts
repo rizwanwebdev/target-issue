@@ -6,7 +6,6 @@ async function createIssue(
   title: string,
   description: string,
   due_date: string,
-  issue_status: string,
   priority: string,
   severity: string,
 ) {
@@ -17,14 +16,13 @@ async function createIssue(
       !description ||
       !projectId ||
       !due_date ||
-      !issue_status ||
       !priority ||
       !severity
     ) {
       return {
         error: true,
         message:
-          "All fileds are required i.e organizationId, title, description, projectId, due_date, issue_status, priority, severity",
+          "All fileds are required i.e organizationId, title, description, projectId, due_date, priority, severity",
       };
     }
     const result = await apiFetch("/api/v1/issues/create-issue", {
@@ -39,7 +37,6 @@ async function createIssue(
         title: title,
         description: description,
         due_date: due_date,
-        issue_status: issue_status,
         priority: priority,
         severity: severity,
       }),
