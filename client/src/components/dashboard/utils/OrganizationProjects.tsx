@@ -3,21 +3,21 @@ import { Link } from "react-router-dom";
 
 import { useToast } from "@/context/ToastProvider.tsx";
 import getProjects, { type Project } from "@/api/project/getProjects.api.ts";
-import type { Organization } from "@/api/org/getOrg.api.ts";
 
 type Props = {
+  organizationId: number;
   slug: string;
-  organization?: Organization;
+  fetchAgain: boolean;
 };
 
-const OrganizationProjects = ({ slug, organization }: Props) => {
+const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
   const [projects, setProjects] = useState<Project[]>([]);
 
   const { addToast } = useToast();
 
   useEffect(() => {
     async function getAll() {
-      const result = await getProjects(slug);
+      const result = await getProjects(organizationId);
       if (result.error) {
         addToast(result.message, "error");
         return;
@@ -27,7 +27,7 @@ const OrganizationProjects = ({ slug, organization }: Props) => {
     }
 
     getAll();
-  }, [slug, addToast, organization]);
+  }, [organizationId, slug, fetchAgain]);
 
   return (
     projects.length > 0 && (

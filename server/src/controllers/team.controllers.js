@@ -7,7 +7,7 @@ import pool from "../db/connect.js";
 export async function createTeam(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { slug, name, description, color } = req.body;
+    const { organizationId, name, description, color } = req.body;
     if (!name || name.length < 6) {
       return res.status(400).json({
         error: true,
@@ -17,15 +17,14 @@ export async function createTeam(req, res) {
     const findOrg = await pool.query(
       `SELECT
     o.id,
-    o.slug,
     om.organization_id,
     om.user_id,
     om.role
     FROM organization_members om 
     INNER JOIN organization o
           ON o.id = om.organization_id
-    WHERE o.slug=$1 AND om.user_id=$2 AND om.role='admin'`,
-      [slug, USERID],
+    WHERE o.id=$1 AND om.user_id=$2 AND om.role='admin'`,
+      [organizationId, USERID],
     );
     if (findOrg.rows.length === 0) {
       return res.status(400).json({
@@ -41,7 +40,7 @@ export async function createTeam(req, res) {
     )
     INSERT INTO team_members (team_id, user_id, role) VALUES ((SELECT id FROM new_team), $4, $6)
     `,
-      [findOrg.rows[0].id, name, description, USERID, color, "admin"],
+      [organizationId, name, description, USERID, color, "admin"],
     );
 
     return res.status(201).json({
@@ -64,8 +63,8 @@ export async function createTeam(req, res) {
 export async function getTeams(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { slug } = req.body;
-    if (!slug) {
+    const { organizationId } = req.body;
+    if (!organizationId) {
       return res.status(400).json({
         error: true,
         message: "First join or create an organization to be in a team",
@@ -74,16 +73,15 @@ export async function getTeams(req, res) {
     const orgResult = await pool.query(
       `
     SELECT 
-    o.slug,
     o.id,
     om.organization_id,
     om.user_id
     FROM organization_members om 
     INNER JOIN organization o ON
     om.organization_id = o.id
-    WHERE o.slug =$1 AND om.user_id =$2
+    WHERE o.id =$1 AND om.user_id =$2
     `,
-      [slug, USERID],
+      [organizationId, USERID],
     );
 
     if (orgResult.rows.length === 0) {
@@ -106,7 +104,7 @@ export async function getTeams(req, res) {
     FROM team_members tm 
     INNER JOIN team t ON  t.id = tm.team_id 
     WHERE t.organization_id=$1 AND tm.user_id =$2`,
-      [orgResult.rows[0].organization_id, USERID],
+      [organizationId, USERID],
     );
 
     if (result.rows.length === 0) {
@@ -138,16 +136,16 @@ export async function getTeams(req, res) {
 export async function getSingleTeam(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { teamId, slug } = req.body;
-    if (!teamId || !slug) {
+    const { teamId, organizationId } = req.body;
+    if (!teamId || !organizationId) {
       return res.status(400).json({
         error: true,
         message: "Team Not Found",
       });
     }
     const orgResult = await pool.query(
-      "SELECT id FROM organization WHERE slug=$1",
-      [slug],
+      "SELECT id FROM organization WHERE id=$1",
+      [organizationId],
     );
 
     if (orgResult.rows.length === 0) {
@@ -156,11 +154,10 @@ export async function getSingleTeam(req, res) {
         message: "Team Not Found",
       });
     }
-    const orgId = orgResult.rows[0].id;
 
     const result = await pool.query(
       `SELECT * FROM team WHERE id=$1 and organization_id=$2`,
-      [teamId, orgId],
+      [teamId, organizationId],
     );
 
     if (result.rows.length === 0) {

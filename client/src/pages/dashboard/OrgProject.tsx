@@ -21,7 +21,7 @@ const OrgProject = () => {
       if (!slug || !projectId) {
         return;
       }
-      const res = await getSingleproject(Number(projectId), slug);
+      const res = await getSingleproject(Number(projectId), organization.id);
       if (res.error) {
         addToast(res.message, "error");
       }

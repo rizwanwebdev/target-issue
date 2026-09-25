@@ -1,6 +1,6 @@
 import apiFetch from "@/api/auth/client.ts";
 
-async function inviteMemebers(slug: string, emails: string[]) {
+async function inviteMemebers(organizaionId: number, emails: string[]) {
   try {
     const res = await apiFetch("/api/v1/org/invite", {
       method: "POST",
@@ -9,7 +9,7 @@ async function inviteMemebers(slug: string, emails: string[]) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
+        organizaionId: organizaionId,
         emails: emails,
       }),
     });

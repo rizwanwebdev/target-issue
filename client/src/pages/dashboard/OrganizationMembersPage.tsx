@@ -2,7 +2,8 @@ import OrganizationMembers from "@/components/dashboard/utils/OrganizationMember
 
 import { useOutletContext, useParams } from "react-router-dom";
 import type { Organization } from "@/api/org/getOrg.api";
-import InviteMemebersForm from "@/components/dashboard/utils/InviteMemebersForm.tsx";
+import InviteMembersModal from "@/components/modals/InviteMembersModal";
+import { useState } from "react";
 
 type OrganizationContext = {
   organization: Organization;
@@ -10,6 +11,7 @@ type OrganizationContext = {
 
 const OrganizationMemebersPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [fetchAgain, setFetchAgain] = useState<boolean>(false);
 
   const { organization } = useOutletContext<OrganizationContext>();
 
@@ -31,13 +33,22 @@ const OrganizationMemebersPage = () => {
             </p>
           </div>
 
-          <button type="button" className="btn btn-primary w-fit">
-            + Invite Members
-          </button>
+          {isAdmin && slug && (
+            <InviteMembersModal
+              organizationId={organization.id}
+              fetchAgain={fetchAgain}
+              setFetchAgain={setFetchAgain}
+            />
+          )}
         </div>
       </section>
-      {isAdmin && slug && <InviteMemebersForm slug={slug} />}
-      {slug && <OrganizationMembers slug={slug} />}
+      {slug && (
+        <OrganizationMembers
+          fetchAgain={fetchAgain}
+          slug={slug}
+          organizationId={organization.id}
+        />
+      )}
       {/* projects */}
     </>
   );

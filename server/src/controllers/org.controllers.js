@@ -355,15 +355,15 @@ export async function inviteMembers(req, res) {
  */
 export async function getMembers(req, res) {
   try {
-    let { slug, page = 1, limit = 20 } = req.body;
+    let { organizationId, page = 1, limit = 20 } = req.body;
 
     page = Number(page);
     limit = Number(limit);
 
-    if (!slug || !Number.isInteger(page) || page < 1) {
+    if (!organizationId || !Number.isInteger(page) || page < 1) {
       return res.status(400).json({
         error: true,
-        message: "Valid organization slug and page are required",
+        message: "Valid organization Id and page number is required",
       });
     }
 
@@ -380,9 +380,9 @@ export async function getMembers(req, res) {
       `
         SELECT id
         FROM organization
-        WHERE slug = $1
+        WHERE id = $1
       `,
-      [slug],
+      [organizationId],
     );
 
     if (orgResult.rows.length === 0) {
@@ -391,8 +391,6 @@ export async function getMembers(req, res) {
         message: "Organization not found",
       });
     }
-
-    const organizationId = orgResult.rows[0].id;
 
     // Check requesting user's membership + role
     const requesterResult = await pool.query(
@@ -578,16 +576,16 @@ export async function acceptInvitation(req, res) {
 export async function getSingleMember(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { memberId, slug } = req.body;
-    if (!memberId || !slug) {
+    const { memberId, organizationId } = req.body;
+    if (!memberId || !organizationId) {
       return res.status(400).json({
         error: true,
         message: "Member Not Found",
       });
     }
     const orgResult = await pool.query(
-      "SELECT id FROM organization WHERE slug=$1",
-      [slug],
+      "SELECT id FROM organization WHERE id=$1",
+      [organizationId],
     );
 
     if (orgResult.rows.length === 0) {
@@ -596,7 +594,6 @@ export async function getSingleMember(req, res) {
         message: "Organization Not Found",
       });
     }
-    const orgId = orgResult.rows[0].id;
 
     const result = await pool.query(
       `
@@ -617,7 +614,7 @@ export async function getSingleMember(req, res) {
   WHERE u.id = $1
     AND om.organization_id = $2
   `,
-      [memberId, orgId],
+      [memberId, organizationId],
     );
 
     if (result.rows.length === 0) {

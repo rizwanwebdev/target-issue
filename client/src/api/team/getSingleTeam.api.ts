@@ -8,11 +8,11 @@ export type Team = {
   created_by: number;
 };
 
-async function getSingleTeam(teamId: number, slug: string) {
-  if (!teamId || !slug) {
+async function getSingleTeam(teamId: number, organizationId: number) {
+  if (!teamId || !organizationId) {
     return {
       error: true,
-      message: "Team id and Slug is required to find a team",
+      message: "Team id and organizationId is required to find a team",
     };
   }
   try {
@@ -23,7 +23,7 @@ async function getSingleTeam(teamId: number, slug: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
+        organizationId: organizationId,
         teamId: teamId,
       }),
     });

@@ -1,7 +1,7 @@
 import apiFetch from "@/api/auth/client.ts";
 
 async function createProject(
-  slug: string,
+  organizationId: number,
   name: string,
   description: string,
   startDate: string,
@@ -10,7 +10,7 @@ async function createProject(
 ) {
   try {
     if (
-      !slug ||
+      !organizationId ||
       !name ||
       !description ||
       !startDate ||
@@ -20,7 +20,7 @@ async function createProject(
       return {
         error: true,
         message:
-          "All fields are required i.e slug, name, description, startDate, targetDate, project_status",
+          "All fields are required i.e organizationId, name, description, startDate, targetDate, project_status",
       };
     }
 
@@ -30,12 +30,12 @@ async function createProject(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug,
-        name,
-        project_status,
-        description,
-        startDate,
-        targetDate,
+        organizationId: organizationId,
+        name: name,
+        project_status: project_status,
+        description: description,
+        startDate: startDate,
+        targetDate: targetDate,
       }),
     });
 

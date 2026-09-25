@@ -32,7 +32,9 @@ const OrganizationIssuesPage = () => {
         </div>
       </section>
       <div className="flex flex-col gap-4 ">
-        {slug && <OrganizationMembers slug={slug} />}
+        {slug && (
+          <OrganizationMembers slug={slug} organizationId={organization.id} />
+        )}
       </div>
     </>
   );

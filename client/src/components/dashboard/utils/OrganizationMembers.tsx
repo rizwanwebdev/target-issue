@@ -5,14 +5,13 @@ import { useToast } from "@/context/ToastProvider.tsx";
 
 import getAllMembersApi, { type Members } from "@/api/org/getAllMembers.api.ts";
 
-import type { Organization } from "@/api/org/getOrg.api.ts";
-
 type Props = {
   slug: string;
-  organization?: Organization;
+  organizationId: number;
+  fetchAgain: boolean;
 };
 
-const OrganizationMembers = ({ slug, organization }: Props) => {
+const OrganizationMembers = ({ slug, organizationId, fetchAgain }: Props) => {
   const [members, setMembers] = useState<Members[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
@@ -21,7 +20,7 @@ const OrganizationMembers = ({ slug, organization }: Props) => {
 
   useEffect(() => {
     async function getAll() {
-      const result = await getAllMembersApi(slug, page, limit);
+      const result = await getAllMembersApi(organizationId, page, limit);
 
       if (result.error) {
         addToast(result.message, "error");
@@ -32,7 +31,7 @@ const OrganizationMembers = ({ slug, organization }: Props) => {
     }
 
     getAll();
-  }, [organization, slug, page, limit]);
+  }, [organizationId, slug, page, limit, fetchAgain]);
 
   return (
     <section className="my-4">

@@ -30,11 +30,12 @@ type GetMembersError = {
 export type GetMembersResponse = GetMembersSuccess | GetMembersError;
 
 async function getAllMembersApi(
-  slug: string,
+  organizationId: number,
   page: number,
   limit: number,
 ): Promise<GetMembersResponse> {
   try {
+    console.log(organizationId);
     const res = await apiFetch("/api/v1/org/all-members", {
       credentials: "include",
       method: "POST",
@@ -42,7 +43,7 @@ async function getAllMembersApi(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
+        organizationId: organizationId,
         page: page,
         limit: limit,
       }),

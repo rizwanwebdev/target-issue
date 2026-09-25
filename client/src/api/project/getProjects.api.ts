@@ -11,9 +11,12 @@ export type Project = {
   target_date: string;
   user_id: number;
 };
-async function getProjects(slug: string) {
-  if (!slug) {
-    return { error: true, message: "Slug is required to find projects" };
+async function getProjects(organizationId: number) {
+  if (!organizationId) {
+    return {
+      error: true,
+      message: "organizationId is required to find projects",
+    };
   }
   try {
     const result = await apiFetch("/api/v1/project/get-projects", {
@@ -23,7 +26,7 @@ async function getProjects(slug: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
+        organizationId: organizationId,
       }),
     });
     return await result.json();

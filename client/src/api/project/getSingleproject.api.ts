@@ -11,11 +11,11 @@ export type Project = {
   updated_at: string;
 };
 
-async function getSingleproject(projectId: number, slug: string) {
-  if (!projectId || !slug) {
+async function getSingleproject(projectId: number, organizationId: number) {
+  if (!projectId || !organizationId) {
     return {
       error: true,
-      message: "Team id and Slug is required to find a project",
+      message: "Team id and organizationId is required to find a project",
     };
   }
   try {
@@ -26,7 +26,7 @@ async function getSingleproject(projectId: number, slug: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
+        organizationId: organizationId,
         projectId: projectId,
       }),
     });

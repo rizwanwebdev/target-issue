@@ -10,9 +10,12 @@ export type Team = {
   color: string;
   user_id: number;
 };
-async function getTeams(slug: string) {
-  if (!slug) {
-    return { error: true, message: "Slug is required to find Teams" };
+async function getTeams(organizationId: number) {
+  if (!organizationId) {
+    return {
+      error: true,
+      message: "organization Id is required to find Teams",
+    };
   }
   try {
     const result = await apiFetch("/api/v1/team/get-teams", {
@@ -22,7 +25,7 @@ async function getTeams(slug: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
+        organizationId: organizationId,
       }),
     });
     return await result.json();

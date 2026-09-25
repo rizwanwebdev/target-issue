@@ -1,7 +1,8 @@
 import { useOutletContext, useParams } from "react-router-dom";
 import type { Organization } from "@/api/org/getOrg.api";
-import CreateTeamForm from "@/components/dashboard/utils/CreateTeamForm.tsx";
 import OragnizationTeams from "@/components/dashboard/utils/OragnizationTeams.tsx";
+import { useState } from "react";
+import CreateTeamModal from "@/components/modals/CreateTeamModal";
 
 type OrganizationContext = {
   organization: Organization;
@@ -11,7 +12,7 @@ const OrganizationTeamsPage = () => {
   const { slug } = useParams<{ slug: string }>();
 
   const { organization } = useOutletContext<OrganizationContext>();
-
+  const [fetchAgain, setFetchAgain] = useState<boolean>(false);
   const isAdmin = organization.role === "admin";
 
   return (
@@ -30,13 +31,22 @@ const OrganizationTeamsPage = () => {
             </p>
           </div>
 
-          <button type="button" className="btn btn-primary w-fit">
-            + Create Team
-          </button>
+          {isAdmin && slug && (
+            <CreateTeamModal
+              organizationId={organization.id}
+              fetchAgain={fetchAgain}
+              setFetchAgain={setFetchAgain}
+            />
+          )}
         </div>
       </section>
-      {isAdmin && slug && <CreateTeamForm slug={slug} />}
-      {slug && <OragnizationTeams slug={slug} />}
+      {slug && (
+        <OragnizationTeams
+          organizaionId={organization.id}
+          slug={slug}
+          fetchAgain={fetchAgain}
+        />
+      )}
     </>
   );
 };

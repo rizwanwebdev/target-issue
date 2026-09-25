@@ -2,21 +2,21 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useToast } from "@/context/ToastProvider.tsx";
-import type { Organization } from "@/api/org/getOrg.api.ts";
 import getTeams, { type Team } from "@/api/team/getTeams.api.ts";
 type Props = {
+  organizaionId: number;
   slug: string;
-  organization?: Organization;
+  fetchAgain: boolean;
 };
 
-const OragnizationTeams = ({ slug, organization }: Props) => {
+const OragnizationTeams = ({ organizaionId, slug, fetchAgain }: Props) => {
   const [teams, setTeams] = useState<Team[]>([]);
 
   const { addToast } = useToast();
 
   useEffect(() => {
     async function getAll() {
-      const result = await getTeams(slug);
+      const result = await getTeams(organizaionId);
       if (result.error) {
         addToast(result.message, "error");
         return;
@@ -26,7 +26,7 @@ const OragnizationTeams = ({ slug, organization }: Props) => {
     }
 
     getAll();
-  }, [slug, addToast, organization]);
+  }, [organizaionId, slug, fetchAgain]);
 
   return (
     teams.length > 0 && (

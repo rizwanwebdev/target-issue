@@ -1,16 +1,17 @@
 import apiFetch from "@/api/auth/client.ts";
 
 async function createTeam(
-  slug: string,
+  organizationId: number,
   name: string,
   description: string,
   color: string,
 ) {
   try {
-    if (!slug || !name || !description || !color) {
+    if (!organizationId || !name || !description || !color) {
       return {
         error: true,
-        message: "All fileds are required i.e slug, name, description, color",
+        message:
+          "All fileds are required i.e organization Id, name, description, color",
       };
     }
     const result = await apiFetch("/api/v1/team/create-team", {
@@ -20,7 +21,7 @@ async function createTeam(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        slug: slug,
+        organizationId: organizationId,
         name: name,
         description: description,
         color: color,
