@@ -3,7 +3,7 @@ import pool from "../db/connect.js";
 export async function createProject(req, res) {
   const { id: USERID } = req.user;
 
-  const {
+  let {
     organizationId,
     name,
     description,
@@ -11,6 +11,7 @@ export async function createProject(req, res) {
     startDate,
     targetDate,
   } = req.body;
+
   if (
     !organizationId ||
     !name ||
@@ -22,15 +23,24 @@ export async function createProject(req, res) {
     return res.status(400).json({
       error: true,
       message:
-        "organization Id, name, description, project_status, startDate and targetDate are required to creeate a project",
+        "organization Id, name, description, project_status, startDate and targetDate are required to create a project",
     });
   }
+
+  const PROJECT_STATUSES = ["new", "ongoing", "completed", "archive"];
+
+  project_status = project_status.toLowerCase();
+
+  if (!PROJECT_STATUSES.includes(project_status)) {
+    return res.status(400).json({
+      error: true,
+      message: "Invalid project status",
+    });
+  }
+
   const start = new Date(startDate);
   const target = new Date(targetDate);
-  const PROJECT_STATUSES = ["new", "ongoing", "completed", "archive"];
-  if (!PROJECT_STATUSES.includes(project_status.toLowerCase())) {
-    project_status = "ongoing";
-  }
+
   if (Number.isNaN(start.getTime()) || Number.isNaN(target.getTime())) {
     return res.status(400).json({
       error: true,
@@ -46,17 +56,18 @@ export async function createProject(req, res) {
   }
 
   const findOrg = await pool.query(
-    `SELECT
-    o.id,
-    om.organization_id,
-    om.user_id,
-    om.role
-    FROM organization_members om 
-    INNER JOIN organization o
-          ON o.id = om.organization_id
-    WHERE o.id=$1 AND om.user_id=$2 AND om.role='admin'`,
+    `
+      SELECT o.id
+      FROM organization_members om
+      INNER JOIN organization o
+        ON o.id = om.organization_id
+      WHERE o.id = $1
+        AND om.user_id = $2
+        AND om.role = 'admin'
+    `,
     [organizationId, USERID],
   );
+
   if (findOrg.rows.length === 0) {
     return res.status(400).json({
       error: true,
@@ -65,14 +76,44 @@ export async function createProject(req, res) {
     });
   }
 
-  const result = await pool.query(
-    `WITH new_project AS (
-    INSERT INTO project (organization_id, name, description, created_by,start_date, target_date) VALUES ($1, $2, $3, $4,$5,$6) RETURNING id
-    )
-    INSERT INTO project_members (project_id, user_id, role) VALUES ((SELECT id FROM new_project), $4, $7)
+  await pool.query(
+    `
+      WITH new_project AS (
+        INSERT INTO project (
+          organization_id,
+          name,
+          description,
+          created_by,
+          status,
+          start_date,
+          target_date
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id
+      )
+      INSERT INTO project_members (
+        project_id,
+        user_id,
+        role
+      )
+      VALUES (
+        (SELECT id FROM new_project),
+        $4,
+        $8
+      )
     `,
-    [organizationId, name, description, USERID, start, target, "admin"],
+    [
+      organizationId,
+      name,
+      description,
+      USERID,
+      project_status,
+      start,
+      target,
+      "admin",
+    ],
   );
+
   return res.status(201).json({
     success: true,
     message: "Project Created",

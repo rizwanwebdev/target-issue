@@ -41,7 +41,7 @@ const CreateIssueModal = ({
         return;
       }
 
-      addToast(`${result.message}, Issus id: ${result.issueNumber}`, "success");
+      addToast(`${result.message}. Issue id: ${result.issueNumber}`, "success");
       form.reset();
       setOpenModal(false);
       setFetchAgain(!fetchAgain);

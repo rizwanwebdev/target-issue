@@ -8,7 +8,7 @@ export type Issue = {
   title: string;
   description: string;
   due_date: string;
-  issue_status: string;
+  status: string;
   priority: string;
   severity: string;
 };

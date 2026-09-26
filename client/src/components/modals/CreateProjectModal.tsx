@@ -176,8 +176,6 @@ const CreateProjectModal = ({
                 >
                   <option value="new">New</option>
                   <option value="ongoing">On Going</option>
-                  <option value="completed">Completed</option>
-                  <option value="archive">Archive</option>
                 </select>
               </div>
 

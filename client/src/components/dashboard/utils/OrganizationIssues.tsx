@@ -1,6 +1,7 @@
 import getAllIssues, { type Issue } from "@/api/issues/getAllIssues";
 import { useToast } from "@/context/ToastProvider";
 import { useEffect, useState } from "react";
+import IssueCard from "./IssueCard";
 
 type Props = {
   organizationId: number;
@@ -23,6 +24,7 @@ const OrganizationIssues = ({
 }: Props) => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
+
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -47,12 +49,15 @@ const OrganizationIssues = ({
     }
 
     getAll();
-  }, [organizationId, projectId, page, fetchAgain]);
+  }, [organizationId, projectId, page, fetchAgain, addToast]);
 
   return (
     <section className="flex flex-col gap-4">
+      {/* Issues */}
       {loading ? (
-        <p>Loading issues...</p>
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+          <p className="text-sm text-gray-500">Loading issues...</p>
+        </div>
       ) : issues.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
           <p className="font-medium text-text">No issues found</p>
@@ -64,20 +69,12 @@ const OrganizationIssues = ({
       ) : (
         <div className="flex flex-col gap-3">
           {issues.map((issue) => (
-            <div
-              key={issue.id}
-              className="rounded-xl border border-gray-200 bg-white p-4"
-            >
-              <p className="font-medium text-text">
-                #{issue.issue_number} {issue.title}
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">{issue.description}</p>
-            </div>
+            <IssueCard key={issue.id} issue={issue} />
           ))}
         </div>
       )}
 
+      {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <button

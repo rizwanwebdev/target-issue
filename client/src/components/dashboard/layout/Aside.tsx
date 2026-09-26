@@ -113,6 +113,10 @@ export const Aside = ({ slug, projectId }: Props) => {
       linkName: "Issues",
       to: `/dashboard/organizations/${slug}/issues`,
     },
+    {
+      linkName: "Organizations",
+      to: `/dashboard/organizations`,
+    },
   ];
   return (
     <>
