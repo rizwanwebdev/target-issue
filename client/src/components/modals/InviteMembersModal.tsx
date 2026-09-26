@@ -45,6 +45,7 @@ const InviteMembersModal = ({
       setFetchAgain(!fetchAgain);
       addToast(result.message, "success");
       setEmails([]);
+      setOpenModal(false);
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Something went wrong",

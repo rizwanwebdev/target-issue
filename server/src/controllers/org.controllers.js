@@ -354,8 +354,9 @@ export async function inviteMembers(req, res) {
  * @route /org/all-members
  */
 export async function getMembers(req, res) {
+  const { id: USERID } = req.user;
   try {
-    let { organizationId, page = 1, limit = 20 } = req.body;
+    let { organizationId, page = 1, limit = 20, projectId } = req.body;
 
     page = Number(page);
     limit = Number(limit);
@@ -392,31 +393,103 @@ export async function getMembers(req, res) {
       });
     }
 
-    // Check requesting user's membership + role
-    const requesterResult = await pool.query(
-      `
+    const offset = (page - 1) * limit;
+
+    if (projectId) {
+      // Check requesting user's membership + role
+      const requesterResult = await pool.query(
+        `
+        SELECT role
+        FROM project_members
+        WHERE project_id = $1
+          AND user_id = $2
+      `,
+        [projectId, USERID],
+      );
+
+      if (requesterResult.rows.length === 0) {
+        return res.status(403).json({
+          error: true,
+          message: "You are not a member of this organization",
+        });
+      }
+
+      const requesterRole = requesterResult.rows[0].role;
+      const [membersResult, countResult] = await Promise.all([
+        pool.query(
+          `
+          SELECT
+            u.id,
+            u.full_name,
+            u.email,
+            u.avatar_url,
+            pm.project_id,
+            pm.user_id,
+            pm.role,
+            pm.joined_at
+          FROM project_members pm
+          JOIN users u
+            ON u.id = pm.user_id
+          WHERE pm.project_id = $1
+          ORDER BY pm.joined_at
+        `,
+          [projectId],
+        ),
+
+        pool.query(
+          `
+          SELECT COUNT(*)::integer AS total
+          FROM organization_members
+          WHERE organization_id = $1
+        `,
+          [organizationId],
+        ),
+      ]);
+
+      const total = countResult.rows[0].total;
+      return res.status(200).json({
+        success: true,
+        message: "Found Members In This Project",
+
+        requester: {
+          role: requesterRole,
+          isAdmin: requesterRole === "admin",
+        },
+
+        members: membersResult.rows,
+
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: page * limit < total,
+          hasPreviousPage: page > 1,
+        },
+      });
+    } else {
+      // Check requesting user's membership + role
+      const requesterResult = await pool.query(
+        `
         SELECT role
         FROM organization_members
         WHERE organization_id = $1
           AND user_id = $2
       `,
-      [organizationId, req.user.id],
-    );
+        [organizationId, USERID],
+      );
 
-    if (requesterResult.rows.length === 0) {
-      return res.status(403).json({
-        error: true,
-        message: "You are not a member of this organization",
-      });
-    }
+      if (requesterResult.rows.length === 0) {
+        return res.status(403).json({
+          error: true,
+          message: "You are not a member of this organization",
+        });
+      }
 
-    const requesterRole = requesterResult.rows[0].role;
-
-    const offset = (page - 1) * limit;
-
-    const [membersResult, countResult] = await Promise.all([
-      pool.query(
-        `
+      const requesterRole = requesterResult.rows[0].role;
+      const [membersResult, countResult] = await Promise.all([
+        pool.query(
+          `
           SELECT
             om.id,
             om.user_id,
@@ -431,40 +504,41 @@ export async function getMembers(req, res) {
           WHERE om.organization_id = $1
           ORDER BY om.id
         `,
-        [organizationId],
-      ),
+          [organizationId],
+        ),
 
-      pool.query(
-        `
+        pool.query(
+          `
           SELECT COUNT(*)::integer AS total
           FROM organization_members
           WHERE organization_id = $1
         `,
-        [organizationId],
-      ),
-    ]);
+          [organizationId],
+        ),
+      ]);
 
-    const total = countResult.rows[0].total;
-    return res.status(200).json({
-      success: true,
-      message: "Members found",
+      const total = countResult.rows[0].total;
+      return res.status(200).json({
+        success: true,
+        message: "Found Members In This Organization",
 
-      requester: {
-        role: requesterRole,
-        isAdmin: requesterRole === "admin",
-      },
+        requester: {
+          role: requesterRole,
+          isAdmin: requesterRole === "admin",
+        },
 
-      members: membersResult.rows,
+        members: membersResult.rows,
 
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasNextPage: page * limit < total,
-        hasPreviousPage: page > 1,
-      },
-    });
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: page * limit < total,
+          hasPreviousPage: page > 1,
+        },
+      });
+    }
   } catch (error) {
     console.error("Get members error:", error);
 

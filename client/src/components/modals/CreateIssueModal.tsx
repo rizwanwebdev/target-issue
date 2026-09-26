@@ -4,9 +4,16 @@ import { useState } from "react";
 type Props = {
   organizationId: number;
   projectId: number;
+  fetchAgain: boolean;
+  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const CreateIssueModal = ({ organizationId, projectId }: Props) => {
+const CreateIssueModal = ({
+  organizationId,
+  projectId,
+  fetchAgain,
+  setFetchAgain,
+}: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
 
@@ -33,8 +40,11 @@ const CreateIssueModal = ({ organizationId, projectId }: Props) => {
         addToast(result.message, "error");
         return;
       }
+
       addToast(result.message, "success");
       form.reset();
+      setOpenModal(false);
+      setFetchAgain(!fetchAgain);
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Something went wrong",
@@ -166,7 +176,7 @@ const CreateIssueModal = ({ organizationId, projectId }: Props) => {
                   <option value="minor">MINOR</option>
                   <option value="major">MAJOR</option>
                   <option value="critical">CRITICAL</option>
-                  <option value="trival">TRIVAL</option>
+                  <option value="trivial">TRIVIAL</option>
                 </select>
               </div>
 

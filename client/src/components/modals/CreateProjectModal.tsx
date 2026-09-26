@@ -39,6 +39,7 @@ const CreateProjectModal = ({
       setFetchAgain(!fetchAgain);
       addToast(result.message, "success");
       form.reset();
+      setOpenModal(false);
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Something went wrong",

@@ -18,7 +18,7 @@ import Invitations from "@/pages/Invitations.tsx";
 import OrgTeam from "@/pages/dashboard/OrgTeam.tsx";
 import OrganizationTeamsPage from "@/pages/dashboard/OrganizationTeamsPage.tsx";
 import OrganizationProjectsPage from "@/pages/dashboard/OrganizationProjectsPage.tsx";
-import OrgProject from "@/pages/dashboard/OrgProject.tsx";
+import OrgProject from "@/pages/dashboard/projects/OrgProject";
 import OrganizationMemebersPage from "@/pages/dashboard/OrganizationMembersPage.tsx";
 import OrgMember from "@/pages/dashboard/OrgMember.tsx";
 import NotAuthorized from "@/components/utils/NotAuthorized.tsx";
@@ -27,6 +27,9 @@ import OrganizationLayout from "@/components/dashboard/layout/OrganizationLayout
 import InsightsPage from "@/pages/dashboard/InsightsPage";
 import AccountAndSettingsPage from "@/pages/dashboard/AccountAndSettingsPage";
 import OrganizationIssuesPage from "@/pages/dashboard/OrganizationIssuesPage";
+import ProjectLayout from "@/components/dashboard/layout/ProjectLayout";
+import ProjectMembersPage from "@/pages/dashboard/projects/ProjectMembersPage";
+import ProjectIssuesPage from "@/pages/dashboard/projects/ProjectIssuesPage";
 
 function App() {
   return (
@@ -72,8 +75,12 @@ function App() {
               <Route path="issues" element={<OrganizationIssuesPage />} />
 
               <Route path="teams/:teamId" element={<OrgTeam />} />
-
-              <Route path="projects/:projectId" element={<OrgProject />} />
+              <Route path="projects/:projectId" element={<ProjectLayout />}>
+                <Route index element={<OrgProject />} />
+                <Route path="members" element={<ProjectMembersPage />} />
+                <Route path="issues" element={<ProjectIssuesPage />} />
+                <Route path="teams" element={<OrganizationTeamsPage />} />
+              </Route>
 
               <Route path="members/:memberId" element={<OrgMember />} />
             </Route>

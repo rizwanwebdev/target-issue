@@ -129,41 +129,91 @@ export async function getSingleIssue(req, res) {
 
 export async function getAllIssue(req, res) {
   try {
-    const { id: USERID } = req.user;
-    const { projectId, organizationId } = req.body;
+    const { organizationId, projectId } = req.body;
 
-    if (!projectId || !organizationId) {
+    if (!organizationId) {
       return res.status(400).json({
         error: true,
-        message: "Issue Id, Project Id and Organization Id is required",
+        message: "Organization Id is required",
       });
     }
 
-    const issueResult = await pool.query(
-      "SELECT * FROM issues WHERE project_id =$2 AND organization_id =$3",
-      [projectId, organizationId],
-    );
-    if (issueResult.rows.length === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Issues Not Found",
-      });
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
+    const offset = (page - 1) * limit;
+
+    let issueResult;
+    let countResult;
+
+    if (projectId) {
+      issueResult = await pool.query(
+        `
+          SELECT *
+          FROM issues
+          WHERE project_id = $1
+            AND organization_id = $2
+          ORDER BY created_at DESC
+          LIMIT $3
+          OFFSET $4
+        `,
+        [projectId, organizationId, limit, offset],
+      );
+
+      countResult = await pool.query(
+        `
+          SELECT COUNT(*)::int AS total
+          FROM issues
+          WHERE project_id = $1
+            AND organization_id = $2
+        `,
+        [projectId, organizationId],
+      );
+    } else {
+      issueResult = await pool.query(
+        `
+          SELECT *
+          FROM issues
+          WHERE organization_id = $1
+          ORDER BY created_at DESC
+          LIMIT $2
+          OFFSET $3
+        `,
+        [organizationId, limit, offset],
+      );
+
+      countResult = await pool.query(
+        `
+          SELECT COUNT(*)::int AS total
+          FROM issues
+          WHERE organization_id = $1
+        `,
+        [organizationId],
+      );
     }
 
-    return res.status(201).json({
+    const total = countResult.rows[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json({
       success: true,
-      message: "Issue created",
-      issue: issueResult.rows,
+      message: "Issues fetched successfully",
+      issues: issueResult.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+      },
     });
   } catch (error) {
     console.error(error);
+
     return res.status(500).json({
       error: true,
       message: "Internal Server Error",
     });
   }
 }
-
 /**
  * @method POST
  * @route /api/v1/issues/issue-staus

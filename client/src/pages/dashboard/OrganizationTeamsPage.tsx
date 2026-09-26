@@ -1,17 +1,14 @@
 import { useOutletContext, useParams } from "react-router-dom";
-import type { Organization } from "@/api/org/getOrg.api";
 import OragnizationTeams from "@/components/dashboard/utils/OragnizationTeams.tsx";
 import { useState } from "react";
 import CreateTeamModal from "@/components/modals/CreateTeamModal";
 
-type OrganizationContext = {
-  organization: Organization;
-};
+import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 
 const OrganizationTeamsPage = () => {
   const { slug } = useParams<{ slug: string }>();
 
-  const { organization } = useOutletContext<OrganizationContext>();
+  const { organization } = useOutletContext<OrganizationOutletContext>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
   const isAdmin = organization.role === "admin";
 

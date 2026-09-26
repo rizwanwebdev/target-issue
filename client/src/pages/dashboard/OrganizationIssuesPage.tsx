@@ -1,16 +1,12 @@
-import OrganizationMembers from "@/components/dashboard/utils/OrganizationMembers.tsx";
-
 import { useOutletContext, useParams } from "react-router-dom";
-import type { Organization } from "@/api/org/getOrg.api";
 
-type OrganizationContext = {
-  organization: Organization;
-};
+import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import OrganizationIssues from "@/components/dashboard/utils/OrganizationIssues";
 
 const OrganizationIssuesPage = () => {
   const { slug } = useParams<{ slug: string }>();
 
-  const { organization } = useOutletContext<OrganizationContext>();
+  const { organization } = useOutletContext<OrganizationOutletContext>();
 
   return (
     <>
@@ -25,15 +21,11 @@ const OrganizationIssuesPage = () => {
               Manage all the issues in this organization.
             </p>
           </div>
-
-          <button type="button" className="btn btn-primary w-fit">
-            + Create Issue
-          </button>
         </div>
       </section>
       <div className="flex flex-col gap-4 ">
         {slug && (
-          <OrganizationMembers slug={slug} organizationId={organization.id} />
+          <OrganizationIssues slug={slug} organizationId={organization.id} />
         )}
       </div>
     </>

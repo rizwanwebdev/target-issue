@@ -8,10 +8,16 @@ import getAllMembersApi, { type Members } from "@/api/org/getAllMembers.api.ts";
 type Props = {
   slug: string;
   organizationId: number;
-  fetchAgain: boolean;
+  fetchAgain?: boolean;
+  projectId?: number;
 };
 
-const OrganizationMembers = ({ slug, organizationId, fetchAgain }: Props) => {
+const OrganizationMembers = ({
+  slug,
+  organizationId,
+  fetchAgain,
+  projectId,
+}: Props) => {
   const [members, setMembers] = useState<Members[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
@@ -20,7 +26,12 @@ const OrganizationMembers = ({ slug, organizationId, fetchAgain }: Props) => {
 
   useEffect(() => {
     async function getAll() {
-      const result = await getAllMembersApi(organizationId, page, limit);
+      const result = await getAllMembersApi(
+        organizationId,
+        page,
+        limit,
+        projectId,
+      );
 
       if (result.error) {
         addToast(result.message, "error");

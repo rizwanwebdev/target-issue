@@ -33,6 +33,7 @@ async function getAllMembersApi(
   organizationId: number,
   page: number,
   limit: number,
+  projectId: number | undefined,
 ): Promise<GetMembersResponse> {
   try {
     console.log(organizationId);
@@ -46,6 +47,7 @@ async function getAllMembersApi(
         organizationId: organizationId,
         page: page,
         limit: limit,
+        projectId: projectId,
       }),
     });
 

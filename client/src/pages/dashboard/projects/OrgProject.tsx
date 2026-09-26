@@ -1,34 +1,10 @@
-import { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
-import { useToast } from "@/context/ToastProvider.tsx";
-import getSingleproject, {
-  type Project,
-} from "@/api/project/getSingleproject.api.ts";
-import type { Organization } from "@/api/org/getAllOrganizations";
+import { useOutletContext } from "react-router-dom";
 import CreateIssueModal from "@/components/modals/CreateIssueModal";
 
-type OrganizationContext = {
-  organization: Organization;
-};
+import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
 
 const OrgProject = () => {
-  const { slug, projectId } = useParams<{ slug: string; projectId: string }>();
-  const { addToast } = useToast();
-  const [result, setResult] = useState<Project | null>(null);
-  const { organization } = useOutletContext<OrganizationContext>();
-  useEffect(() => {
-    const getResults = async () => {
-      if (!slug || !projectId) {
-        return;
-      }
-      const res = await getSingleproject(Number(projectId), organization.id);
-      if (res.error) {
-        addToast(res.message, "error");
-      }
-      setResult(res.project);
-    };
-    getResults();
-  }, [slug, projectId]);
+  const { organization, project } = useOutletContext<ProjectOutletContext>();
   const isAdmin = organization.role === "admin";
   return (
     <>
@@ -39,7 +15,7 @@ const OrgProject = () => {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1 className="text-xl font-semibold text-text">
-                Organizations Project
+                Project Overview
               </h1>
               <p className="text-sm text-gray-500">
                 {isAdmin
@@ -48,9 +24,9 @@ const OrgProject = () => {
               </p>
             </div>
 
-            {projectId && (
+            {project && (
               <CreateIssueModal
-                projectId={Number(projectId)}
+                projectId={Number(project.id)}
                 organizationId={organization.id}
               />
             )}
@@ -61,18 +37,18 @@ const OrgProject = () => {
             <div className="flex min-w-0 items-center gap-4">
               {/* Logo */}
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-2xl font-bold text-primary">
-                {result?.name.charAt(0).toUpperCase()}
+                {project?.name.charAt(0).toUpperCase()}
               </div>
 
               {/* Name + Description */}
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
                   <h1 className="truncate text-2xl font-semibold text-text">
-                    {result?.name}
+                    {project?.name}
                   </h1>
 
                   <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold capitalize text-primary">
-                    {result?.status.toUpperCase()}
+                    {project?.status.toUpperCase()}
                   </span>
                 </div>
 
@@ -107,28 +83,28 @@ const OrgProject = () => {
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <div>
               <p className="text-sm text-gray-500">Project name</p>
-              <p className="mt-1 font-medium text-text">{result?.name}</p>
+              <p className="mt-1 font-medium text-text">{project?.name}</p>
             </div>
 
             <div>
               <p className="text-sm text-gray-500">Project Status</p>
               <p className="mt-1 font-medium capitalize text-text">
-                {result?.status.toUpperCase()}
+                {project?.status.toUpperCase()}
               </p>
             </div>
 
             <div>
               <p className="text-sm text-gray-500">Start Date</p>
               <p className="mt-1 font-medium text-text">
-                {result?.start_date &&
-                  new Date(result?.start_date).toLocaleDateString()}
+                {project?.start_date &&
+                  new Date(project?.start_date).toLocaleDateString()}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Target Date</p>
               <p className="mt-1 font-medium text-text">
-                {result?.start_date &&
-                  new Date(result?.target_date).toLocaleDateString()}
+                {project?.start_date &&
+                  new Date(project?.target_date).toLocaleDateString()}
               </p>
             </div>
           </div>

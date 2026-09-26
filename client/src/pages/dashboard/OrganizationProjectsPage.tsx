@@ -1,18 +1,15 @@
 import OrganizationProjects from "@/components/dashboard/utils/OrganizationProjects.tsx";
 
 import { useOutletContext, useParams } from "react-router-dom";
-import type { Organization } from "@/api/org/getOrg.api";
 import CreateProjectModal from "@/components/modals/CreateProjectModal";
 import { useState } from "react";
 
-type OrganizationContext = {
-  organization: Organization;
-};
+import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 
 const OrganizationProjectsPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
-  const { organization } = useOutletContext<OrganizationContext>();
+  const { organization } = useOutletContext<OrganizationOutletContext>();
 
   const isAdmin = organization.role === "admin";
 

@@ -1,0 +1,110 @@
+import getAllIssues, { type Issue } from "@/api/issues/getAllIssues";
+import { useToast } from "@/context/ToastProvider";
+import { useEffect, useState } from "react";
+
+type Props = {
+  organizationId: number;
+  slug: string;
+  projectId?: number;
+  fetchAgain?: boolean;
+};
+
+type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
+const OrganizationIssues = ({
+  organizationId,
+  projectId,
+  fetchAgain,
+}: Props) => {
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    async function getAll() {
+      setLoading(true);
+
+      const result = await getAllIssues(organizationId, page, projectId);
+
+      if (result.error) {
+        addToast(result.message, "error");
+        setLoading(false);
+        return;
+      }
+
+      setIssues(result.issues);
+      setPagination(result.pagination);
+
+      setLoading(false);
+    }
+
+    getAll();
+  }, [organizationId, projectId, page, fetchAgain]);
+
+  return (
+    <section className="flex flex-col gap-4">
+      {loading ? (
+        <p>Loading issues...</p>
+      ) : issues.length === 0 ? (
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+          <p className="font-medium text-text">No issues found</p>
+
+          <p className="mt-1 text-sm text-gray-500">
+            There are no issues to display.
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {issues.map((issue) => (
+            <div
+              key={issue.id}
+              className="rounded-xl border border-gray-200 bg-white p-4"
+            >
+              <p className="font-medium text-text">
+                #{issue.issue_number} {issue.title}
+              </p>
+
+              <p className="mt-1 text-sm text-gray-500">{issue.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            disabled={page === 1 || loading}
+            onClick={() => setPage((prev) => prev - 1)}
+            className="btn btn-light disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <p className="text-sm text-gray-500">
+            Page {pagination.page} of {pagination.totalPages}
+          </p>
+
+          <button
+            type="button"
+            disabled={page >= pagination.totalPages || loading}
+            onClick={() => setPage((prev) => prev + 1)}
+            className="btn btn-light disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </section>
+  );
+};
+
+export default OrganizationIssues;
