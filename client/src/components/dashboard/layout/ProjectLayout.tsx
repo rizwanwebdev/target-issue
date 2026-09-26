@@ -1,8 +1,7 @@
-import getSingleproject, {
-  type Project,
-} from "@/api/project/getSingleproject.api.ts";
+import getSingleproject from "@/api/project/getSingleproject.api.ts";
 import { Outlet, useOutletContext, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import type { Project } from "@/types/Project";
 
 import { useToast } from "@/context/ToastProvider.tsx";
 

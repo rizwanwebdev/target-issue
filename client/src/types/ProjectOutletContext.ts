@@ -1,5 +1,5 @@
-import type { Organization } from "@/api/org/getAllOrganizations";
-import type { Project } from "@/api/project/getProjects.api";
+import type { Organization } from "./Organization";
+import type { Project } from "./Project";
 
 export type ProjectOutletContext = {
   organization: Organization;

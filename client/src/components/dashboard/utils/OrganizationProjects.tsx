@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useToast } from "@/context/ToastProvider.tsx";
-import getProjects, { type Project } from "@/api/project/getProjects.api.ts";
+import getProjects from "@/api/project/getProjects.api.ts";
+import type { Project } from "@/types/Project";
 
 type Props = {
   organizationId: number;
@@ -35,10 +36,10 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
         <div className="flex w-full flex-col gap-3">
           {projects.map((project) => (
             <div
-              key={project.project_id}
+              key={project.id}
               className="group flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md"
             >
-              {/* Organization info */}
+              {/* Project info */}
               <div className="flex min-w-0 items-center gap-4">
                 {/* Logo */}
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">

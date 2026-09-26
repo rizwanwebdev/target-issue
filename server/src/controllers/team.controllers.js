@@ -63,7 +63,7 @@ export async function createTeam(req, res) {
 export async function getTeams(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { organizationId } = req.body;
+    const { organizationId, projectId } = req.body;
     if (!organizationId) {
       return res.status(400).json({
         error: true,
@@ -91,8 +91,45 @@ export async function getTeams(req, res) {
           "Organization dose not found OR you are not a part of this Organization",
       });
     }
-    const result = await pool.query(
-      `SELECT 
+    if (projectId) {
+      const findTeams = await pool.query(
+        `SELECT * FROM project_teams WHERE project_id =$1`,
+        [projectId],
+      );
+
+      console.log(findTeams.rows, "test");
+
+      const result = await pool.query(
+        `SELECT 
+      t.id,
+      t.organization_id,
+      t.name,
+      t.color,
+      t.description,
+      tm.user_id,
+      tm.role,
+      tm.team_id
+      FROM team_members tm 
+      INNER JOIN team t ON  t.id = tm.team_id 
+      WHERE t.organization_id=$1 AND tm.user_id =$2`,
+        [organizationId, USERID],
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(400).json({
+          error: true,
+          message: "Team dose not found OR you are not a part of any Team",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Found Teams",
+        teams: result.rows,
+      });
+    } else {
+      const result = await pool.query(
+        `SELECT 
     t.id,
     t.organization_id,
     t.name,
@@ -104,21 +141,22 @@ export async function getTeams(req, res) {
     FROM team_members tm 
     INNER JOIN team t ON  t.id = tm.team_id 
     WHERE t.organization_id=$1 AND tm.user_id =$2`,
-      [organizationId, USERID],
-    );
+        [organizationId, USERID],
+      );
 
-    if (result.rows.length === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Team dose not found OR you are not a part of any Team",
+      if (result.rows.length === 0) {
+        return res.status(400).json({
+          error: true,
+          message: "Team dose not found OR you are not a part of any Team",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Found Teams",
+        teams: result.rows,
       });
     }
-
-    return res.status(200).json({
-      success: true,
-      message: "Found Teams",
-      teams: result.rows,
-    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -179,4 +217,14 @@ export async function getSingleTeam(req, res) {
       message: "Internal Server Error",
     });
   }
+}
+
+/**
+ * @method POST
+ * @route /assign-team
+ */
+
+export async function assingTeam(req, res) {
+  const { id: USERID } = req.user;
+  const { teamIds } = req.body;
 }

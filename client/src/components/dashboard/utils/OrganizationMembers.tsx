@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 
 import { useToast } from "@/context/ToastProvider.tsx";
 
-import getAllMembersApi, { type Members } from "@/api/org/getAllMembers.api.ts";
+import getAllMembersApi from "@/api/org/getAllMembers.api.ts";
+import type { Members } from "@/types/Member";
 
 type Props = {
   slug: string;
@@ -32,7 +33,6 @@ const OrganizationMembers = ({
         limit,
         projectId,
       );
-
       if (result.error) {
         addToast(result.message, "error");
         return;
@@ -77,7 +77,7 @@ const OrganizationMembers = ({
                 </Link>
 
                 <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-                  {member.email || "No description provided."}
+                  {"No description provided."}
                 </p>
               </div>
             </div>

@@ -5,19 +5,24 @@ import { useToast } from "@/context/ToastProvider.tsx";
 import getTeams, { type Team } from "@/api/team/getTeams.api.ts";
 type Props = {
   organizaionId: number;
+  projectId?: number;
   slug: string;
   fetchAgain: boolean;
 };
 
-const OragnizationTeams = ({ organizaionId, slug, fetchAgain }: Props) => {
+const OragnizationTeams = ({
+  organizaionId,
+  slug,
+  fetchAgain,
+  projectId,
+}: Props) => {
   const [teams, setTeams] = useState<Team[]>([]);
 
   const { addToast } = useToast();
 
   useEffect(() => {
     async function getAll() {
-      const result = await getTeams(organizaionId);
-      console.log(result);
+      const result = await getTeams(organizaionId, projectId);
       if (result.error) {
         addToast(result.message, "error");
         return;
@@ -27,7 +32,7 @@ const OragnizationTeams = ({ organizaionId, slug, fetchAgain }: Props) => {
     }
 
     getAll();
-  }, [organizaionId, slug, fetchAgain]);
+  }, [organizaionId, slug, fetchAgain, projectId]);
 
   return (
     teams.length > 0 && (

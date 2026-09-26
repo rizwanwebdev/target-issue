@@ -5,7 +5,7 @@ import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
 
 const OrgProject = () => {
   const { organization, project } = useOutletContext<ProjectOutletContext>();
-  const isAdmin = organization.role === "admin";
+  const isAdmin = project.role === "admin";
   return (
     <>
       <title>Project | About</title>
@@ -26,7 +26,7 @@ const OrgProject = () => {
 
             {project && (
               <CreateIssueModal
-                projectId={Number(project.id)}
+                projectId={project.id}
                 organizationId={organization.id}
               />
             )}
@@ -76,7 +76,7 @@ const OrgProject = () => {
             <p className="mt-2 text-2xl font-semibold text-text">0</p>
           </div>
         </section>
-
+        {/* Project Details */}
         <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-text">Project Details</h2>
 
@@ -105,6 +105,19 @@ const OrgProject = () => {
               <p className="mt-1 font-medium text-text">
                 {project?.start_date &&
                   new Date(project?.target_date).toLocaleDateString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">My Role</p>
+              <p className="mt-1 font-medium capitalize text-text">
+                {project?.role.toUpperCase()}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Created At</p>
+              <p className="mt-1 font-medium text-text">
+                {project?.start_date &&
+                  new Date(project?.created_at).toLocaleDateString()}
               </p>
             </div>
           </div>

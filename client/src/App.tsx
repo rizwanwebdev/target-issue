@@ -30,6 +30,7 @@ import OrganizationIssuesPage from "@/pages/dashboard/OrganizationIssuesPage";
 import ProjectLayout from "@/components/dashboard/layout/ProjectLayout";
 import ProjectMembersPage from "@/pages/dashboard/projects/ProjectMembersPage";
 import ProjectIssuesPage from "@/pages/dashboard/projects/ProjectIssuesPage";
+import ProjectTeamsPage from "@/pages/dashboard/projects/ProjectTeamsPage";
 
 function App() {
   return (
@@ -79,7 +80,7 @@ function App() {
                 <Route index element={<OrgProject />} />
                 <Route path="members" element={<ProjectMembersPage />} />
                 <Route path="issues" element={<ProjectIssuesPage />} />
-                <Route path="teams" element={<OrganizationTeamsPage />} />
+                <Route path="teams" element={<ProjectTeamsPage />} />
               </Route>
 
               <Route path="members/:memberId" element={<OrgMember />} />

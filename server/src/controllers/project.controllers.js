@@ -155,7 +155,6 @@ export async function getProjects(req, res) {
           "Organization dose not found OR you are not a part of this Organization",
       });
     }
-    const test = await pool.query("SELECT COUNT(*) FROM project");
     const result = await pool.query(
       `SELECT 
     p.id,
@@ -165,9 +164,8 @@ export async function getProjects(req, res) {
     p.description,
     p.start_date,
     p.target_date,
-    pm.user_id,
-    pm.role,
-    pm.project_id
+    p.created_at,
+    pm.role
     FROM project_members pm 
     INNER JOIN project p ON p.id = pm.project_id
     WHERE p.organization_id=$1 AND pm.user_id =$2`,
@@ -222,8 +220,20 @@ export async function getSingleProject(req, res) {
     }
 
     const result = await pool.query(
-      `SELECT * FROM project WHERE id=$1 and organization_id=$2`,
-      [projectId, organizationId],
+      `SELECT 
+    p.id,
+    p.organization_id,
+    p.name,
+    p.status,
+    p.description,
+    p.start_date,
+    p.target_date,
+    p.created_at,
+    pm.role
+    FROM project_members pm 
+    INNER JOIN project p ON p.id = pm.project_id
+    WHERE p.organization_id=$1 AND p.id=$2 AND pm.user_id =$3`,
+      [organizationId, projectId, USERID],
     );
 
     if (result.rows.length === 0) {

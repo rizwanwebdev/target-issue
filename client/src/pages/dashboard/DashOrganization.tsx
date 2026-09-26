@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
-import getAllOrganizations, {
-  type Organization,
-} from "@/api/org/getAllOrganizations.ts";
+import getAllOrganizations from "@/api/org/getAllOrganizations.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
 import { useEffect, useState } from "react";
 import CreateOrgModal from "@/components/modals/CreateOrgModal";
+
+import type { Organization } from "@/types/Organization";
 const DashOrganization = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const { addToast } = useToast();

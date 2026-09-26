@@ -41,8 +41,6 @@ export async function getOrg(req, res) {
           o.logo_url,
           o.created_at,
           om.role,
-          om.user_id,
-          om.organization_id,
           om.joined_at
         FROM organization o
         JOIN organization_members om
@@ -127,8 +125,8 @@ export async function getAllOrganizations(req, res) {
       `
         SELECT
           o.id,
-          o.name,
           o.slug,
+          o.name,
           o.description,
           o.logo_url,
           o.created_at,
@@ -396,34 +394,12 @@ export async function getMembers(req, res) {
     const offset = (page - 1) * limit;
 
     if (projectId) {
-      // Check requesting user's membership + role
-      const requesterResult = await pool.query(
-        `
-        SELECT role
-        FROM project_members
-        WHERE project_id = $1
-          AND user_id = $2
-      `,
-        [projectId, USERID],
-      );
-
-      if (requesterResult.rows.length === 0) {
-        return res.status(403).json({
-          error: true,
-          message: "You are not a member of this organization",
-        });
-      }
-
-      const requesterRole = requesterResult.rows[0].role;
       const [membersResult, countResult] = await Promise.all([
         pool.query(
           `
           SELECT
-            u.id,
             u.full_name,
-            u.email,
             u.avatar_url,
-            pm.project_id,
             pm.user_id,
             pm.role,
             pm.joined_at
@@ -431,7 +407,6 @@ export async function getMembers(req, res) {
           JOIN users u
             ON u.id = pm.user_id
           WHERE pm.project_id = $1
-          ORDER BY pm.joined_at
         `,
           [projectId],
         ),
@@ -450,14 +425,7 @@ export async function getMembers(req, res) {
       return res.status(200).json({
         success: true,
         message: "Found Members In This Project",
-
-        requester: {
-          role: requesterRole,
-          isAdmin: requesterRole === "admin",
-        },
-
         members: membersResult.rows,
-
         pagination: {
           page,
           limit,
@@ -468,33 +436,12 @@ export async function getMembers(req, res) {
         },
       });
     } else {
-      // Check requesting user's membership + role
-      const requesterResult = await pool.query(
-        `
-        SELECT role
-        FROM organization_members
-        WHERE organization_id = $1
-          AND user_id = $2
-      `,
-        [organizationId, USERID],
-      );
-
-      if (requesterResult.rows.length === 0) {
-        return res.status(403).json({
-          error: true,
-          message: "You are not a member of this organization",
-        });
-      }
-
-      const requesterRole = requesterResult.rows[0].role;
       const [membersResult, countResult] = await Promise.all([
         pool.query(
           `
           SELECT
-            om.id,
             om.user_id,
             u.full_name,
-            u.email,
             u.avatar_url,
             om.role,
             om.joined_at
@@ -502,7 +449,6 @@ export async function getMembers(req, res) {
           JOIN users u
             ON u.id = om.user_id
           WHERE om.organization_id = $1
-          ORDER BY om.id
         `,
           [organizationId],
         ),
@@ -521,11 +467,6 @@ export async function getMembers(req, res) {
       return res.status(200).json({
         success: true,
         message: "Found Members In This Organization",
-
-        requester: {
-          role: requesterRole,
-          isAdmin: requesterRole === "admin",
-        },
 
         members: membersResult.rows,
 

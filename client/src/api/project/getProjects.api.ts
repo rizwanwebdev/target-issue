@@ -1,16 +1,4 @@
 import apiFetch from "@/api/auth/client.ts";
-export type Project = {
-  description: string;
-  id: number;
-  name: string;
-  organization_id: number;
-  project_id: number;
-  role: string;
-  start_date: string;
-  status: string;
-  target_date: string;
-  user_id: number;
-};
 async function getProjects(organizationId: number) {
   if (!organizationId) {
     return {

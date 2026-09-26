@@ -2,19 +2,7 @@ import apiFetch from "@/api/auth/client.ts";
 
 export type OrganizationRole = "admin" | "member" | "viewer";
 
-export interface Organization {
-  id: number;
-  slug: string;
-  name: string;
-  description: string | null;
-  logo_url: string | null;
-  created_at: string;
-
-  role: OrganizationRole;
-  user_id: number;
-  organization_id: number;
-  joined_at: string | null;
-}
+import type { Organization } from "@/types/Organization";
 
 export interface GetOrgResponse {
   success?: boolean;

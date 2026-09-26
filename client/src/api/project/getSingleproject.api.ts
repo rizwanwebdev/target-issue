@@ -1,16 +1,3 @@
-export type Project = {
-  id: number;
-  name: string;
-  description: string;
-  organization_id: number;
-  start_date: string;
-  status: string;
-  target_date: string;
-  created_at: string;
-  created_by: number;
-  updated_at: string;
-};
-
 async function getSingleproject(projectId: number, organizationId: number) {
   if (!projectId || !organizationId) {
     return {

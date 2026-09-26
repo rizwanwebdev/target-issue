@@ -10,7 +10,7 @@ export type Team = {
   color: string;
   user_id: number;
 };
-async function getTeams(organizationId: number) {
+async function getTeams(organizationId: number, projectId: number | undefined) {
   if (!organizationId) {
     return {
       error: true,
@@ -26,6 +26,7 @@ async function getTeams(organizationId: number) {
       },
       body: JSON.stringify({
         organizationId: organizationId,
+        projectId: projectId,
       }),
     });
     return await result.json();
