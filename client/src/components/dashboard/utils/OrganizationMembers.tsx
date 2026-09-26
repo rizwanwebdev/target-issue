@@ -44,7 +44,15 @@ const OrganizationMembers = ({
     getAll();
   }, [organizationId, slug, page, limit, fetchAgain]);
 
-  return (
+  return members.length === 0 ? (
+    <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+      <p className="font-medium text-text">Members Not Found</p>
+
+      <p className="mt-1 text-sm text-gray-500">
+        There are no members to display.
+      </p>
+    </div>
+  ) : (
     <section className="my-4">
       <div className="flex w-full flex-col gap-3">
         {members.map((member) => (
@@ -77,7 +85,7 @@ const OrganizationMembers = ({
                 </Link>
 
                 <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-                  {"No description provided."}
+                  Joined At: {new Date(member.joined_at).toLocaleDateString()}
                 </p>
               </div>
             </div>

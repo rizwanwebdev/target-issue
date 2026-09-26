@@ -91,72 +91,52 @@ export async function getTeams(req, res) {
           "Organization dose not found OR you are not a part of this Organization",
       });
     }
+    let result;
     if (projectId) {
-      const findTeams = await pool.query(
-        `SELECT * FROM project_teams WHERE project_id =$1`,
+      result = await pool.query(
+        `SELECT
+            t.name,
+            t.description,
+            t.color,
+            t.created_by,
+            pt.assigned_at,
+            pt.team_id,
+            tm.role
+        FROM project_teams pt
+        INNER JOIN team t
+            ON t.id = pt.team_id
+        INNER JOIN team_members tm ON t.id=tm.team_id
+        WHERE pt.project_id = $1
+        ORDER BY t.name`,
         [projectId],
       );
-
-      console.log(findTeams.rows, "test");
-
-      const result = await pool.query(
-        `SELECT 
-      t.id,
-      t.organization_id,
-      t.name,
-      t.color,
-      t.description,
-      tm.user_id,
-      tm.role,
-      tm.team_id
-      FROM team_members tm 
-      INNER JOIN team t ON  t.id = tm.team_id 
-      WHERE t.organization_id=$1 AND tm.user_id =$2`,
-        [organizationId, USERID],
-      );
-
-      if (result.rows.length === 0) {
-        return res.status(400).json({
-          error: true,
-          message: "Team dose not found OR you are not a part of any Team",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "Found Teams",
-        teams: result.rows,
-      });
     } else {
-      const result = await pool.query(
+      result = await pool.query(
         `SELECT 
-    t.id,
-    t.organization_id,
-    t.name,
-    t.color,
-    t.description,
-    tm.user_id,
-    tm.role,
-    tm.team_id
-    FROM team_members tm 
-    INNER JOIN team t ON  t.id = tm.team_id 
-    WHERE t.organization_id=$1 AND tm.user_id =$2`,
-        [organizationId, USERID],
+        t.name,
+        t.description,
+        t.color,
+        tm.role,
+        tm.team_id
+        FROM team_members tm 
+        INNER JOIN team t ON  t.id = tm.team_id 
+        WHERE t.organization_id=$1`,
+        [organizationId],
       );
+    }
 
-      if (result.rows.length === 0) {
-        return res.status(400).json({
-          error: true,
-          message: "Team dose not found OR you are not a part of any Team",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "Found Teams",
-        teams: result.rows,
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Team dose not found OR you are not a part of any Team",
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "Found Teams",
+      teams: result.rows,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -226,5 +206,5 @@ export async function getSingleTeam(req, res) {
 
 export async function assingTeam(req, res) {
   const { id: USERID } = req.user;
-  const { teamIds } = req.body;
+  const { projectId, teamId } = req.body;
 }

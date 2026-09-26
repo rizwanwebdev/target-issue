@@ -1,12 +1,4 @@
-export type Team = {
-  id: number;
-  color: string;
-  name: string;
-  description: string;
-  organization_id: number;
-  created_at: string;
-  created_by: number;
-};
+import apiFetch from "@/api/auth/client";
 
 async function getSingleTeam(teamId: number, organizationId: number) {
   if (!teamId || !organizationId) {
@@ -16,7 +8,7 @@ async function getSingleTeam(teamId: number, organizationId: number) {
     };
   }
   try {
-    const result = await fetch("/api/v1/team/team", {
+    const result = await apiFetch("/api/v1/team/team", {
       method: "POST",
       credentials: "include",
       headers: {

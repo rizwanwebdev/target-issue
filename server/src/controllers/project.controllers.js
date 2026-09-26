@@ -174,7 +174,7 @@ export async function getProjects(req, res) {
     if (result.rows.length === 0) {
       return res.status(400).json({
         error: true,
-        message: "Project dose not found OR you are not a part of any Project",
+        message: "Project dose not found",
       });
     }
 

@@ -1,15 +1,5 @@
 import apiFetch from "@/api/auth/client.ts";
 
-export type Team = {
-  team_id: string;
-  id: number;
-  name: string;
-  description: string;
-  organization_id: number;
-  role: string;
-  color: string;
-  user_id: number;
-};
 async function getTeams(organizationId: number, projectId: number | undefined) {
   if (!organizationId) {
     return {
