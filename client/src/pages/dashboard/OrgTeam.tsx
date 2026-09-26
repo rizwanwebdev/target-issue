@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import getSingleTeam, { type Team } from "@/api/team/getSingleTeam.api.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
+import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 
 const OrgTeam = () => {
   const { slug, teamId } = useParams<{ slug: string; teamId: string }>();
   const { addToast } = useToast();
   const [result, setResult] = useState<Team | null>(null);
-
+  const { organization } = useOutletContext<OrganizationOutletContext>();
   useEffect(() => {
     const getResults = async () => {
       if (!slug || !teamId) {
         return;
       }
-      const res = await getSingleTeam(Number(teamId), slug);
+      const res = await getSingleTeam(Number(teamId), organization.id);
       if (res.error) {
         addToast(res.message, "error");
       }

@@ -11,11 +11,11 @@ export type Member = {
   status: string;
 };
 
-async function getSingleMember(memberId: number, organizaionId: number) {
-  if (!memberId || !organizaionId) {
+async function getSingleMember(memberId: number, organizationId: number) {
+  if (!memberId || !organizationId) {
     return {
       error: true,
-      message: "Team id and organizaionId is required to find a member",
+      message: "Team id and organizationId is required to find a member",
     };
   }
   try {
@@ -26,7 +26,7 @@ async function getSingleMember(memberId: number, organizaionId: number) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        organizaionId: organizaionId,
+        organizationId: organizationId,
         memberId: memberId,
       }),
     });

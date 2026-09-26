@@ -651,6 +651,7 @@ export async function getSingleMember(req, res) {
   try {
     const { id: USERID } = req.user;
     const { memberId, organizationId } = req.body;
+    console.log(memberId, organizationId);
     if (!memberId || !organizationId) {
       return res.status(400).json({
         error: true,
