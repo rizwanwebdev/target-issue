@@ -1,17 +1,5 @@
 import apiFetch from "@/api/auth/client.ts";
 
-export type Issue = {
-  id: number;
-  slug: string;
-  projectId: number;
-  issue_number: string; // #ProjectName-1
-  title: string;
-  description: string;
-  due_date: string;
-  status: string;
-  priority: string;
-  severity: string;
-};
 async function getAllIssues(
   organizationId: number,
   page: number,

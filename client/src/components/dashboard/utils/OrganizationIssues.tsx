@@ -1,8 +1,8 @@
-import getAllIssues, { type Issue } from "@/api/issues/getAllIssues";
+import getAllIssues from "@/api/issues/getAllIssues";
 import { useToast } from "@/context/ToastProvider";
 import { useEffect, useState } from "react";
 import IssueCard from "./IssueCard";
-
+import type { Issue } from "@/types/Issue";
 type Props = {
   organizationId: number;
   slug: string;
@@ -20,6 +20,7 @@ type Pagination = {
 const OrganizationIssues = ({
   organizationId,
   projectId,
+
   fetchAgain,
 }: Props) => {
   const [issues, setIssues] = useState<Issue[]>([]);

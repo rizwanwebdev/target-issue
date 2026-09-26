@@ -156,45 +156,53 @@ export async function getAllIssue(req, res) {
     if (projectId) {
       issueResult = await pool.query(
         `
-          SELECT *
-          FROM issues
-          WHERE project_id = $1
-            AND organization_id = $2
-          ORDER BY created_at DESC
-          LIMIT $3
-          OFFSET $4
-        `,
+      SELECT
+        i.*,
+        p.name AS project_name
+      FROM issues i
+      INNER JOIN project p
+        ON p.id = i.project_id
+      WHERE i.project_id = $1
+        AND i.organization_id = $2
+      ORDER BY i.created_at DESC
+      LIMIT $3
+      OFFSET $4
+    `,
         [projectId, organizationId, limit, offset],
       );
 
       countResult = await pool.query(
         `
-          SELECT COUNT(*)::int AS total
-          FROM issues
-          WHERE project_id = $1
-            AND organization_id = $2
-        `,
+      SELECT COUNT(*)::int AS total
+      FROM issues
+      WHERE project_id = $1
+        AND organization_id = $2
+    `,
         [projectId, organizationId],
       );
     } else {
       issueResult = await pool.query(
         `
-          SELECT *
-          FROM issues
-          WHERE organization_id = $1
-          ORDER BY created_at DESC
-          LIMIT $2
-          OFFSET $3
-        `,
+      SELECT
+        i.*,
+        p.name AS project_name
+      FROM issues i
+      INNER JOIN project p
+        ON p.id = i.project_id
+      WHERE i.organization_id = $1
+      ORDER BY i.created_at DESC
+      LIMIT $2
+      OFFSET $3
+    `,
         [organizationId, limit, offset],
       );
 
       countResult = await pool.query(
         `
-          SELECT COUNT(*)::int AS total
-          FROM issues
-          WHERE organization_id = $1
-        `,
+      SELECT COUNT(*)::int AS total
+      FROM issues
+      WHERE organization_id = $1
+    `,
         [organizationId],
       );
     }

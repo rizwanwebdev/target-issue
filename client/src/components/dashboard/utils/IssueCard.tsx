@@ -1,14 +1,13 @@
 import { useState } from "react";
-import type { Issue } from "@/api/issues/getAllIssues";
+import type { Issue } from "@/types/Issue";
 import IssueComments from "@/components/dashboard/utils/IssueComments";
-
+import { Link } from "react-router-dom";
 type Props = {
   issue: Issue;
 };
 
 const IssueCard = ({ issue }: Props) => {
   const [showComments, setShowComments] = useState(false);
-
   return (
     <article className="rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* Issue */}
@@ -25,7 +24,7 @@ const IssueCard = ({ issue }: Props) => {
             </h2>
           </div>
 
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium capitalize text-gray-600">
+          <span className="rounded-full border border-gray-300  px-3 py-1 text-xs font-medium capitalize text-gray-600">
             {issue.status}
           </span>
         </div>
@@ -45,13 +44,17 @@ const IssueCard = ({ issue }: Props) => {
             Severity: {issue.severity}
           </span>
 
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+          <span className="rounded-full  px-3 py-1 text-xs text-gray-600">
             Due: {new Date(issue.due_date).toLocaleDateString()}
           </span>
         </div>
+        <div className="mt-4 text-sm">
+          <span>Issue In: </span>
+          <span>{issue.project_name}</span>
+        </div>
 
         {/* Actions */}
-        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-gray-100 pt-4">
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-4">
           <button
             type="button"
             onClick={() => setShowComments((prev) => !prev)}
