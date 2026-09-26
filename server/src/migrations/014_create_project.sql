@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS project(
     name VARCHAR(255) NOT NULL,
     description TEXT,
     created_by INTEGER NOT NULL REFERENCES users(id),
+    next_issue_number INTEGER NOT NULL DEFAULT 1,
     status VARCHAR(20)
         NOT NULL
         DEFAULT 'ongoing'

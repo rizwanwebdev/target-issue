@@ -53,7 +53,16 @@ export async function createIssue(req, res) {
     }
 
     const result = await pool.query(
-      `INSERT INTO issues (organization_id, project_id, created_by, title, description, priority, severity, due_date) VALUES ($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
+      `
+    WITH current_issue_number AS (
+      UPDATE project
+      SET next_issue_number = next_issue_number + 1
+      WHERE id = $2
+      RETURNING next_issue_number - 1 AS issue_number
+    )
+    INSERT INTO issues (
+      organization_id, project_id, created_by, title, description, priority, severity, due_date, issue_number) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, (SELECT issue_number FROM current_issue_number)) RETURNING id, issue_number
+  `,
       [
         organizationId,
         projectId,
@@ -65,12 +74,11 @@ export async function createIssue(req, res) {
         due_date,
       ],
     );
-
     // here notification will be create or queued
     return res.status(201).json({
       success: true,
       message: "Issue created",
-      issueNumber: result.rows[0].id,
+      issueNumber: result.rows[0].issue_number,
     });
   } catch (error) {
     console.error(error);

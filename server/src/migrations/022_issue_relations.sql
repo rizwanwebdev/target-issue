@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS issue_comments(
     content TEXT,
     edited_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS issue_activity(
     id SERIAL PRIMARY KEY,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS issue_activity(
     field_name VARCHAR(20),
     old_value TEXT,
     new_value TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 
 );
 CREATE TABLE IF NOT EXISTS issue_assignees(
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS project_labels(
     name VARCHAR(100) NOT NULL,
     color VARCHAR(8) NOT NULL,
     description TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS issue_labels(
