@@ -2,10 +2,9 @@ import createOrg from "@/api/org/createOrg";
 import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
-  fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const CreateOrgModal = ({ setFetchAgain, fetchAgain }: Props) => {
+const CreateOrgModal = ({ setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
 
@@ -28,7 +27,7 @@ const CreateOrgModal = ({ setFetchAgain, fetchAgain }: Props) => {
         addToast(result.message, "error");
         return;
       }
-      setFetchAgain(!fetchAgain);
+      setFetchAgain((prev) => !prev);
       addToast(result.message, "success");
       form.reset();
       setOpenModal(false);

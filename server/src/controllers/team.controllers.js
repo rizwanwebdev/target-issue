@@ -201,10 +201,93 @@ export async function getSingleTeam(req, res) {
 
 /**
  * @method POST
- * @route /assign-team
+ * @route /assign-teams
  */
 
-export async function assingTeam(req, res) {
+export async function assignTeams(req, res) {
   const { id: USERID } = req.user;
-  const { projectId, teamId } = req.body;
+
+  const { projectId, organizationId, teamIds } = req.body;
+
+  if (
+    !projectId ||
+    !organizationId ||
+    !Array.isArray(teamIds) ||
+    teamIds.length === 0
+  ) {
+    return res.status(400).json({
+      error: true,
+      message: "projectId, organizationId and at least one team are required",
+    });
+  }
+
+  const validTeamIds = teamIds.every((id) => Number.isInteger(id) && id > 0);
+
+  if (!validTeamIds) {
+    return res.status(400).json({
+      error: true,
+      message: "Invalid team IDs",
+    });
+  }
+
+  const isAdmin = await pool.query(
+    `
+      SELECT 1
+      FROM project_members
+      WHERE project_id = $1
+        AND user_id = $2
+        AND role = 'admin'
+    `,
+    [projectId, USERID],
+  );
+
+  if (isAdmin.rows.length === 0) {
+    return res.status(403).json({
+      error: true,
+      message: "Only project admins can assign teams",
+    });
+  }
+
+  const checkTeams = await pool.query(
+    `
+      SELECT t.id
+      FROM team t
+      INNER JOIN project p
+        ON p.organization_id = t.organization_id
+      WHERE p.id = $1
+        AND p.organization_id = $2
+        AND t.id = ANY($3::int[])
+    `,
+    [projectId, organizationId, teamIds],
+  );
+
+  if (checkTeams.rows.length !== teamIds.length) {
+    return res.status(400).json({
+      error: true,
+      message: "One or more teams do not belong to this organization",
+    });
+  }
+
+  await pool.query(
+    `
+      INSERT INTO project_teams (
+        project_id,
+        team_id,
+        assigned_by
+      )
+      SELECT
+        $1,
+        team_id,
+        $3
+      FROM unnest($2::int[]) AS team_id
+      ON CONFLICT (project_id, team_id)
+      DO NOTHING
+    `,
+    [projectId, teamIds, USERID],
+  );
+
+  return res.status(201).json({
+    success: true,
+    message: "Teams assigned successfully",
+  });
 }

@@ -3,15 +3,10 @@ import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
   organizationId: number;
-  fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const CreateTeamModal = ({
-  organizationId,
-  fetchAgain,
-  setFetchAgain,
-}: Props) => {
+const CreateTeamModal = ({ organizationId, setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const [color, setColor] = useState("#000000");
@@ -35,7 +30,7 @@ const CreateTeamModal = ({
         addToast(result.message, "error");
         return;
       }
-      setFetchAgain(!fetchAgain);
+      setFetchAgain((prev) => !prev);
       addToast(result.message, "success");
       form.reset();
       setOpenModal(false);
@@ -46,8 +41,6 @@ const CreateTeamModal = ({
       );
     }
   };
-  const today = new Date().toISOString().split("T")[0];
-
   return (
     <>
       <button

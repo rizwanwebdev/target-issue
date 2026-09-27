@@ -3,15 +3,10 @@ import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
   organizationId: number;
-  fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const CreateProjectModal = ({
-  organizationId,
-  fetchAgain,
-  setFetchAgain,
-}: Props) => {
+const CreateProjectModal = ({ organizationId, setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,7 +31,7 @@ const CreateProjectModal = ({
         addToast(result.message, "error");
         return;
       }
-      setFetchAgain(!fetchAgain);
+      setFetchAgain((prev) => !prev);
       addToast(result.message, "success");
       form.reset();
       setOpenModal(false);

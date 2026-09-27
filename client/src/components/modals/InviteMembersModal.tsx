@@ -3,16 +3,11 @@ import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
   organizationId: number;
-  fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const InviteMembersModal = ({
-  organizationId,
-  fetchAgain,
-  setFetchAgain,
-}: Props) => {
+const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
@@ -42,7 +37,7 @@ const InviteMembersModal = ({
         addToast(result.message, "error");
         return;
       }
-      setFetchAgain(!fetchAgain);
+      setFetchAgain((prev) => !prev);
       addToast(result.message, "success");
       setEmails([]);
       setOpenModal(false);

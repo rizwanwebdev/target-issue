@@ -1,9 +1,9 @@
 import { useOutletContext, useParams } from "react-router-dom";
 import OragnizationTeams from "@/components/dashboard/utils/OragnizationTeams.tsx";
 import { useState } from "react";
-import CreateTeamModal from "@/components/modals/CreateTeamModal";
 
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import AssignTeamModal from "@/components/modals/AssignTeamsModal";
 
 const ProjectTeamsPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -26,9 +26,9 @@ const ProjectTeamsPage = () => {
           </div>
 
           {isAdmin && slug && (
-            <CreateTeamModal
+            <AssignTeamModal
+              projectId={project.id}
               organizationId={organization.id}
-              fetchAgain={fetchAgain}
               setFetchAgain={setFetchAgain}
             />
           )}
@@ -36,7 +36,7 @@ const ProjectTeamsPage = () => {
       </section>
       {slug && (
         <OragnizationTeams
-          organizaionId={organization.id}
+          organizationId={organization.id}
           projectId={project.id}
           slug={slug}
           fetchAgain={fetchAgain}

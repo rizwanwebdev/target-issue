@@ -5,14 +5,14 @@ import { useToast } from "@/context/ToastProvider.tsx";
 import getTeams from "@/api/team/getTeams.api.ts";
 import type { Team } from "@/types/Team";
 type Props = {
-  organizaionId: number;
+  organizationId: number;
   projectId?: number;
   slug: string;
   fetchAgain: boolean;
 };
 
 const OragnizationTeams = ({
-  organizaionId,
+  organizationId,
   slug,
   fetchAgain,
   projectId,
@@ -23,7 +23,7 @@ const OragnizationTeams = ({
 
   useEffect(() => {
     async function getAll() {
-      const result = await getTeams(organizaionId, projectId);
+      const result = await getTeams(organizationId, projectId);
       if (result.error) {
         addToast(result.message, "error");
         return;
@@ -33,7 +33,7 @@ const OragnizationTeams = ({
     }
 
     getAll();
-  }, [organizaionId, slug, fetchAgain, projectId]);
+  }, [organizationId, slug, fetchAgain, projectId]);
 
   return teams.length === 0 ? (
     <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
