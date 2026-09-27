@@ -33,7 +33,6 @@ const OrganizationProjectsPage = () => {
             <CreateProjectModal
               organizationId={organization.id}
               setFetchAgain={setFetchAgain}
-              fetchAgain={fetchAgain}
             />
           )}
         </div>

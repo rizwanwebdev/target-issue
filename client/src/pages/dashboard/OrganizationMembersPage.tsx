@@ -33,7 +33,6 @@ const OrganizationMemebersPage = () => {
           {isAdmin && slug && (
             <InviteMembersModal
               organizationId={organization.id}
-              fetchAgain={fetchAgain}
               setFetchAgain={setFetchAgain}
             />
           )}

@@ -31,7 +31,6 @@ const OrganizationTeamsPage = () => {
           {isAdmin && slug && (
             <CreateTeamModal
               organizationId={organization.id}
-              fetchAgain={fetchAgain}
               setFetchAgain={setFetchAgain}
             />
           )}
@@ -39,7 +38,7 @@ const OrganizationTeamsPage = () => {
       </section>
       {slug && (
         <OragnizationTeams
-          organizaionId={organization.id}
+          organizationId={organization.id}
           slug={slug}
           fetchAgain={fetchAgain}
         />
