@@ -7,6 +7,8 @@ type Props = {
 const CreateOrgModal = ({ setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
+  const [createSlug, setCreateSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +40,30 @@ const CreateOrgModal = ({ setFetchAgain }: Props) => {
       );
     }
   };
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
 
+    if (!slugEdited) {
+      setCreateSlug(
+        name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, ""),
+      );
+    }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugEdited(true);
+
+    setCreateSlug(
+      e.target.value
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-"),
+    );
+  };
   return (
     <>
       <button
@@ -87,10 +112,12 @@ const CreateOrgModal = ({ setFetchAgain }: Props) => {
                   id="name"
                   type="text"
                   name="name"
+                  onChange={handleNameChange}
                   minLength={4}
                   placeholder="Enter organization name"
                   required
                   className="input-style"
+                  title="More than 6 chracter. Use lowercase letters and single hyphens only, e.g. target-issue"
                 />
               </div>
 
@@ -103,16 +130,12 @@ const CreateOrgModal = ({ setFetchAgain }: Props) => {
                   id="slug"
                   type="text"
                   name="slug"
+                  value={createSlug}
+                  onChange={handleSlugChange}
                   minLength={6}
                   placeholder="Enter organization slug, e.g. target-issue"
-                  pattern="(?=.{6,}$)[a-z]+(?:-[a-z]+)*"
-                  title="More than 6 chracter. Use lowercase letters and single hyphens only, e.g. target-issue"
-                  onInput={(e) => {
-                    e.currentTarget.value = e.currentTarget.value
-                      .toLowerCase()
-                      .replace(/[^a-z-]/g, "")
-                      .replace(/-+/g, "-");
-                  }}
+                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                  title="Use lowercase letters, numbers, and single hyphens, e.g. target-issue"
                   required
                   className="input-style"
                 />

@@ -30,7 +30,12 @@ export async function getOrg(req, res) {
         message: "Organization slug is required",
       });
     }
-
+    const cleanSlug = slug
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
     const orgResult = await pool.query(
       `
         SELECT
@@ -48,7 +53,7 @@ export async function getOrg(req, res) {
         WHERE o.slug = $1
           AND om.user_id = $2
       `,
-      [slug, userId],
+      [cleanSlug, userId],
     );
 
     if (orgResult.rows.length === 0) {
@@ -97,7 +102,12 @@ export async function createOrg(req, res) {
         message: "Name and slug must be at least 4 characters long",
       });
     }
-
+    const cleanSlug = slug
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
     const result = await pool.query(
       `
         WITH new_org AS (
@@ -123,13 +133,13 @@ export async function createOrg(req, res) {
           NOW()
         )
       `,
-      [name.trim(), slug.trim(), description.trim(), id, "admin"],
+      [name.trim(), cleanSlug, description.trim(), id, "admin"],
     );
 
     return res.status(201).json({
       success: true,
       message: "Organization has been created.",
-      slug: slug.trim(),
+      slug: cleanSlug,
     });
   } catch (error) {
     // PostgreSQL unique violation
@@ -245,6 +255,12 @@ export async function inviteMembers(req, res) {
         invalidEmails,
       });
     }
+    const cleanSlug = slug
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
     // Find organization + user's role
     const organizationResult = await pool.query(
       `
@@ -260,7 +276,7 @@ export async function inviteMembers(req, res) {
         WHERE o.slug = $1
         AND om.user_id = $2
       `,
-      [slug, userId],
+      [cleanSlug, userId],
     );
 
     if (organizationResult.rows.length === 0) {
