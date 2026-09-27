@@ -1,5 +1,5 @@
 import pool from "../db/connect.js";
-
+import { saveActivity } from "../utils/saveActivity.js";
 /**
  * @method POST
  * @route /create-issue
@@ -32,23 +32,26 @@ export async function createIssue(req, res) {
           "All fileds are required i.e organizationId, name, description, projectId, due_date, priority, severity",
       });
     }
-    const orgResult = await pool.query(
+    const checkMembership = await pool.query(
       `
-    SELECT
-    o.id,
-    om.organization_id,
-    om.user_id
-    FROM organization o INNER JOIN organization_members om ON
-    o.id = om.organization_id
-    WHERE o.id =$1 AND om.user_id = $2
-    `,
-      [organizationId, USERID],
+        SELECT 1
+        FROM organization_members om
+        INNER JOIN project_members pm
+          ON pm.user_id = om.user_id
+        INNER JOIN project p
+          ON p.id = pm.project_id
+        AND p.organization_id = om.organization_id
+        WHERE om.organization_id = $1
+          AND om.user_id = $2
+          AND pm.project_id = $3
+      `,
+      [organizationId, USERID, projectId],
     );
-    if (orgResult.rows.length === 0) {
-      return res.status(400).json({
+
+    if (checkMembership.rows.length === 0) {
+      return res.status(403).json({
         error: true,
-        message:
-          "Organization dose not exists OR you are not a part of this organization to create issue",
+        message: "You do not have access to this project",
       });
     }
 
@@ -74,7 +77,14 @@ export async function createIssue(req, res) {
         due_date,
       ],
     );
-    // here notification will be create or queued
+
+    await saveActivity({
+      organizationId,
+      projectId,
+      actorId: USERID,
+      message: `#${result.rows[0].issue_number} Issue: ${title.trim()}`,
+    });
+
     return res.status(201).json({
       success: true,
       message: "Issue created",
@@ -314,11 +324,17 @@ export async function changeIssueStatus(req, res) {
         WHERE id = $2
           AND project_id = $3
           AND organization_id = $4
-        RETURNING id, status, resolved_at, closed_at
+        RETURNING id, issue_number,title, status, resolved_at, closed_at
       `,
       [issueStatus, issueId, projectId, organizationId],
     );
-
+    const updatedIssue = updateIssue.rows[0];
+    await saveActivity({
+      organizationId,
+      projectId,
+      actorId: USERID,
+      message: `#${updatedIssue.issue_number} Issue  ${updatedIssue.status}: ${updatedIssue.title}`,
+    });
     return res.status(200).json({
       success: true,
       message: `Issue Updated #${issueId}`,

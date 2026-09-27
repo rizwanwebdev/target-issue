@@ -2,6 +2,7 @@ import crypto from "crypto";
 import pool from "../db/connect.js";
 import config from "../config/config.js";
 import { emailQueue } from "../queue/email.queue.js";
+import { saveActivity } from "../utils/saveActivity.js";
 function generateInvitationToken() {
   return crypto.randomBytes(32).toString("hex");
 }
@@ -135,7 +136,11 @@ export async function createOrg(req, res) {
       `,
       [name.trim(), cleanSlug, description.trim(), id, "admin"],
     );
-
+    await saveActivity({
+      organizationId: result.rows[0].id,
+      actorId: USERID,
+      message: `Organization Created: ${name.trim()}`,
+    });
     return res.status(201).json({
       success: true,
       message: "Organization has been created.",
@@ -618,7 +623,11 @@ export async function acceptInvitation(req, res) {
     );
 
     await client.query("COMMIT");
-
+    await saveActivity({
+      organizationId: invitation.organization_id,
+      actorId: USERID,
+      message: "New Memeber Joined this organization",
+    });
     return res.status(201).json({
       success: true,
       message: "You have joined a new organization.",

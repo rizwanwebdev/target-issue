@@ -1,4 +1,5 @@
 import pool from "../db/connect.js";
+import { saveActivity } from "../utils/saveActivity.js";
 
 /**
  * @method POST
@@ -40,9 +41,21 @@ export async function createTeam(req, res) {
     )
     INSERT INTO team_members (team_id, user_id, role) VALUES ((SELECT id FROM new_team), $4, $6)
     `,
-      [organizationId, name, description, USERID, color, "admin"],
+      [
+        organizationId,
+        name.trim(),
+        description.trim(),
+        USERID,
+        color.trim(),
+        "admin",
+      ],
     );
-
+    await saveActivity({
+      organizationId,
+      projectId: null,
+      actorId: USERID,
+      message: `New Team Created: ${name.trim()}`,
+    });
     return res.status(201).json({
       success: true,
       message: "Team Created",
@@ -205,89 +218,109 @@ export async function getSingleTeam(req, res) {
  */
 
 export async function assignTeams(req, res) {
-  const { id: USERID } = req.user;
+  try {
+    const { id: USERID } = req.user;
+    const { projectId, organizationId, teamIds } = req.body;
 
-  const { projectId, organizationId, teamIds } = req.body;
+    if (
+      !projectId ||
+      !organizationId ||
+      !Array.isArray(teamIds) ||
+      teamIds.length === 0
+    ) {
+      return res.status(400).json({
+        error: true,
+        message: "projectId, organizationId and at least one team are required",
+      });
+    }
 
-  if (
-    !projectId ||
-    !organizationId ||
-    !Array.isArray(teamIds) ||
-    teamIds.length === 0
-  ) {
-    return res.status(400).json({
+    const validTeamIds = teamIds.every((id) => Number.isInteger(id) && id > 0);
+
+    if (!validTeamIds) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid team IDs",
+      });
+    }
+
+    const isAdmin = await pool.query(
+      `
+        SELECT 1
+        FROM project_members
+        WHERE project_id = $1
+          AND user_id = $2
+          AND role = 'admin'
+      `,
+      [projectId, USERID],
+    );
+
+    if (isAdmin.rows.length === 0) {
+      return res.status(403).json({
+        error: true,
+        message: "Only project admins can assign teams",
+      });
+    }
+
+    const checkTeams = await pool.query(
+      `
+        SELECT
+          t.id,
+          t.name AS team_name,
+          p.name AS project_name
+        FROM team t
+        INNER JOIN project p
+          ON p.organization_id = t.organization_id
+        WHERE p.id = $1
+          AND p.organization_id = $2
+          AND t.id = ANY($3::int[])
+      `,
+      [projectId, organizationId, teamIds],
+    );
+
+    if (checkTeams.rows.length !== teamIds.length) {
+      return res.status(400).json({
+        error: true,
+        message: "One or more teams do not belong to this organization",
+      });
+    }
+
+    await pool.query(
+      `
+        INSERT INTO project_teams (
+          project_id,
+          team_id,
+          assigned_by
+        )
+        SELECT
+          $1,
+          team_id,
+          $3
+        FROM unnest($2::int[]) AS team_id
+        ON CONFLICT (project_id, team_id)
+        DO NOTHING
+      `,
+      [projectId, teamIds, USERID],
+    );
+
+    const teamNames = checkTeams.rows.map((team) => team.team_name).join(", ");
+
+    await saveActivity({
+      organizationId,
+      projectId,
+      actorId: USERID,
+      message: `Team${checkTeams.rows.length > 1 ? "s" : ""} ${teamNames} assigned to ${checkTeams.rows[0].project_name}`,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Teams assigned successfully",
+    });
+  } catch (error) {
+    console.error("Assign teams error:", error);
+
+    return res.status(500).json({
       error: true,
-      message: "projectId, organizationId and at least one team are required",
+      message: "Something went wrong while assigning teams",
     });
   }
-
-  const validTeamIds = teamIds.every((id) => Number.isInteger(id) && id > 0);
-
-  if (!validTeamIds) {
-    return res.status(400).json({
-      error: true,
-      message: "Invalid team IDs",
-    });
-  }
-
-  const isAdmin = await pool.query(
-    `
-      SELECT 1
-      FROM project_members
-      WHERE project_id = $1
-        AND user_id = $2
-        AND role = 'admin'
-    `,
-    [projectId, USERID],
-  );
-
-  if (isAdmin.rows.length === 0) {
-    return res.status(403).json({
-      error: true,
-      message: "Only project admins can assign teams",
-    });
-  }
-
-  const checkTeams = await pool.query(
-    `
-      SELECT t.id
-      FROM team t
-      INNER JOIN project p
-        ON p.organization_id = t.organization_id
-      WHERE p.id = $1
-        AND p.organization_id = $2
-        AND t.id = ANY($3::int[])
-    `,
-    [projectId, organizationId, teamIds],
-  );
-
-  if (checkTeams.rows.length !== teamIds.length) {
-    return res.status(400).json({
-      error: true,
-      message: "One or more teams do not belong to this organization",
-    });
-  }
-
-  await pool.query(
-    `
-      INSERT INTO project_teams (
-        project_id,
-        team_id,
-        assigned_by
-      )
-      SELECT
-        $1,
-        team_id,
-        $3
-      FROM unnest($2::int[]) AS team_id
-      ON CONFLICT (project_id, team_id)
-      DO NOTHING
-    `,
-    [projectId, teamIds, USERID],
-  );
-
-  return res.status(201).json({
-    success: true,
-    message: "Teams assigned successfully",
-  });
 }

@@ -1,5 +1,5 @@
 import pool from "../db/connect.js";
-
+import { saveActivity } from "../utils/saveActivity.js";
 export async function createProject(req, res) {
   const { id: USERID } = req.user;
 
@@ -76,7 +76,7 @@ export async function createProject(req, res) {
     });
   }
 
-  await pool.query(
+  const result = await pool.query(
     `
       WITH new_project AS (
         INSERT INTO project (
@@ -104,8 +104,8 @@ export async function createProject(req, res) {
     `,
     [
       organizationId,
-      name,
-      description,
+      name.trim(),
+      description.trim(),
       USERID,
       project_status,
       start,
@@ -113,7 +113,12 @@ export async function createProject(req, res) {
       "admin",
     ],
   );
-
+  await saveActivity({
+    organizationId,
+    projectId: result.rows[0].id,
+    actorId: USERID,
+    message: `New Project Created: ${name.trim()}`,
+  });
   return res.status(201).json({
     success: true,
     message: "Project Created",

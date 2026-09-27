@@ -104,7 +104,9 @@ export async function register(req, res) {
       verificationToken: verificationToken,
     });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
   }
 }
 /**
@@ -184,7 +186,9 @@ export async function login(req, res) {
       user: { name: user.full_name, email: user.email },
     });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
   }
 }
 /**
@@ -308,7 +312,9 @@ export async function verifyOtp(req, res) {
       .status(200)
       .json({ success: true, message: "OTP verified, you can now log in" });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
   }
 }
 
@@ -352,7 +358,9 @@ export async function resendOTp(req, res) {
       message: "We had sent a new OTP, check you email",
     });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
   }
 }
 
@@ -396,7 +404,9 @@ export async function forgotPassword(req, res) {
       token: resetToken,
     });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
   }
 }
 
@@ -456,7 +466,9 @@ export async function savePassword(req, res) {
       message: "Password reset successfully. Login Now!",
     });
   } catch (error) {
-    return res.status(500).json({ error: true, message: error.message });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
   }
 }
 
