@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS organization(
     logo_url TEXT,
     created_by  INTEGER NOT NULL REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ 
+    updated_at TIMESTAMPTZ,
+    UNIQUE (slug)
 );
