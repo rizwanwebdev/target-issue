@@ -2,6 +2,7 @@ import pool from "../db/connect.js";
 
 export async function getOrganizationActivity(req, res) {
   try {
+    const { id: USERID } = req.user;
     const { organizationId } = req.body;
     if (!organizationId) {
       return res.status(400).json({
@@ -35,8 +36,7 @@ export async function getOrganizationActivity(req, res) {
         a.id,
         a.message,
         a.created_at,
-        a.actor_id,
-        u.name AS actor_name
+        u.full_name AS actor_name
     FROM activity a
     LEFT JOIN users u
         ON u.id = a.actor_id
@@ -48,7 +48,7 @@ export async function getOrganizationActivity(req, res) {
     return res.status(200).json({
       success: true,
       message: "Recent Activity",
-      activity: recentActivity.rows,
+      activities: recentActivity.rows,
     });
   } catch (error) {
     console.log(error);
@@ -59,6 +59,7 @@ export async function getOrganizationActivity(req, res) {
 }
 export async function getProjectActivity(req, res) {
   try {
+    const { id: USERID } = req.user;
     const { organizationId, projectId } = req.body;
     if (!organizationId || !projectId) {
       return res.status(400).json({
@@ -95,8 +96,7 @@ export async function getProjectActivity(req, res) {
         a.id,
         a.message,
         a.created_at,
-        a.actor_id,
-        u.name AS actor_name
+        u.full_name AS actor_name
     FROM activity a
     LEFT JOIN users u
         ON u.id = a.actor_id
@@ -108,7 +108,7 @@ export async function getProjectActivity(req, res) {
     return res.status(200).json({
       success: true,
       message: "Recent Activity",
-      activity: recentActivity.rows,
+      activities: recentActivity.rows,
     });
   } catch (error) {
     console.log(error);

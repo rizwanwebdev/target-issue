@@ -40,10 +40,7 @@ const DashOrganization = () => {
             </p>
           </div>
 
-          <CreateOrgModal
-            fetchAgain={fetchAgain}
-            setFetchAgain={setFetchAgain}
-          />
+          <CreateOrgModal setFetchAgain={setFetchAgain} />
         </div>
       </section>
 

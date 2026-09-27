@@ -9,7 +9,7 @@ async function getAllIssues(
     if (!organizationId) {
       return {
         error: true,
-        message: "organization Id is required to find issues,",
+        message: "organization Id is required to find issues",
       };
     }
     const result = await apiFetch("/api/v1/issues/get-issues", {

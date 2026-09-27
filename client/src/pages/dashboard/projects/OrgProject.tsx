@@ -2,7 +2,7 @@ import { useOutletContext } from "react-router-dom";
 import CreateIssueModal from "@/components/modals/CreateIssueModal";
 
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
-
+import DisplayRecentActivities from "@/components/dashboard/utils/DisplayRecentActivities";
 const OrgProject = () => {
   const { organization, project } = useOutletContext<ProjectOutletContext>();
   const isAdmin = project.role === "admin";
@@ -59,7 +59,6 @@ const OrgProject = () => {
             </div>
           </div>
         </section>
-
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-gray-500">Teams</p>
@@ -122,18 +121,10 @@ const OrgProject = () => {
             </div>
           </div>
         </section>
-
-        <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-text">Recent Activity</h2>
-          </div>
-
-          <div className="mt-5">
-            <p className="text-sm text-gray-500">
-              No recent activity to display.
-            </p>
-          </div>
-        </section>
+        <DisplayRecentActivities
+          organizationId={organization.id}
+          projectId={project.id}
+        />
       </main>
     </>
   );

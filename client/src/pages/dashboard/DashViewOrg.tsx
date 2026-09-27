@@ -2,6 +2,7 @@ import { useOutletContext } from "react-router-dom";
 import { useEffect } from "react";
 
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import DisplayRecentActivities from "@/components/dashboard/utils/DisplayRecentActivities";
 
 const DashViewOrg = () => {
   const { organization } = useOutletContext<OrganizationOutletContext>();
@@ -118,19 +119,8 @@ const DashViewOrg = () => {
             </div>
           </div>
         </section>
-
         {/* Recent Activity */}
-        <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-text">Recent Activity</h2>
-          </div>
-
-          <div className="mt-5">
-            <p className="text-sm text-gray-500">
-              No recent activity to display.
-            </p>
-          </div>
-        </section>
+        <DisplayRecentActivities organizationId={organization.id} />
       </div>
     </main>
   );
