@@ -1,12 +1,12 @@
 import { useState } from "react";
 import type { Issue } from "@/types/Issue";
 import IssueComments from "@/components/dashboard/utils/IssueComments";
-import { Link } from "react-router-dom";
 type Props = {
   issue: Issue;
+  projectId?: number;
 };
 
-const IssueCard = ({ issue }: Props) => {
+const IssueCard = ({ issue, projectId }: Props) => {
   const [showComments, setShowComments] = useState(false);
   return (
     <article className="rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -62,11 +62,12 @@ const IssueCard = ({ issue }: Props) => {
           >
             {showComments ? "Hide comments" : "View comments"}
           </button>
-
           {/* Future actions */}
-          <button type="button" className="btn btn-light">
-            Edit
-          </button>
+          {projectId && (
+            <button type="button" className="btn btn-light">
+              Edit
+            </button>
+          )}
         </div>
       </div>
 

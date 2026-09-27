@@ -70,7 +70,7 @@ const OrganizationIssues = ({
       ) : (
         <div className="flex flex-col gap-3">
           {issues.map((issue) => (
-            <IssueCard key={issue.id} issue={issue} />
+            <IssueCard key={issue.id} issue={issue} projectId={projectId} />
           ))}
         </div>
       )}
