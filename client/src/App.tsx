@@ -81,6 +81,7 @@ function App() {
                 <Route path="members" element={<ProjectMembersPage />} />
                 <Route path="issues" element={<ProjectIssuesPage />} />
                 <Route path="teams" element={<ProjectTeamsPage />} />
+                <Route path="members/:memberId" element={<OrgMember />} />
               </Route>
 
               <Route path="members/:memberId" element={<OrgMember />} />

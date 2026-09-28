@@ -1,17 +1,4 @@
-export type Member = {
-  id: number;
-  avatar_url: string | null;
-  created_at: string;
-  email: string;
-  email_verified: boolean;
-  full_name: string;
-  joined_at: string;
-  organization_id: number;
-  role: string;
-  status: string;
-};
-
-async function getSingleMember(memberId: number, organizationId: number) {
+async function getSingleMember(memberId: string, organizationId: number) {
   if (!memberId || !organizationId) {
     return {
       error: true,
@@ -27,7 +14,7 @@ async function getSingleMember(memberId: number, organizationId: number) {
       },
       body: JSON.stringify({
         organizationId: organizationId,
-        memberId: memberId,
+        username: memberId,
       }),
     });
     return await result.json();

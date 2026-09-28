@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/context/ToastProvider.tsx";
 
 import getAllMembersApi from "@/api/org/getAllMembers.api.ts";
-import type { Members } from "@/types/Member";
+import type { Member } from "@/types/Member";
 
 type Props = {
   slug: string;
@@ -19,7 +19,7 @@ const OrganizationMembers = ({
   fetchAgain,
   projectId,
 }: Props) => {
-  const [members, setMembers] = useState<Members[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
 
@@ -78,7 +78,7 @@ const OrganizationMembers = ({
               {/* Name + description */}
               <div className="min-w-0">
                 <Link
-                  to={`/dashboard/organizations/${slug}/members/${member.user_id}`}
+                  to={`/dashboard/organizations/${slug}/${projectId ? `projects/${projectId}/members/${member.username}` : `members/${member.username}`}`}
                   className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
                 >
                   {member.full_name}

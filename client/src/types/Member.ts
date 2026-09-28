@@ -1,4 +1,4 @@
-export type Members = {
+export type Member = {
   user_id: number;
   role: string;
   full_name: string;

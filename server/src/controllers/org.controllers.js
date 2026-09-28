@@ -503,6 +503,7 @@ export async function getMembers(req, res) {
             om.user_id,
             u.full_name,
             u.avatar_url,
+            u.username,
             om.role,
             om.joined_at
           FROM organization_members om
@@ -655,12 +656,11 @@ export async function acceptInvitation(req, res) {
 export async function getSingleMember(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { memberId, organizationId } = req.body;
-    console.log(memberId, organizationId);
-    if (!memberId || !organizationId) {
+    const { username, organizationId } = req.body;
+    if (!username || !organizationId) {
       return res.status(400).json({
         error: true,
-        message: "Member Not Found",
+        message: "username and organization id is required to find a member",
       });
     }
     const orgResult = await pool.query(
@@ -678,23 +678,18 @@ export async function getSingleMember(req, res) {
     const result = await pool.query(
       `
   SELECT
-    u.id,
-    u.email,
     u.full_name,
     u.username,
     u.avatar_url,
-    u.email_verified,
-    u.created_at,
-    om.organization_id,
     om.role,
     om.joined_at
   FROM users u
   INNER JOIN organization_members om
     ON u.id = om.user_id
-  WHERE u.id = $1
+  WHERE u.username = $1
     AND om.organization_id = $2
   `,
-      [memberId, organizationId],
+      [username, organizationId],
     );
 
     if (result.rows.length === 0) {
