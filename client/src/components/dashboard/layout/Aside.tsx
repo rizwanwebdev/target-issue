@@ -57,7 +57,7 @@ export const Aside = ({ slug, projectId }: Props) => {
 
   const dashboardLinks = [
     {
-      linkName: "Overview",
+      linkName: "Dashboard",
       to: "/dashboard",
     },
     {

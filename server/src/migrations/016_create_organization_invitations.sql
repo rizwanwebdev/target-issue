@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS organization_invitations (
         ON DELETE CASCADE,
 
     invited_by INTEGER NOT NULL
-        REFERENCES users(id),
+        REFERENCES users(id) ON DELETE SET NULL,
 
     email VARCHAR(255) NOT NULL,
 

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-import getSingleTeam, { type Team } from "@/api/team/getSingleTeam.api.ts";
+import getSingleTeam from "@/api/team/getSingleTeam.api.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
-
+import type { Team } from "@/types/Team";
 const OrgTeam = () => {
   const { slug, teamId } = useParams<{ slug: string; teamId: string }>();
   const { addToast } = useToast();

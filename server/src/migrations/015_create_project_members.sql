@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS project_members(
     id SERIAL PRIMARY KEY,
-    project_id INTEGER NOT NULL REFERENCES project(id),
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    project_id INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     role VARCHAR(20)
         NOT NULL
         DEFAULT 'member'

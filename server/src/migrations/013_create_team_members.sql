@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS team_members(
    id SERIAL PRIMARY KEY,
-   team_id INTEGER NOT NULL REFERENCES team(id),
-   user_id  INTEGER NOT NULL REFERENCES users(id),
+   team_id INTEGER NOT NULL REFERENCES team(id) ON DELETE CASCADE,
+   user_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
    role VARCHAR(20)
         NOT NULL
         DEFAULT 'member'

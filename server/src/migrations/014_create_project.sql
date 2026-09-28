@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS project(
     id SERIAL PRIMARY KEY,
-    organization_id  INTEGER NOT NULL REFERENCES organization(id),
+    organization_id  INTEGER NOT NULL REFERENCES organization(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    created_by INTEGER NOT NULL REFERENCES users(id),
+    created_by INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL,
     next_issue_number INTEGER NOT NULL DEFAULT 1,
     status VARCHAR(20)
         NOT NULL

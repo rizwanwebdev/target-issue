@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS issues(
     id SERIAL PRIMARY KEY,
-    organization_id INTEGER NOT NULL REFERENCES organization(id),
-    project_id INTEGER NOT NULL REFERENCES project(id),
-    created_by INTEGER NOT NULL REFERENCES users(id),
+    organization_id INTEGER NOT NULL REFERENCES organization(id) ON DELETE CASCADE,
+    project_id INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+    created_by INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL,
     -- reporter_id INTEGER NOT NULL REFERENCES users(id),
     issue_number INTEGER NOT NULL DEFAULT 0,
     title VARCHAR(100) NOT NULL,

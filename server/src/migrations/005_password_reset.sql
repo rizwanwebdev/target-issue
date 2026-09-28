@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS password_reset (
     reset_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token_hash TEXT,
     used BOOLEAN NOT NULL DEFAULT FALSE,
     used_at TIMESTAMPTZ,

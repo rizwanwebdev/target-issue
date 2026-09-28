@@ -10,7 +10,7 @@ CREATE TABLE issue_teams (
         REFERENCES team(id) ON DELETE CASCADE,
 
     assigned_by INTEGER NOT NULL
-        REFERENCES users(id),
+        REFERENCES users(id) ON DELETE SET NULL,
 
     assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
