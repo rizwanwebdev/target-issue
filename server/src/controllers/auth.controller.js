@@ -37,22 +37,31 @@ function genRefreshToken(id, sessionId) {
  * @param {*} res
  */
 const EMAILREGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const USERNAME_FORMAT = /^[a-z0-9_]{4,25}$/;
 const STRONGPASSOWRDREGX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 export async function register(req, res) {
   try {
-    const { name, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !username || !email || !password) {
       return res.status(400).json({
         error: true,
-        message: "name, email and password are required",
+        message: "name,username, email and password are required",
       });
     }
     if (name.length < 4) {
       return res.status(400).json({
         error: true,
         message: "Name is less than 4 chracters",
+      });
+    }
+    if (!USERNAME_FORMAT.test(username)) {
+      return res.status(400).json({
+        error: true,
+        message:
+          "Invalid Username, use small letter with underscore _ and more than 6 characters",
       });
     }
     if (!EMAILREGEX.test(email)) {
@@ -81,8 +90,8 @@ export async function register(req, res) {
 
     const passHash = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (full_name, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
-      [name, email, passHash],
+      "INSERT INTO users (full_name,username, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
+      [name, username, email, passHash],
     );
 
     const otp = genrateOTP();
@@ -183,7 +192,7 @@ export async function login(req, res) {
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      user: { name: user.full_name, email: user.email },
+      user: { name: user.full_name, username: user.username },
     });
   } catch (error) {
     return res
@@ -478,7 +487,7 @@ export async function getMe(req, res) {
 
     const result = await pool.query(
       `
-      SELECT id, full_name, email
+      SELECT id, full_name, username
       FROM users
       WHERE id = $1
       `,
@@ -500,7 +509,7 @@ export async function getMe(req, res) {
       user: {
         id: user.id,
         fullName: user.full_name,
-        email: user.email,
+        username: user.username,
       },
     });
   } catch (error) {

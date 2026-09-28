@@ -3,8 +3,9 @@ import apiFetch from "./client.ts";
 apiFetch;
 
 interface User {
+  id: number;
   fullName: string;
-  email: string;
+  username: string;
 }
 
 interface GetMeSuccess {
@@ -25,7 +26,7 @@ async function getMe(): Promise<GetMeResult> {
     const response = await apiFetch("/api/v1/auth/get-me");
 
     const data = await response.json();
-
+    console.log(data);
     if (!response.ok) {
       return {
         error: true,

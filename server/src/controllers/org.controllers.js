@@ -459,6 +459,7 @@ export async function getMembers(req, res) {
           SELECT
             u.full_name,
             u.avatar_url,
+            u.username,
             pm.user_id,
             pm.role,
             pm.joined_at
@@ -473,10 +474,10 @@ export async function getMembers(req, res) {
         pool.query(
           `
           SELECT COUNT(*)::integer AS total
-          FROM organization_members
-          WHERE organization_id = $1
+          FROM project_members
+          WHERE project_id = $1
         `,
-          [organizationId],
+          [projectId],
         ),
       ]);
 
@@ -680,7 +681,7 @@ export async function getSingleMember(req, res) {
     u.id,
     u.email,
     u.full_name,
-    u.status,
+    u.username,
     u.avatar_url,
     u.email_verified,
     u.created_at,

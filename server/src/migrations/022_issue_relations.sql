@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS issue_assignees(
     assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (issue_id, user_id)
 );
+CREATE INDEX IF NOT EXISTS idx_issue_assignees_user
+ON issue_assignees (user_id, issue_id);
 
 CREATE TABLE IF NOT EXISTS project_labels(
     id SERIAL PRIMARY KEY,
