@@ -58,6 +58,7 @@ const ForgotPasswordPage = () => {
                     type="email"
                     id="email"
                     name="email"
+                    autoComplete="email"
                     placeholder="john@readymadeui.com"
                     required
                     className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"

@@ -82,7 +82,7 @@ export async function createIssue(req, res) {
       organizationId,
       projectId,
       actorId: USERID,
-      message: `#${result.rows[0].issue_number} Issue: ${title.trim()}`,
+      message: `New Issue: #${result.rows[0].issue_number} ${title.trim()}`,
     });
 
     return res.status(201).json({

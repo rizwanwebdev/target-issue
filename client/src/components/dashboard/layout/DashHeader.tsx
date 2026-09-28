@@ -15,14 +15,15 @@ const DashHeader = () => {
             className="border border-gray-400 rounded p-2 min-w-30"
           />
         </div>
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="relative shrink-0">
+            <div className="h-10 aspect-square bg-red-500 rounded-full shadow"></div>
 
-        <div className="flex gap-2">
-          <div className="relative">
-            <div className=" h-full aspect-square bg-red-500 rounded-full shadow"></div>
-            <div className="absolute w-3 animate-pulse aspect-square bg-green-600 rounded-full shadow  top-0 right-0"></div>
+            <div className="absolute w-3 aspect-square bg-green-600 rounded-full shadow top-0 right-0 animate-pulse"></div>
           </div>
-          <div>
-            <p className="font-medium">{user?.fullName}</p>
+
+          <div className="min-w-0">
+            <p className="font-medium">{user?.fullName} TEST</p>
           </div>
         </div>
       </header>

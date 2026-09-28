@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS users (
 ALTER TABLE users
 ADD CONSTRAINT users_username_format
 CHECK (
-    username ~ '^[a-z0-9_]{3,25}$'
+    username ~ '^[a-z0-9_]{4,25}$'
 );

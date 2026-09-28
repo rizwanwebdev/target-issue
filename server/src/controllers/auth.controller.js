@@ -61,7 +61,7 @@ export async function register(req, res) {
       return res.status(400).json({
         error: true,
         message:
-          "Invalid Username, use small letter with underscore _ and more than 6 characters",
+          "Username must be 4–25 characters and contain only lowercase letters, numbers, and underscores.",
       });
     }
     if (!EMAILREGEX.test(email)) {
@@ -90,7 +90,7 @@ export async function register(req, res) {
 
     const passHash = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (full_name,username, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
+      "INSERT INTO users (full_name,username, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING id",
       [name, username, email, passHash],
     );
 
@@ -113,6 +113,7 @@ export async function register(req, res) {
       verificationToken: verificationToken,
     });
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ error: true, message: "Internal Server Error" });

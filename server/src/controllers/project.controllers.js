@@ -100,7 +100,7 @@ export async function createProject(req, res) {
         (SELECT id FROM new_project),
         $4,
         $8
-      )
+      ) RETURNING project_id
     `,
     [
       organizationId,
@@ -115,7 +115,7 @@ export async function createProject(req, res) {
   );
   await saveActivity({
     organizationId,
-    projectId: result.rows[0].id,
+    projectId: result.rows[0].project_id,
     actorId: USERID,
     message: `New Project Created: ${name.trim()}`,
   });

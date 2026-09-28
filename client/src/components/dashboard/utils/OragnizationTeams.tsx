@@ -40,7 +40,14 @@ const OragnizationTeams = ({
       <p className="font-medium text-text">Teams Not Found</p>
 
       <p className="mt-1 text-sm text-gray-500">
-        There are no teams to display.
+        First create OR joing a team in{" "}
+        <Link
+          className="text-indigo-500 underline"
+          to={`/dashboard/organizations/${slug}/teams`}
+        >
+          Organization
+        </Link>{" "}
+        Then Assign in Projects
       </p>
     </div>
   ) : (

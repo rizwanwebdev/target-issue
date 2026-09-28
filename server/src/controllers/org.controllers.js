@@ -22,7 +22,7 @@ function isValidEmail(email) {
  */
 export async function getOrg(req, res) {
   try {
-    const { id: userId } = req.user;
+    const { id: USERID } = req.user;
     const { slug } = req.body;
 
     if (!slug) {
@@ -54,7 +54,7 @@ export async function getOrg(req, res) {
         WHERE o.slug = $1
           AND om.user_id = $2
       `,
-      [cleanSlug, userId],
+      [cleanSlug, USERID],
     );
 
     if (orgResult.rows.length === 0) {
@@ -87,7 +87,7 @@ export async function getOrg(req, res) {
  */
 export async function createOrg(req, res) {
   try {
-    const { id } = req.user;
+    const { id: USERID } = req.user;
     const { name, slug, description } = req.body;
 
     if (!name || !slug || !description) {
@@ -132,12 +132,13 @@ export async function createOrg(req, res) {
           $4,
           $5,
           NOW()
-        )
+        ) RETURNING organization_id
       `,
-      [name.trim(), cleanSlug, description.trim(), id, "admin"],
+      [name.trim(), cleanSlug, description.trim(), USERID, "admin"],
     );
+    console.log(result);
     await saveActivity({
-      organizationId: result.rows[0].id,
+      organizationId: result.rows[0].organization_id,
       actorId: USERID,
       message: `Organization Created: ${name.trim()}`,
     });
@@ -147,6 +148,7 @@ export async function createOrg(req, res) {
       slug: cleanSlug,
     });
   } catch (error) {
+    console.log(error);
     // PostgreSQL unique violation
     if (
       error.code === "23505" &&
@@ -172,7 +174,7 @@ export async function createOrg(req, res) {
  */
 export async function getAllOrganizations(req, res) {
   try {
-    const { id: userId } = req.user;
+    const { id: USERID } = req.user;
 
     const result = await pool.query(
       `
@@ -191,7 +193,7 @@ export async function getAllOrganizations(req, res) {
         WHERE om.user_id = $1
         ORDER BY o.created_at DESC
       `,
-      [userId],
+      [USERID],
     );
 
     if (result.rows.length === 0) {
@@ -221,7 +223,7 @@ export async function getAllOrganizations(req, res) {
  */
 export async function inviteMembers(req, res) {
   try {
-    const { id: userId } = req.user;
+    const { id: USERID } = req.user;
     const { slug, emails } = req.body;
 
     if (!slug) {
@@ -281,7 +283,7 @@ export async function inviteMembers(req, res) {
         WHERE o.slug = $1
         AND om.user_id = $2
       `,
-      [cleanSlug, userId],
+      [cleanSlug, USERID],
     );
 
     if (organizationResult.rows.length === 0) {
@@ -325,7 +327,7 @@ export async function inviteMembers(req, res) {
           )
           RETURNING id
         `,
-        [organization.id, userId, email, tokenHash],
+        [organization.id, USERID, email, tokenHash],
       );
 
       const invitationId = result.rows[0].id;
@@ -557,7 +559,7 @@ export async function getMembers(req, res) {
  */
 
 export async function acceptInvitation(req, res) {
-  const { id: userId } = req.user;
+  const { id: USERID } = req.user;
   const { token } = req.body;
 
   if (!token) {
@@ -589,7 +591,7 @@ export async function acceptInvitation(req, res) {
         AND oi.accepted_at IS NULL
         AND oi.revoked_at IS NULL
     `,
-    [tokenHash, userId],
+    [tokenHash, USERID],
   );
   if (tokenResult.rows.length === 0) {
     return res.status(400).json({
@@ -611,7 +613,7 @@ export async function acceptInvitation(req, res) {
           (organization_id, user_id, role, joined_at)
         VALUES ($1, $2, $3, NOW())
       `,
-      [invitation.organization_id, userId, invitation.role],
+      [invitation.organization_id, USERID, invitation.role],
     );
 
     await client.query(

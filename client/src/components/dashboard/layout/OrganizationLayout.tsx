@@ -26,7 +26,7 @@ const OrganizationLayout = () => {
 
       if (result.error || !result.organization) {
         if (result.status === 404) {
-          navigate("/404", { replace: true });
+          navigate("/dashboard/organizations", { replace: true });
           return;
         }
 

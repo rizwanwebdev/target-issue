@@ -6,6 +6,13 @@ export async function saveActivity({
   actorId,
   message,
 }) {
+  console.log(
+    organizationId,
+    projectId,
+    actorId,
+    message,
+    "++++++++++++++ Save Activities",
+  );
   try {
     await pool.query(
       `

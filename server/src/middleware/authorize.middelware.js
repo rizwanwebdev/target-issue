@@ -2,7 +2,15 @@ import pool from "../db/connect.js";
 import jwtVerify from "../utils/jwtVerify.js";
 
 export default async function authorize(req, res, next) {
-  const accessToken = req.cookies.accessToken;
+  const { accessToken, refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      error: true,
+      code: "NO_REFRESH_TOKEN",
+      message: "Refresh token not found",
+    });
+  }
 
   if (!accessToken) {
     return res.status(401).json({

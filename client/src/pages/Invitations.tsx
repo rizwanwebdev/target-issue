@@ -7,7 +7,6 @@ const Invitations = () => {
   const [searchParams] = useSearchParams();
   const { addToast } = useToast();
   const navigate = useNavigate();
-  // example http://localhost:5173/invitations?token=f93697a614b47ef7042216838ccd18800478fa3f7d338311253057a28b655bb3
   const token = searchParams.get("token");
 
   const [loading, setloading] = useState(false);

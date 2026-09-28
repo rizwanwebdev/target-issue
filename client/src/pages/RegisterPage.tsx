@@ -15,13 +15,15 @@ const PASSWORD_ERROR_MESSAGES: Record<PasswordCheckRule, string> = {
   hasDigit: "Include at least one number",
   hasSpecial: "Include at least one special character (@$!%*?&)",
 };
-
+const USERNAME_FORMAT = /^[a-z0-9_]{4,25}$/;
 const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [userNameError, setUserNameError] = useState<string>("");
   // 1. Fully controlled form state
   const INITIAL_FORM_STATE = {
     name: "",
+    username: "",
     email: "",
     password: "",
     terms: false,
@@ -36,21 +38,34 @@ const RegisterPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    const inputValue = type === "checkbox" ? checked : value;
 
-    // Update form state
+    let inputValue: string | boolean = type === "checkbox" ? checked : value;
+
+    if (name === "username" && typeof inputValue === "string") {
+      inputValue = inputValue
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, "")
+        .replace(/_+/g, "_")
+        .slice(0, 25);
+      if (inputValue.length !== 0 && !USERNAME_FORMAT.test(inputValue)) {
+        setUserNameError(
+          "Invalid Username, examples username: user_name or username, userna_me",
+        );
+      } else {
+        setUserNameError("");
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: inputValue,
     }));
 
-    // Handle password checks dynamically
-    if (name === "password") {
-      if (value.length === 0) {
+    if (name === "password" && typeof inputValue === "string") {
+      if (inputValue.length === 0) {
         setPasswordCheck(null);
       } else {
-        const result = checkPasswordStrength(value);
-        setPasswordCheck(result);
+        setPasswordCheck(checkPasswordStrength(inputValue));
       }
     }
   };
@@ -62,11 +77,18 @@ const RegisterPage = () => {
     if (formData.password && passwordCheck && !passwordCheck.isValid) {
       return;
     }
+    if (formData.username && !USERNAME_FORMAT.test(formData.username)) {
+      setUserNameError(
+        "Invalid Username, examples username: user_name or username, userna_me",
+      );
+      return;
+    }
 
     try {
       setLoading(true);
       const result = await register(
         formData.name,
+        formData.username,
         formData.email,
         formData.password,
       );
@@ -76,6 +98,7 @@ const RegisterPage = () => {
       }
       addToast(result.message, "success");
       setFormData(INITIAL_FORM_STATE);
+      setUserNameError("");
       setPasswordCheck(null);
       navigate(`/verify-otp?token=${result?.verificationToken}&type=direct`);
     } catch (error: any) {
@@ -108,13 +131,39 @@ const RegisterPage = () => {
                   type="text"
                   id="name"
                   name="name"
+                  autoComplete="name"
                   minLength={4}
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Enter Your Name"
                   required
-                  className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+                  className="site-input-styles"
                 />
+              </div>
+              <div>
+                <label
+                  htmlFor="username"
+                  className="mb-2 text-slate-900 font-medium text-sm inline-block"
+                >
+                  @username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  minLength={4}
+                  autoComplete="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="Enter Your Desired User Name"
+                  pattern="^[a-z0-9_]{4,25}$"
+                  title="Username must be 4–25 characters and contain only lowercase letters, numbers, and underscores."
+                  required
+                  className="site-input-styles"
+                />
+                {userNameError && (
+                  <p className="text-sm text-red-500 mt-1">{userNameError}</p>
+                )}
               </div>
 
               <div>
@@ -128,11 +177,12 @@ const RegisterPage = () => {
                   type="email"
                   id="email"
                   name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="john@readymadeui.com"
                   required
-                  className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
+                  className="site-input-styles"
                 />
               </div>
 
@@ -151,6 +201,7 @@ const RegisterPage = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="••••••••"
+                    autoComplete="password"
                     minLength={8}
                     required
                     className="px-3 py-2.5 pr-10 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600"
@@ -212,7 +263,7 @@ const RegisterPage = () => {
                 )}
               </div>
               <div className="flex items-start flex-wrap gap-2">
-                <label className="flex items-center group has-[input:checked]:text-slate-900">
+                <label className="flex cursor-pointer items-center group has-[input:checked]:text-slate-900">
                   <input
                     id="terms"
                     name="terms"
@@ -240,7 +291,6 @@ const RegisterPage = () => {
                     I accept the
                   </span>
                 </label>
-
                 <Link
                   to="#"
                   className="ml-1 text-sm font-medium text-blue-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
