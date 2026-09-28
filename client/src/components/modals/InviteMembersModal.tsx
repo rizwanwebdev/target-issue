@@ -131,7 +131,7 @@ const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  className="btn btn-secondry"
+                  className="btn btn-secondary"
                   onClick={() => setOpenModal(false)}
                 >
                   Cancel

@@ -56,7 +56,7 @@ hr {
     @apply bg-accent text-white hover:bg-hover;
   }
 
-  .btn-secondry {
+  .btn-secondary {
     @apply bg-hover text-white hover:bg-accent;
   }
   .btn-dark {

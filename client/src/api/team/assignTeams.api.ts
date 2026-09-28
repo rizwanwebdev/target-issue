@@ -9,7 +9,7 @@ async function assignTeams(
     return {
       error: true,
       message:
-        "Team id, organization Id and project Id is required to assing a team",
+        "Team id, organization Id and project Id is required to assign a team",
     };
   }
   try {

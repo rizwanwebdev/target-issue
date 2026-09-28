@@ -19,9 +19,14 @@ const AssignTeamModal = ({
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeams, setSelectedTeams] = useState<Set<number>>(new Set());
+  const [teamsFetched, setTeamsFetched] = useState(false);
+
   const teamIds = Array.from(selectedTeams);
   useEffect(() => {
-    console.log("assing teams");
+    if (!openModal || teamsFetched) {
+      return;
+    }
+
     async function getAll() {
       const result = await getTeams(organizationId, undefined);
       if (result.error) {
@@ -30,10 +35,11 @@ const AssignTeamModal = ({
       }
 
       setTeams(result.teams);
+      setTeamsFetched(true);
     }
 
     getAll();
-  }, []);
+  }, [openModal, teamsFetched, organizationId, addToast]);
   const toggleTeam = (checkedTeamId: number) => {
     setSelectedTeams((prev) => {
       const next = new Set(prev);
@@ -82,8 +88,7 @@ const AssignTeamModal = ({
       );
     }
   };
-  console.log(teams);
-  console.log(selectedTeams);
+
   return (
     <>
       <button
@@ -91,7 +96,7 @@ const AssignTeamModal = ({
         className="btn btn-primary w-fit"
         onClick={() => setOpenModal(true)}
       >
-        + Assing Teams
+        + Assign Teams
       </button>
 
       {openModal && (
@@ -106,7 +111,7 @@ const AssignTeamModal = ({
           <div className="w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-xl">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <h2 className="text-xl font-semibold text-text">Assing Teams</h2>
+              <h2 className="text-xl font-semibold text-text">Assign Teams</h2>
 
               <button
                 type="button"
@@ -164,7 +169,7 @@ const AssignTeamModal = ({
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  className="btn btn-secondry"
+                  className="btn btn-secondary"
                   onClick={() => setOpenModal(false)}
                 >
                   Cancel
@@ -175,7 +180,7 @@ const AssignTeamModal = ({
                   disabled={teamIds.length === 0}
                   className="btn btn-primary disabled:bg-gray-500"
                 >
-                  Assing Team
+                  Assign Team
                 </button>
               </div>
             </form>

@@ -13,7 +13,7 @@ const ProjectTeamsPage = () => {
   const isAdmin = organization.role === "admin";
   return (
     <>
-      <title>Teams | Assing & Manage</title>
+      <title>Teams | Assign & Manage</title>
       <section className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
