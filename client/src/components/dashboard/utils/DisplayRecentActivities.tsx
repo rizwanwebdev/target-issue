@@ -2,7 +2,7 @@ import GetRecentActivities from "@/api/activity/getRecentActivities.api";
 import { useEffect, useState } from "react";
 type Props = {
   organizationId: number;
-  projectId: number;
+  projectId?: number;
 };
 import type { Activity } from "@/types/Activity";
 import GetRecentProjectActivitiesApi from "@/api/activity/getRecentProjectActivities.api";

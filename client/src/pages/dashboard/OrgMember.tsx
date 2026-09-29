@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import getSingleMember from "@/api/org/getSingleMember.api.ts";
 
 import type { Member } from "@/types/Member";
@@ -12,6 +12,7 @@ const OrgMember = () => {
     projectId: string;
     memberId: string;
   }>();
+  const navigate = useNavigate();
   const { addToast } = useToast();
   const [result, setResult] = useState<Member | null>(null);
   const { organization } = useOutletContext<OrganizationOutletContext>();
@@ -23,32 +24,142 @@ const OrgMember = () => {
       }
       const res = await getSingleMember(memberId, organization.id);
       if (res.error) {
+        if (projectId) {
+          navigate(
+            `/dashboard/organizations/${slug}/projects/${projectId}/members`,
+          );
+        } else {
+          navigate(`/dashboard/organizations/${slug}/members`);
+        }
+
         addToast(res.message, "error");
+
+        // return;
       }
       setResult(res.member);
     };
     getResults();
   }, [slug, memberId]);
+  useEffect(() => {
+    if (!result) return;
 
+    document.title = projectId
+      ? `${result.full_name} | Project Member`
+      : `${result.full_name} | ${organization.name}`;
+  }, [result, organization.name, projectId]);
   return (
-    <>
-      <title>Member | About</title>
-      <main>
-        {projectId ? (
-          <p>Welcome to this project</p>
-        ) : (
-          <p>Welcome to this Organization</p>
-        )}
-        <div className=" flex flex-col items-center gap-4">
-          <div className="p-4 border w-full">
-            <p>Name: {result?.full_name}</p>
-            <p>Role: {result?.role}</p>
-            <p>Username: {result?.username}</p>
-            <p>Joined At: {result?.joined_at.split("T")[0]}</p>
+    <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+      {/* Header */}
+      <div className="mb-6">
+        <p className="text-sm text-gray-500">
+          {projectId ? "Project Member" : "Organization Member"}
+        </p>
+
+        <div className="mt-4 flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center">
+          {/* Avatar */}
+          <div className="shrink-0">
+            {result?.avatar_url ? (
+              <img
+                src={result.avatar_url}
+                alt={result.full_name}
+                className="size-20 rounded-full object-cover ring-4 ring-gray-100"
+              />
+            ) : (
+              <div className="flex size-20 items-center justify-center rounded-full bg-primary text-2xl font-semibold text-white ring-4 ring-gray-100">
+                {result?.full_name?.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+
+          {/* Identity */}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-bold text-text">
+                {result?.full_name}
+              </h1>
+
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium capitalize text-primary">
+                {result?.role}
+              </span>
+            </div>
+
+            <p className="mt-1 text-sm text-gray-500">@{result?.username}</p>
+
+            <p className="mt-3 text-sm text-gray-500">
+              {projectId
+                ? "Member of this project"
+                : "Member of this organization"}
+            </p>
           </div>
         </div>
-      </main>
-    </>
+      </div>
+
+      {/* Information */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Member information */}
+        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-2">
+          <div className="border-b border-gray-200 px-6 py-4">
+            <h2 className="font-semibold text-text">Member Information</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Basic information about this member.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 divide-y divide-gray-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+            <div className="p-6">
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                Full Name
+              </p>
+
+              <p className="mt-2 font-medium text-text">
+                {result?.full_name || "—"}
+              </p>
+            </div>
+
+            <div className="p-6">
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                Username
+              </p>
+
+              <p className="mt-2 font-medium text-text">
+                @{result?.username || "—"}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Membership */}
+        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-200 px-6 py-4">
+            <h2 className="font-semibold text-text">Membership</h2>
+          </div>
+
+          <div className="space-y-5 p-6">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                Role
+              </p>
+
+              <p className="mt-2 font-medium capitalize text-text">
+                {result?.role || "—"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                Joined
+              </p>
+
+              <p className="mt-2 font-medium text-text">
+                {result?.joined_at
+                  ? new Date(result.joined_at).toLocaleDateString()
+                  : "—"}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
   );
 };
 

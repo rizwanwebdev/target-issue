@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import CreateOrgModal from "@/components/modals/CreateOrgModal";
 
 import type { Organization } from "@/types/Organization";
+import ActionMenu from "@/components/utils/ActionMenu";
 const DashOrganization = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const { addToast } = useToast();
   const [orgs, setOrgs] = useState<Organization[]>([]);
-
   useEffect(() => {
     async function getAll() {
       const result = await getAllOrganizations();
@@ -26,6 +26,11 @@ const DashOrganization = () => {
     getAll();
   }, [fetchAgain]);
 
+  const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+  const handleDelete = (deleteId: number) => {
+    // call delete api here
+    console.log("test", deleteId);
+  };
   return (
     <>
       <title>Organizations | Create & Manage</title>
@@ -59,46 +64,55 @@ const DashOrganization = () => {
                 key={org.slug}
                 className="group flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md"
               >
-                {/* Organization info */}
-                <div className="flex min-w-0 items-center gap-4">
-                  {/* Logo */}
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
-                    {org.logo_url ? (
-                      <img
-                        src={org.logo_url}
-                        alt={`${org.name} logo`}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      org.name.charAt(0).toUpperCase()
-                    )}
+                <div className="flex justify-between gap-2 items-center w-full flex-1">
+                  {/* Organization info */}
+                  <div className="flex min-w-0 items-center gap-4">
+                    {/* Logo */}
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
+                      {org.logo_url ? (
+                        <img
+                          src={org.logo_url}
+                          alt={`${org.name} logo`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        org.name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+
+                    {/* Name + description */}
+                    <div className="min-w-0">
+                      <Link
+                        to={`/dashboard/organizations/${org.slug}`}
+                        className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
+                      >
+                        {org.name}
+                      </Link>
+
+                      <p className="mt-1 line-clamp-2 text-sm text-gray-500">
+                        {org.description || "No description provided."}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Name + description */}
-                  <div className="min-w-0">
-                    <Link
-                      to={`/dashboard/organizations/${org.slug}`}
-                      className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
-                    >
-                      {org.name}
-                    </Link>
-
-                    <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-                      {org.description || "No description provided."}
-                    </p>
-                  </div>
+                  {/* Role */}
+                  <span
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                      org.role === "admin"
+                        ? "bg-accent/10 text-accent"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {org.role}
+                  </span>
                 </div>
-
-                {/* Role */}
-                <span
-                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                    org.role === "admin"
-                      ? "bg-accent/10 text-accent"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {org.role}
-                </span>
+                <ActionMenu
+                  isOpen={activeMenuId === org.id}
+                  onToggle={() =>
+                    setActiveMenuId((prev) => (prev === org.id ? null : org.id))
+                  }
+                  onDelete={() => handleDelete(org.id)}
+                />
               </div>
             ))}
           </div>

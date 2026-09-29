@@ -1,9 +1,9 @@
 export type Team = {
+  id: number;
   name: string;
   description: string;
   color: string;
   role: string;
   created_by: string;
-  assigned_at: string;
-  team_id: number;
+  assigned_at?: string;
 };

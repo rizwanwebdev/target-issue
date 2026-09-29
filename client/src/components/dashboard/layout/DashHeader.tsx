@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/dashboard/layout/Breadcrumbs";
 import { useAuth } from "@/context/AuthContext.tsx";
 
 const DashHeader = () => {
@@ -23,10 +24,11 @@ const DashHeader = () => {
           </div>
 
           <div className="min-w-0">
-            <p className="font-medium">{user?.fullName} TEST</p>
+            <p className="font-medium">{user?.fullName.split(" ")[0]}</p>
           </div>
         </div>
       </header>
+      <Breadcrumbs />
     </>
   );
 };

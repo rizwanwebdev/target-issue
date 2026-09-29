@@ -5,6 +5,7 @@ import { useToast } from "@/context/ToastProvider.tsx";
 
 import getAllMembersApi from "@/api/org/getAllMembers.api.ts";
 import type { Member } from "@/types/Member";
+import ActionMenu from "@/components/utils/ActionMenu";
 
 type Props = {
   slug: string;
@@ -43,7 +44,11 @@ const OrganizationMembers = ({
 
     getAll();
   }, [organizationId, slug, page, limit, fetchAgain]);
-
+  const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+  const handleDelete = (deleteId: number) => {
+    // call delete api here
+    console.log("test", deleteId);
+  };
   return members.length === 0 ? (
     <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
       <p className="font-medium text-text">Members Not Found</p>
@@ -60,46 +65,56 @@ const OrganizationMembers = ({
             key={member.user_id}
             className="group flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md"
           >
-            {/* Organization info */}
-            <div className="flex min-w-0 items-center gap-4">
-              {/* Logo */}
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
-                {member.avatar_url ? (
-                  <img
-                    src={member.avatar_url}
-                    alt={`${member.full_name} logo`}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  member.full_name.charAt(0).toUpperCase()
-                )}
+            <div className="flex gap-2 items-center justify-between flex-1 w-full">
+              {/* Member info */}
+              <div className="flex min-w-0 items-center gap-4">
+                {/* Logo */}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
+                  {member.avatar_url ? (
+                    <img
+                      src={member.avatar_url}
+                      alt={`${member.full_name} logo`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    member.full_name.charAt(0).toUpperCase()
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <Link
+                    to={`/dashboard/organizations/${slug}/${projectId ? `projects/${projectId}/members/${member.username}` : `members/${member.username}`}`}
+                    className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
+                  >
+                    {member.full_name}
+                  </Link>
+
+                  <p className="mt-1 line-clamp-2 text-sm text-gray-500">
+                    Joined At: {new Date(member.joined_at).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
 
-              {/* Name + description */}
-              <div className="min-w-0">
-                <Link
-                  to={`/dashboard/organizations/${slug}/${projectId ? `projects/${projectId}/members/${member.username}` : `members/${member.username}`}`}
-                  className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
-                >
-                  {member.full_name}
-                </Link>
-
-                <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-                  Joined At: {new Date(member.joined_at).toLocaleDateString()}
-                </p>
-              </div>
+              {/* Role */}
+              <span
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                  member.role === "admin"
+                    ? "bg-accent/10 text-accent"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {member.role}
+              </span>
             </div>
-
-            {/* Role */}
-            <span
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                member.role === "admin"
-                  ? "bg-accent/10 text-accent"
-                  : "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {member.role}
-            </span>
+            <ActionMenu
+              isOpen={activeMenuId === member.user_id}
+              onToggle={() =>
+                setActiveMenuId((prev) =>
+                  prev === member.user_id ? null : member.user_id,
+                )
+              }
+              onDelete={() => handleDelete(member.user_id)}
+            />
           </div>
         ))}
       </div>

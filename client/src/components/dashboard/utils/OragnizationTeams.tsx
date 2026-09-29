@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/context/ToastProvider.tsx";
 import getTeams from "@/api/team/getTeams.api.ts";
 import type { Team } from "@/types/Team";
+import ActionMenu from "@/components/utils/ActionMenu";
 type Props = {
   organizationId: number;
   projectId?: number;
@@ -34,6 +35,11 @@ const OragnizationTeams = ({
 
     getAll();
   }, [organizationId, slug, fetchAgain, projectId]);
+  const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+  const handleDelete = (deleteId: number) => {
+    // call delete api here
+    console.log("test", deleteId);
+  };
 
   return teams.length === 0 ? (
     <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
@@ -58,38 +64,49 @@ const OragnizationTeams = ({
             key={team.team_id}
             className="group flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md"
           >
-            {/* Teams info */}
-            <div className="flex min-w-0 items-center gap-4">
-              {/* Logo */}
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
-                {team.name.charAt(0).toUpperCase()}
+            <div className="flex gap-2  justify-between items-center w-full flex-1">
+              {/* Teams info */}
+              <div className="flex min-w-0 items-center gap-4">
+                {/* Logo */}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-lg font-semibold text-primary">
+                  {team.name.charAt(0).toUpperCase()}
+                </div>
+
+                {/* Name + description */}
+                <div className="min-w-0">
+                  <Link
+                    to={`/dashboard/organizations/${slug}/teams/${team.team_id}`}
+                    className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
+                  >
+                    {team.name}
+                  </Link>
+
+                  <p className="mt-1 line-clamp-2 text-sm text-gray-500">
+                    {team.description || "No description provided."}
+                  </p>
+                </div>
               </div>
 
-              {/* Name + description */}
-              <div className="min-w-0">
-                <Link
-                  to={`/dashboard/organizations/${slug}/teams/${team.team_id}`}
-                  className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
-                >
-                  {team.name}
-                </Link>
-
-                <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-                  {team.description || "No description provided."}
-                </p>
-              </div>
+              {/* Role */}
+              <span
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                  team.role === "admin"
+                    ? "bg-accent/10 text-accent"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {team.role}
+              </span>
             </div>
-
-            {/* Role */}
-            <span
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                team.role === "admin"
-                  ? "bg-accent/10 text-accent"
-                  : "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {team.role}
-            </span>
+            <ActionMenu
+              isOpen={activeMenuId === team.team_id}
+              onToggle={() =>
+                setActiveMenuId((prev) =>
+                  prev === team.team_id ? null : team.team_id,
+                )
+              }
+              onDelete={() => handleDelete(team.team_id)}
+            />
           </div>
         ))}
       </div>

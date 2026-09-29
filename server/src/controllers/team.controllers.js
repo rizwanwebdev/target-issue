@@ -187,7 +187,12 @@ export async function getSingleTeam(req, res) {
     }
 
     const result = await pool.query(
-      `SELECT * FROM team WHERE id=$1 and organization_id=$2`,
+      `SELECT t.*,
+      tm.role,
+      tm.joined_at
+      FROM team t LEFT JOIN team_members tm On tm.team_id = t.id
+      WHERE t.id=$1 and t.organization_id=$2`,
+
       [teamId, organizationId],
     );
 
