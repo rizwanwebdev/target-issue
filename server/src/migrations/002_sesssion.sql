@@ -9,3 +9,10 @@ CREATE TABLE IF NOT EXISTS session (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     expires_at TIMESTAMPTZ
 );
+
+ALTER TABLE session
+ALTER COLUMN ip_address TYPE INET
+USING ip_address::INET;
+
+ALTER TABLE session
+ALTER COLUMN is_active SET DEFAULT TRUE;

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS project(
     id SERIAL PRIMARY KEY,
     organization_id  INTEGER NOT NULL REFERENCES organization(id) ON DELETE CASCADE,
+    slug VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     created_by INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL,
@@ -12,5 +13,19 @@ CREATE TABLE IF NOT EXISTS project(
     start_date TIMESTAMPTZ,
     target_date TIMESTAMPTZ,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (organization_id, slug)
+);
+
+CREATE TABLE IF NOT EXISTS project_members(
+    id SERIAL PRIMARY KEY,
+    project_id INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(20)
+        NOT NULL
+        DEFAULT 'member'
+        CHECK (role IN ('member', 'admin', 'viewer')),
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE (project_id, user_id);
 );

@@ -27,6 +27,3 @@ CREATE TABLE IF NOT EXISTS issues(
 
     UNIQUE (project_id, issue_number)
 );
-
-ALTER TABLE project
-ADD COLUMN IF NOT EXISTS next_issue_number INTEGER NOT NULL DEFAULT 1;

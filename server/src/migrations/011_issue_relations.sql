@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS issue_assignees(
 CREATE INDEX IF NOT EXISTS idx_issue_assignees_user
 ON issue_assignees (user_id, issue_id);
 
+
+
 CREATE TABLE IF NOT EXISTS project_labels(
     id SERIAL PRIMARY KEY,
     project_id INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,

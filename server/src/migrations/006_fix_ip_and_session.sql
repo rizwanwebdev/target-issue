@@ -1,6 +1,0 @@
-ALTER TABLE session
-ALTER COLUMN ip_address TYPE INET
-USING ip_address::INET;
-
-ALTER TABLE session
-ALTER COLUMN is_active SET DEFAULT TRUE;
