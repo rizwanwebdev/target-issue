@@ -1,9 +1,12 @@
 import { useOutletContext, useParams } from "react-router-dom";
-import OragnizationTeams from "@/components/dashboard/utils/OragnizationTeams.tsx";
-import { useState } from "react";
+import OragnizationTeams from "@/components/dashboard/utils/DisplayTeams";
+import { useEffect, useState } from "react";
 import CreateTeamModal from "@/components/modals/CreateTeamModal";
 
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import { useToast } from "@/context/ToastProvider";
+import getTeams from "@/api/team/getTeams.api";
+import type { Team } from "@/types/Team";
 
 const OrganizationTeamsPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -11,6 +14,25 @@ const OrganizationTeamsPage = () => {
   const { organization } = useOutletContext<OrganizationOutletContext>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
   const isAdmin = organization.role === "admin";
+  const [teams, setTeams] = useState<Team[]>([]);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    if (!organization.id) {
+      return;
+    }
+    async function getAll() {
+      const result = await getTeams(organization.id);
+      console.log(result);
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      setTeams(result.teams);
+    }
+
+    getAll();
+  }, [fetchAgain]);
 
   return (
     <>
@@ -36,13 +58,7 @@ const OrganizationTeamsPage = () => {
           )}
         </div>
       </section>
-      {slug && (
-        <OragnizationTeams
-          organizationId={organization.id}
-          slug={slug}
-          fetchAgain={fetchAgain}
-        />
-      )}
+      {slug && <OragnizationTeams teams={teams} />}
     </>
   );
 };

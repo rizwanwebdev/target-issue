@@ -63,7 +63,7 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
                 {/* Name + description */}
                 <div className="min-w-0">
                   <Link
-                    to={`/dashboard/organizations/${slug}/projects/${project.id}`}
+                    to={`/dashboard/organizations/${slug}/projects/${project.slug}`}
                     className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
                   >
                     {project.name}

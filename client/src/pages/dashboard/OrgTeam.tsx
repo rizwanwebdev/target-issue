@@ -16,7 +16,7 @@ const OrgTeam = () => {
       if (!slug || !teamId) {
         return;
       }
-      const res = await getSingleTeam(Number(teamId), organization.id);
+      const res = await getSingleTeam(teamId, organization.id);
       if (res.error) {
         navigate(`/dashboard/organizations/${slug}/teams`);
         addToast(res.message, "error");
@@ -130,7 +130,7 @@ const OrgTeam = () => {
               </p>
 
               <p className="mt-2 font-mono text-sm text-gray-600">
-                @{result?.id || "—"}
+                @{result?.slug || "—"}
               </p>
             </div>
           </div>

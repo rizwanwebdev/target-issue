@@ -1,11 +1,14 @@
 import pool from "../db/connect.js";
 import { saveActivity } from "../utils/saveActivity.js";
+
+import { cleanSlug, isValidSlug } from "../utils/slugValidator.js";
 export async function createProject(req, res) {
   const { id: USERID } = req.user;
 
   let {
     organizationId,
     name,
+    slug,
     description,
     project_status,
     startDate,
@@ -14,6 +17,7 @@ export async function createProject(req, res) {
 
   if (
     !organizationId ||
+    !slug ||
     !name ||
     !description ||
     !project_status ||
@@ -23,10 +27,17 @@ export async function createProject(req, res) {
     return res.status(400).json({
       error: true,
       message:
-        "organization Id, name, description, project_status, startDate and targetDate are required to create a project",
+        "organization Id, name,slug, description, project_status, startDate and targetDate are required to create a project",
     });
   }
 
+  const cleanedSlug = cleanSlug(slug);
+  if (!isValidSlug(cleanedSlug)) {
+    return res.status(400).json({
+      error: true,
+      message: "Invalid slug format",
+    });
+  }
   const PROJECT_STATUSES = ["new", "ongoing", "completed", "archive"];
 
   project_status = project_status.toLowerCase();
@@ -48,7 +59,7 @@ export async function createProject(req, res) {
     });
   }
 
-  if (start >= target) {
+  if (start > target) {
     return res.status(400).json({
       error: true,
       message: "Target date must be after start date",
@@ -86,9 +97,10 @@ export async function createProject(req, res) {
           created_by,
           status,
           start_date,
-          target_date
+          target_date,
+          slug
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        VALUES ($1, $2, $3, $4, $5, $6, $7,$8)
         RETURNING id
       )
       INSERT INTO project_members (
@@ -99,7 +111,7 @@ export async function createProject(req, res) {
       VALUES (
         (SELECT id FROM new_project),
         $4,
-        $8
+        $9
       ) RETURNING project_id
     `,
     [
@@ -110,6 +122,7 @@ export async function createProject(req, res) {
       project_status,
       start,
       target,
+      cleanedSlug,
       "admin",
     ],
   );
@@ -164,6 +177,7 @@ export async function getProjects(req, res) {
       `SELECT 
     p.id,
     p.organization_id,
+    p.slug,
     p.name,
     p.status,
     p.description,
@@ -227,6 +241,7 @@ export async function getSingleProject(req, res) {
     const result = await pool.query(
       `SELECT 
     p.id,
+    p.slug,
     p.organization_id,
     p.name,
     p.status,
@@ -237,7 +252,7 @@ export async function getSingleProject(req, res) {
     pm.role
     FROM project_members pm 
     INNER JOIN project p ON p.id = pm.project_id
-    WHERE p.organization_id=$1 AND p.id=$2 AND pm.user_id =$3`,
+    WHERE p.organization_id=$1 AND p.slug=$2 AND pm.user_id =$3`,
       [organizationId, projectId, USERID],
     );
 

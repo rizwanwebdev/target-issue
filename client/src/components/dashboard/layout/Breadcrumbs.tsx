@@ -17,7 +17,6 @@ const Breadcrumbs = () => {
   const segments = location.pathname.split("/").filter(Boolean);
 
   let currentPath = "";
-  console.log(segments);
   return (
     <nav aria-label="Breadcrumb" className="px-6 py-3">
       <ol className="flex items-center flex-wrap gap-2 text-sm">

@@ -1,6 +1,6 @@
 import apiFetch from "@/api/auth/client.ts";
 
-async function getTeams(organizationId: number, projectId: number | undefined) {
+async function getTeams(organizationId: number, projectId?: number) {
   if (!organizationId) {
     return {
       error: true,

@@ -1,16 +1,43 @@
-import { useOutletContext, useParams } from "react-router-dom";
-import OragnizationTeams from "@/components/dashboard/utils/OragnizationTeams.tsx";
-import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
+import DisplayTeams from "@/components/dashboard/utils/DisplayTeams";
+import { useEffect, useState } from "react";
 
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
 import AssignTeamModal from "@/components/modals/AssignTeamsModal";
+import type { Team } from "@/types/Team";
+import getTeams from "@/api/team/getTeams.api";
+import { useToast } from "@/context/ToastProvider";
 
 const ProjectTeamsPage = () => {
-  const { slug } = useParams<{ slug: string }>();
-
   const { organization, project } = useOutletContext<ProjectOutletContext>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
   const isAdmin = organization.role === "admin";
+  const [teams, setTeams] = useState<Team[]>([]);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    if (!organization.id || !project.id) {
+      return;
+    }
+
+    console.log(organization.id, project.id, "fetching project teams");
+
+    async function getAll() {
+      const result = await getTeams(organization.id, project.id);
+
+      console.log("API result:", result);
+
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+
+      setTeams(result.teams);
+    }
+
+    getAll();
+  }, [organization.id, project.id, addToast, fetchAgain]);
+
   return (
     <>
       <title>Teams | Assign & Manage</title>
@@ -25,7 +52,7 @@ const ProjectTeamsPage = () => {
             </p>
           </div>
 
-          {isAdmin && slug && (
+          {isAdmin && (
             <AssignTeamModal
               projectId={project.id}
               organizationId={organization.id}
@@ -34,14 +61,7 @@ const ProjectTeamsPage = () => {
           )}
         </div>
       </section>
-      {slug && (
-        <OragnizationTeams
-          organizationId={organization.id}
-          projectId={project.id}
-          slug={slug}
-          fetchAgain={fetchAgain}
-        />
-      )}
+      <DisplayTeams teams={teams} />
     </>
   );
 };

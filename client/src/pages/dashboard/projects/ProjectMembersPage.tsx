@@ -7,7 +7,7 @@ import { useState } from "react";
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
 
 const ProjectMembersPage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, projectId } = useParams<{ slug: string; projectId: string }>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
 
   const { organization, project } = useOutletContext<ProjectOutletContext>();
@@ -42,6 +42,7 @@ const ProjectMembersPage = () => {
           projectId={project.id}
           slug={slug}
           organizationId={organization.id}
+          projectSlug={projectId}
         />
       )}
       {/* projects */}

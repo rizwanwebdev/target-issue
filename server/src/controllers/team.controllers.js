@@ -1,6 +1,6 @@
 import pool from "../db/connect.js";
 import { saveActivity } from "../utils/saveActivity.js";
-
+import { cleanSlug, isValidSlug } from "../utils/slugValidator.js";
 /**
  * @method POST
  * @route /create-team
@@ -8,11 +8,26 @@ import { saveActivity } from "../utils/saveActivity.js";
 export async function createTeam(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { organizationId, name, description, color } = req.body;
+    const { organizationId, name, description, color, slug } = req.body;
+    if (!name || !organizationId || !slug || !description || !color) {
+      return res.status(400).json({
+        error: true,
+        message:
+          "All feilds are required. organizationId, name, description, color, slug",
+      });
+    }
     if (!name || name.length < 6) {
       return res.status(400).json({
         error: true,
         message: "Name is required to create a team minimum 6 characters",
+      });
+    }
+
+    const cleanedSlug = cleanSlug(slug);
+    if (!isValidSlug(cleanedSlug)) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid slug format",
       });
     }
     const findOrg = await pool.query(
@@ -37,9 +52,9 @@ export async function createTeam(req, res) {
 
     const result = await pool.query(
       `WITH new_team AS (
-    INSERT INTO team (organization_id, name, description, created_by,color) VALUES ($1, $2, $3, $4,$5) RETURNING id
+    INSERT INTO team (organization_id, name, description, created_by,color,slug) VALUES ($1, $2, $3, $4,$5, $6) RETURNING id
     )
-    INSERT INTO team_members (team_id, user_id, role) VALUES ((SELECT id FROM new_team), $4, $6)
+    INSERT INTO team_members (team_id, user_id, role) VALUES ((SELECT id FROM new_team), $4, $7)
     `,
       [
         organizationId,
@@ -47,6 +62,7 @@ export async function createTeam(req, res) {
         description.trim(),
         USERID,
         color.trim(),
+        cleanedSlug,
         "admin",
       ],
     );
@@ -108,6 +124,7 @@ export async function getTeams(req, res) {
     if (projectId) {
       result = await pool.query(
         `SELECT
+            t.slug,
             t.name,
             t.description,
             t.color,
@@ -126,6 +143,7 @@ export async function getTeams(req, res) {
     } else {
       result = await pool.query(
         `SELECT 
+        t.slug,
         t.name,
         t.description,
         t.color,
@@ -191,7 +209,7 @@ export async function getSingleTeam(req, res) {
       tm.role,
       tm.joined_at
       FROM team t LEFT JOIN team_members tm On tm.team_id = t.id
-      WHERE t.id=$1 and t.organization_id=$2`,
+      WHERE t.slug=$1 and t.organization_id=$2`,
 
       [teamId, organizationId],
     );

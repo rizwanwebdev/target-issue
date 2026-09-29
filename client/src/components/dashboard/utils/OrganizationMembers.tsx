@@ -12,6 +12,7 @@ type Props = {
   organizationId: number;
   fetchAgain?: boolean;
   projectId?: number;
+  projectSlug?: string;
 };
 
 const OrganizationMembers = ({
@@ -19,11 +20,11 @@ const OrganizationMembers = ({
   organizationId,
   fetchAgain,
   projectId,
+  projectSlug,
 }: Props) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
-
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -83,7 +84,7 @@ const OrganizationMembers = ({
 
                 <div className="min-w-0">
                   <Link
-                    to={`/dashboard/organizations/${slug}/${projectId ? `projects/${projectId}/members/${member.username}` : `members/${member.username}`}`}
+                    to={`/dashboard/organizations/${slug}/${projectSlug ? `projects/${projectSlug}/members/${member.username}` : `members/${member.username}`}`}
                     className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
                   >
                     {member.full_name}

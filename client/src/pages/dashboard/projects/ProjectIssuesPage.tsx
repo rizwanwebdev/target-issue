@@ -23,6 +23,7 @@ const ProjectIssuesPage = () => {
             </p>
           </div>
           <CreateIssueModal
+            setFetchAgain={setFetchAgain}
             organizationId={organization.id}
             projectId={project.id}
           />

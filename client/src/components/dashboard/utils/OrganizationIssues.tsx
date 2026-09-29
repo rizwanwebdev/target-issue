@@ -20,7 +20,6 @@ type Pagination = {
 const OrganizationIssues = ({
   organizationId,
   projectId,
-
   fetchAgain,
 }: Props) => {
   const [issues, setIssues] = useState<Issue[]>([]);

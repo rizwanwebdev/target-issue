@@ -27,5 +27,5 @@ CREATE TABLE IF NOT EXISTS project_members(
         CHECK (role IN ('member', 'admin', 'viewer')),
     joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    UNIQUE (project_id, user_id);
+    UNIQUE (project_id, user_id)
 );

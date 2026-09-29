@@ -10,6 +10,35 @@ const CreateTeamModal = ({ organizationId, setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const [color, setColor] = useState("#000000");
+
+  const [createSlug, setCreateSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+
+    if (!slugEdited) {
+      setCreateSlug(
+        name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, ""),
+      );
+    }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugEdited(true);
+
+    setCreateSlug(
+      e.target.value
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-"),
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -21,6 +50,7 @@ const CreateTeamModal = ({ organizationId, setFetchAgain }: Props) => {
 
       const result = await createTeam(
         organizationId,
+        String(credentials.slug),
         String(credentials.name),
         String(credentials.description),
         String(credentials.color),
@@ -87,13 +117,31 @@ const CreateTeamModal = ({ organizationId, setFetchAgain }: Props) => {
                   id="name"
                   type="text"
                   name="name"
+                  onChange={handleNameChange}
                   minLength={4}
                   placeholder="Enter Team name"
                   required
                   className="input-style"
                 />
               </div>
-
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="slug" className="text-sm font-medium text-text">
+                  Team Slug
+                </label>
+                <input
+                  id="slug"
+                  type="text"
+                  name="slug"
+                  value={createSlug}
+                  onChange={handleSlugChange}
+                  minLength={6}
+                  placeholder="Enter team slug, e.g. frontend or backend"
+                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                  title="Use lowercase letters, numbers, and single hyphens, e.g. target-issue"
+                  required
+                  className="input-style"
+                />
+              </div>
               {/* Description */}
               <div className="flex flex-col gap-1.5">
                 <label

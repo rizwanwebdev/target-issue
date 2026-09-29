@@ -4,9 +4,14 @@ import { useState } from "react";
 type Props = {
   organizationId: number;
   projectId: number;
+  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const CreateIssueModal = ({ organizationId, projectId }: Props) => {
+const CreateIssueModal = ({
+  organizationId,
+  projectId,
+  setFetchAgain,
+}: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
 
@@ -35,7 +40,9 @@ const CreateIssueModal = ({ organizationId, projectId }: Props) => {
       }
 
       addToast(`${result.message}. Issue id: ${result.issueNumber}`, "success");
+
       form.reset();
+      setFetchAgain((prev) => !prev);
       setOpenModal(false);
     } catch (error) {
       addToast(

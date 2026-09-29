@@ -5,10 +5,38 @@ type Props = {
   organizationId: number;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
+// const SLUG_REGEX = /^(?=.{4,100}$)[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CreateProjectModal = ({ organizationId, setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
+  const [createSlug, setCreateSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+
+    if (!slugEdited) {
+      setCreateSlug(
+        name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, ""),
+      );
+    }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugEdited(true);
+
+    setCreateSlug(
+      e.target.value
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-"),
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -20,6 +48,7 @@ const CreateProjectModal = ({ organizationId, setFetchAgain }: Props) => {
 
       const result = await createProject(
         organizationId,
+        String(credentials.slug),
         String(credentials.name),
         String(credentials.description),
         String(credentials.startDate),
@@ -93,7 +122,26 @@ const CreateProjectModal = ({ organizationId, setFetchAgain }: Props) => {
                   type="text"
                   name="name"
                   minLength={4}
+                  onChange={handleNameChange}
                   placeholder="Enter Project name"
+                  required
+                  className="input-style"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="slug" className="text-sm font-medium text-text">
+                  Organization Slug
+                </label>
+                <input
+                  id="slug"
+                  type="text"
+                  name="slug"
+                  value={createSlug}
+                  onChange={handleSlugChange}
+                  minLength={6}
+                  placeholder="Enter organization slug, e.g. target-issue"
+                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                  title="Use lowercase letters, numbers, and single hyphens, e.g. target-issue"
                   required
                   className="input-style"
                 />

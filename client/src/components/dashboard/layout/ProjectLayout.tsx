@@ -23,7 +23,8 @@ const ProjectLayout = () => {
         return;
       }
       setLoading(true);
-      const res = await getSingleproject(Number(projectId), organization.id);
+      const res = await getSingleproject(projectId, organization.id);
+      console.log(res);
       if (res.error) {
         addToast(res.message, "error");
       }

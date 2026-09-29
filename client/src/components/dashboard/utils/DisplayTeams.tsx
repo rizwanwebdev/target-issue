@@ -1,40 +1,13 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-
-import { useToast } from "@/context/ToastProvider.tsx";
-import getTeams from "@/api/team/getTeams.api.ts";
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import type { Team } from "@/types/Team";
+
 import ActionMenu from "@/components/utils/ActionMenu";
 type Props = {
-  organizationId: number;
-  projectId?: number;
-  slug: string;
-  fetchAgain: boolean;
+  teams: Team[];
 };
-
-const OragnizationTeams = ({
-  organizationId,
-  slug,
-  fetchAgain,
-  projectId,
-}: Props) => {
-  const [teams, setTeams] = useState<Team[]>([]);
-
-  const { addToast } = useToast();
-
-  useEffect(() => {
-    async function getAll() {
-      const result = await getTeams(organizationId, projectId);
-      if (result.error) {
-        addToast(result.message, "error");
-        return;
-      }
-
-      setTeams(result.teams);
-    }
-
-    getAll();
-  }, [organizationId, slug, fetchAgain, projectId]);
+const DisplayTeams = ({ teams }: Props) => {
+  const { slug } = useParams<{ slug: string; projectId: string }>();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const handleDelete = (deleteId: number) => {
     // call delete api here
@@ -75,7 +48,7 @@ const OragnizationTeams = ({
                 {/* Name + description */}
                 <div className="min-w-0">
                   <Link
-                    to={`/dashboard/organizations/${slug}/teams/${team.team_id}`}
+                    to={`/dashboard/organizations/${slug}/teams/${team.slug}`}
                     className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
                   >
                     {team.name}
@@ -114,4 +87,4 @@ const OragnizationTeams = ({
   );
 };
 
-export default OragnizationTeams;
+export default DisplayTeams;

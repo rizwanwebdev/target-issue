@@ -1,4 +1,4 @@
-async function getSingleproject(projectId: number, organizationId: number) {
+async function getSingleproject(projectId: string, organizationId: number) {
   if (!projectId || !organizationId) {
     return {
       error: true,
