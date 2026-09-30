@@ -20,12 +20,8 @@ const ProjectTeamsPage = () => {
       return;
     }
 
-    console.log(organization.id, project.id, "fetching project teams");
-
     async function getAll() {
       const result = await getTeams(organization.id, project.id);
-
-      console.log("API result:", result);
 
       if (result.error) {
         addToast(result.message, "error");

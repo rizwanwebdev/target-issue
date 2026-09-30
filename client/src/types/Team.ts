@@ -4,5 +4,6 @@ export type Team = {
   name: string;
   description: string;
   color: string;
-  role: string;
+  role: string | null;
+  member_count?: number;
 };

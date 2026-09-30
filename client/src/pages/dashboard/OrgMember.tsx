@@ -48,13 +48,9 @@ const OrgMember = () => {
       : `${result.full_name} | ${organization.name}`;
   }, [result, organization.name, projectId]);
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+    <main className="mx-auto w-full max-w-6xl py-6 sm:px-6">
       {/* Header */}
       <div className="mb-6">
-        <p className="text-sm text-gray-500">
-          {projectId ? "Project Member" : "Organization Member"}
-        </p>
-
         <div className="mt-4 flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center">
           {/* Avatar */}
           <div className="shrink-0">

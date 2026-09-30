@@ -681,3 +681,28 @@ export async function getSingleMember(req, res) {
     });
   }
 }
+
+export async function deleteOrganization(req, res) {
+  const { USERID } = req.user;
+  const { organizationId } = req.body;
+
+  if (!organizationId) {
+    return res.status(400).json({
+      error: true,
+      message: "organization id is required",
+    });
+  }
+  const { isAdmin } = checkOrgMembership(USERID, organizationId);
+  if (!isAdmin) {
+    return res.status(403).json({
+      error: true,
+      message: "Only organization admins can perform this action",
+    });
+  }
+
+  await pool.query("DELETE organization WHERE id = $1", [organizationId]);
+  return res.status(200).json({
+    success: true,
+    message: "Organization Deleted",
+  });
+}

@@ -41,7 +41,7 @@ async function apiFetch(input: RequestInfo | URL, options: RequestInit = {}) {
     });
 
   // First request
-  let response = await request();
+  const response = await request();
 
   console.log("[API]", input, response.status);
 

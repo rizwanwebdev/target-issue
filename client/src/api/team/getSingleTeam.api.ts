@@ -1,7 +1,6 @@
 import apiFetch from "@/api/auth/client";
 
 async function getSingleTeam(teamId: string, organizationId: number) {
-  console.log(teamId, organizationId, "api");
   if (!teamId || !organizationId) {
     return {
       error: true,

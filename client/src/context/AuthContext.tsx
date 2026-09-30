@@ -4,7 +4,7 @@ import logoutApi from "@/api/auth/logout.api.ts";
 
 interface User {
   fullName: string;
-  email: string;
+  username: string;
 }
 
 interface LogoutResult {
@@ -27,10 +27,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function loadUser() {
-    setLoading(true);
-
     try {
       const result = await getMe();
+      setLoading(true);
 
       if (!result.error) {
         setUser(result.user);

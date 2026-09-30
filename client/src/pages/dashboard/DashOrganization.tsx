@@ -58,13 +58,13 @@ const DashOrganization = () => {
         </div>
       ) : (
         <section>
-          <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full min-w-0 flex-col gap-3">
             {orgs.map((org) => (
               <div
                 key={org.slug}
                 className="group flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md"
               >
-                <div className="flex justify-between gap-2 items-center w-full flex-1">
+                <div className="flex min-w-0 flex-1 justify-between gap-2 items-center ">
                   {/* Organization info */}
                   <div className="flex min-w-0 items-center gap-4">
                     {/* Logo */}
@@ -81,7 +81,7 @@ const DashOrganization = () => {
                     </div>
 
                     {/* Name + description */}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <Link
                         to={`/dashboard/organizations/${org.slug}`}
                         className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"

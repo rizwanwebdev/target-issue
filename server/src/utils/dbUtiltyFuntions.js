@@ -96,3 +96,49 @@ export async function checkProjectMembership(
     role,
   };
 }
+
+/**
+ * @example 
+ * const { isMember } = await checkTeamMembership(USERID, organizationId, teamId);
+ * if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You are not a member of this organization",
+      });
+    }
+  const { isMember , isAdmin } = await checkTeamMembership(USERID, organizationId, teamId);
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only organization admins can perform this action",
+      });
+    }
+ * @returns isMember, isAdmin, role
+ */
+export async function checkTeamMembership(userId, organizationId, teamId) {
+  const result = await pool.query(
+    `
+      SELECT tm.role
+      FROM team_members tm INNER JOIN team t ON t.id = tm.team_id
+      WHERE t.id=$1 AMD t.organization_id = $2
+        AND tm.user_id = $3
+    `,
+    [teamId, organizationId, userId],
+  );
+
+  if (result.rows.length === 0) {
+    return {
+      isMember: false,
+      isAdmin: false,
+      role: null,
+    };
+  }
+
+  const { role } = result.rows[0];
+
+  return {
+    isMember: true,
+    isAdmin: role === "admin",
+    role,
+  };
+}

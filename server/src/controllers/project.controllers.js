@@ -1,6 +1,9 @@
 import pool from "../db/connect.js";
 import { saveActivity } from "../utils/saveActivity.js";
-import { checkOrgMembership } from "../utils/dbUtiltyFuntions.js";
+import {
+  checkOrgMembership,
+  checkProjectMembership,
+} from "../utils/dbUtiltyFuntions.js";
 import { cleanSlug, isValidSlug } from "../utils/slugValidator.js";
 export async function createProject(req, res) {
   const { USERID } = req.user;
@@ -243,4 +246,32 @@ export async function getSingleProject(req, res) {
       message: "Internal Server Error",
     });
   }
+}
+
+export async function deleteProject(req, res) {
+  const { USERID } = req.user;
+  const { projectId, organizationId } = req.body;
+
+  if (!projectId || !organizationId) {
+    return res.status(400).json({
+      error: true,
+      message: "project id and organizationId is required",
+    });
+  }
+  const { isAdmin } = checkProjectMembership(USERID, organizationId, projectId);
+  if (!isAdmin) {
+    return res.status(403).json({
+      error: true,
+      message: "Only project admins can perform this action",
+    });
+  }
+
+  await pool.query("DELETE project WHERE id = $1 AND organization_id=$2", [
+    projectId,
+    organizationId,
+  ]);
+  return res.status(200).json({
+    success: true,
+    message: "Project Deleted",
+  });
 }

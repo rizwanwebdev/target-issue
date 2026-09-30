@@ -34,8 +34,6 @@ const OrgTeam = () => {
     <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
       {/* Header */}
       <div className="mb-6">
-        <p className="text-sm text-gray-500">Team</p>
-
         <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           {/* Team color banner */}
           <div
@@ -114,15 +112,15 @@ const OrgTeam = () => {
               </p>
             </div>
 
-            {/* <div>
+            <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                Created By
+                Members
               </p>
 
               <p className="mt-2 font-medium text-text">
-                {result?.created_by || "—"}
+                {result?.member_count || "—"}
               </p>
-            </div> */}
+            </div>
 
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-400">

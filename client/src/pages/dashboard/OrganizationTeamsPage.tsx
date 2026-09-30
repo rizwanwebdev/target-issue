@@ -23,7 +23,6 @@ const OrganizationTeamsPage = () => {
     }
     async function getAll() {
       const result = await getTeams(organization.id);
-      console.log(result);
       if (result.error) {
         addToast(result.message, "error");
         return;

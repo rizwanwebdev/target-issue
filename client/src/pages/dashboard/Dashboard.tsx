@@ -21,7 +21,6 @@ const Dashboard = () => {
         recentActivitiesByMe(),
         await dashStatsApi(),
       ]);
-      console.log(activityResult, statsResult);
 
       setShowStats(statsResult.stats);
       setActivities(activityResult.activities);

@@ -5,6 +5,7 @@ import { cleanSlug, isValidSlug } from "../utils/slugValidator.js";
 import {
   checkOrgMembership,
   checkProjectMembership,
+  checkTeamMembership,
 } from "../utils/dbUtiltyFuntions.js";
 /**
  * @method POST
@@ -109,22 +110,26 @@ export async function getTeams(req, res) {
         });
       }
       result = await pool.query(
-        `SELECT
-            t.slug,
-            t.name,
-            t.description,
-            t.color,
-            t.created_by,
-            pt.assigned_at,
-            pt.team_id,
-            tm.role
+        `
+        SELECT
+          t.slug,
+          t.name,
+          t.description,
+          t.color,
+          t.created_by,
+          pt.assigned_at,
+          pt.team_id,
+          tm.role
         FROM project_teams pt
         INNER JOIN team t
-            ON t.id = pt.team_id
-        INNER JOIN team_members tm ON t.id=tm.team_id
+          ON t.id = pt.team_id
+        LEFT JOIN team_members tm
+          ON tm.team_id = t.id
+          AND tm.user_id = $2
         WHERE pt.project_id = $1
-        ORDER BY t.name`,
-        [projectId],
+        ORDER BY t.name
+      `,
+        [projectId, USERID],
       );
     } else {
       const { isMember } = await checkOrgMembership(USERID, organizationId);
@@ -136,17 +141,23 @@ export async function getTeams(req, res) {
       }
 
       result = await pool.query(
-        `SELECT 
-        t.slug,
-        t.name,
-        t.description,
-        t.color,
-        tm.role,
-        tm.team_id
-        FROM team_members tm 
-        INNER JOIN team t ON  t.id = tm.team_id 
-        WHERE t.organization_id=$1`,
-        [organizationId],
+        `
+          SELECT
+            t.slug,
+            t.name,
+            t.description,
+            t.color,
+            t.created_by,
+            t.id AS team_id,
+            tm.role
+          FROM team t
+          LEFT JOIN team_members tm
+            ON tm.team_id = t.id
+            AND tm.user_id = $2
+          WHERE t.organization_id = $1
+          ORDER BY t.name
+        `,
+        [organizationId, USERID],
       );
     }
 
@@ -195,13 +206,28 @@ export async function getSingleTeam(req, res) {
     }
 
     const result = await pool.query(
-      `SELECT t.*,
-      tm.role,
-      tm.joined_at
-      FROM team t LEFT JOIN team_members tm On tm.team_id = t.id
-      WHERE t.slug=$1 and t.organization_id=$2`,
+      `
+    SELECT
+      t.*,
+      COUNT(all_tm.id) AS member_count,
+      current_tm.role 
+    FROM team t
 
-      [teamId, organizationId],
+    -- All members: used for the count
+    LEFT JOIN team_members all_tm
+      ON all_tm.team_id = t.id
+
+    -- Current user: used to get their role
+    LEFT JOIN team_members current_tm
+      ON current_tm.team_id = t.id
+      AND current_tm.user_id = $3
+
+    WHERE t.slug = $1
+      AND t.organization_id = $2
+
+    GROUP BY t.id, current_tm.role
+  `,
+      [teamId, organizationId, USERID],
     );
 
     if (result.rows.length === 0) {
@@ -330,4 +356,31 @@ export async function assignTeams(req, res) {
       message: "Something went wrong while assigning teams",
     });
   }
+}
+export async function deleteTeam(req, res) {
+  const { USERID } = req.user;
+  const { teamId, organizationId } = req.body;
+
+  if (!teamId || !organizationId) {
+    return res.status(400).json({
+      error: true,
+      message: "Team id and organization Id is required",
+    });
+  }
+  const { isAdmin } = checkTeamMembership(USERID, organizationId, teamId);
+  if (!isAdmin) {
+    return res.status(403).json({
+      error: true,
+      message: "Only project admins can perform this action",
+    });
+  }
+
+  await pool.query("DELETE team WHERE id = $1 AND organization_id=$2", [
+    teamId,
+    organizationId,
+  ]);
+  return res.status(200).json({
+    success: true,
+    message: "Project Deleted",
+  });
 }

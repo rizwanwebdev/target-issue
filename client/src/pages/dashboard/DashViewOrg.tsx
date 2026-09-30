@@ -22,7 +22,6 @@ const DashViewOrg = () => {
 
     getAll();
   }, []);
-  console.log(showStats);
   useEffect(() => {
     document.title = organization
       ? `${organization.name} | TargetIssue`

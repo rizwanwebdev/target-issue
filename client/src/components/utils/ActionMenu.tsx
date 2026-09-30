@@ -26,7 +26,7 @@ const ActionMenu = ({ isOpen, onToggle, onDelete }: Props) => {
   return (
     <>
       {/* Action button + menu */}
-      <div className="relative">
+      <div className="relative shrink-0">
         <button
           onClick={onToggle}
           className={`${
