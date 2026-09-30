@@ -1,6 +1,6 @@
 import pool from "../db/connect.js";
 import { saveActivity } from "../utils/saveActivity.js";
-
+import { checkOrgMembership } from "../utils/dbUtiltyFuntions.js";
 import { cleanSlug, isValidSlug } from "../utils/slugValidator.js";
 export async function createProject(req, res) {
   const { id: USERID } = req.user;
@@ -65,28 +65,13 @@ export async function createProject(req, res) {
       message: "Target date must be after start date",
     });
   }
-
-  const findOrg = await pool.query(
-    `
-      SELECT o.id
-      FROM organization_members om
-      INNER JOIN organization o
-        ON o.id = om.organization_id
-      WHERE o.id = $1
-        AND om.user_id = $2
-        AND om.role = 'admin'
-    `,
-    [organizationId, USERID],
-  );
-
-  if (findOrg.rows.length === 0) {
-    return res.status(400).json({
+  const { isAdmin } = checkOrgMembership(USERID, organizationId);
+  if (!isAdmin) {
+    return res.status(403).json({
       error: true,
-      message:
-        "Organization does not exist or you are not allowed to create a project",
+      message: "Only organization admins can perform this action",
     });
   }
-
   const result = await pool.query(
     `
       WITH new_project AS (
@@ -152,25 +137,11 @@ export async function getProjects(req, res) {
         message: "First join or create an organization to be in a project",
       });
     }
-    const orgResult = await pool.query(
-      `
-    SELECT 
-    o.id,
-    om.organization_id,
-    om.user_id
-    FROM organization_members om 
-    INNER JOIN organization o ON
-    om.organization_id = o.id
-    WHERE o.id =$1 AND om.user_id =$2
-    `,
-      [organizationId, USERID],
-    );
-
-    if (orgResult.rows.length === 0) {
-      return res.status(400).json({
+    const { isMember } = checkOrgMembership(USERID, organizationId);
+    if (!isMember) {
+      return res.status(403).json({
         error: true,
-        message:
-          "Organization dose not found OR you are not a part of this Organization",
+        message: "You are not a member of this organization",
       });
     }
     const result = await pool.query(
@@ -226,15 +197,12 @@ export async function getSingleProject(req, res) {
         message: "Project Not Found",
       });
     }
-    const orgResult = await pool.query(
-      "SELECT id FROM organization WHERE id=$1",
-      [organizationId],
-    );
 
-    if (orgResult.rows.length === 0) {
-      return res.status(400).json({
+    const { isMember } = checkOrgMembership(USERID, organizationId);
+    if (!isMember) {
+      return res.status(403).json({
         error: true,
-        message: "Project Not Found",
+        message: "You are not a member of this organization",
       });
     }
 

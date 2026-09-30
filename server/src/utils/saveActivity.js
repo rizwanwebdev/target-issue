@@ -1,18 +1,18 @@
 import pool from "../db/connect.js";
 
+/**
+ * @example  await saveActivity({organizationId:organizationId,
+      projectId:projectId,
+      actorId: USERID,
+      message: `${messageHere}`,
+    });
+ */
 export async function saveActivity({
   organizationId,
   projectId = null,
   actorId,
   message,
 }) {
-  console.log(
-    organizationId,
-    projectId,
-    actorId,
-    message,
-    "++++++++++++++ Save Activities",
-  );
   try {
     await pool.query(
       `

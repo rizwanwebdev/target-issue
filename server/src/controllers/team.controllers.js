@@ -1,6 +1,11 @@
 import pool from "../db/connect.js";
 import { saveActivity } from "../utils/saveActivity.js";
 import { cleanSlug, isValidSlug } from "../utils/slugValidator.js";
+
+import {
+  checkOrgMembership,
+  checkProjectMembership,
+} from "../utils/dbUtiltyFuntions.js";
 /**
  * @method POST
  * @route /create-team
@@ -30,27 +35,16 @@ export async function createTeam(req, res) {
         message: "Invalid slug format",
       });
     }
-    const findOrg = await pool.query(
-      `SELECT
-    o.id,
-    om.organization_id,
-    om.user_id,
-    om.role
-    FROM organization_members om 
-    INNER JOIN organization o
-          ON o.id = om.organization_id
-    WHERE o.id=$1 AND om.user_id=$2 AND om.role='admin'`,
-      [organizationId, USERID],
-    );
-    if (findOrg.rows.length === 0) {
-      return res.status(400).json({
+
+    const { isAdmin } = checkOrgMembership(USERID, organizationId);
+    if (!isAdmin) {
+      return res.status(403).json({
         error: true,
-        message:
-          "Organization dose not found OR your or not allowed to create a team",
+        message: "Only organization admins can perform this action",
       });
     }
 
-    const result = await pool.query(
+    await pool.query(
       `WITH new_team AS (
     INSERT INTO team (organization_id, name, description, created_by,color,slug) VALUES ($1, $2, $3, $4,$5, $6) RETURNING id
     )
@@ -99,29 +93,21 @@ export async function getTeams(req, res) {
         message: "First join or create an organization to be in a team",
       });
     }
-    const orgResult = await pool.query(
-      `
-    SELECT 
-    o.id,
-    om.organization_id,
-    om.user_id
-    FROM organization_members om 
-    INNER JOIN organization o ON
-    om.organization_id = o.id
-    WHERE o.id =$1 AND om.user_id =$2
-    `,
-      [organizationId, USERID],
-    );
 
-    if (orgResult.rows.length === 0) {
-      return res.status(400).json({
-        error: true,
-        message:
-          "Organization dose not found OR you are not a part of this Organization",
-      });
-    }
     let result;
     if (projectId) {
+      const { isMember } = await checkProjectMembership(
+        USERID,
+        organizationId,
+        projectId,
+      );
+
+      if (!isMember) {
+        return res.status(403).json({
+          error: true,
+          message: "You do not have access to this project",
+        });
+      }
       result = await pool.query(
         `SELECT
             t.slug,
@@ -141,6 +127,14 @@ export async function getTeams(req, res) {
         [projectId],
       );
     } else {
+      const { isMember } = checkOrgMembership(USERID, organizationId);
+      if (!isMember) {
+        return res.status(403).json({
+          error: true,
+          message: "You are not a member of this organization",
+        });
+      }
+
       result = await pool.query(
         `SELECT 
         t.slug,
@@ -192,15 +186,11 @@ export async function getSingleTeam(req, res) {
         message: "Team Not Found",
       });
     }
-    const orgResult = await pool.query(
-      "SELECT id FROM organization WHERE id=$1",
-      [organizationId],
-    );
-
-    if (orgResult.rows.length === 0) {
-      return res.status(400).json({
+    const { isMember } = checkOrgMembership(USERID, organizationId);
+    if (!isMember) {
+      return res.status(403).json({
         error: true,
-        message: "Team Not Found",
+        message: "You are not a member of this organization",
       });
     }
 
@@ -265,22 +255,16 @@ export async function assignTeams(req, res) {
         message: "Invalid team IDs",
       });
     }
-
-    const isAdmin = await pool.query(
-      `
-        SELECT 1
-        FROM project_members
-        WHERE project_id = $1
-          AND user_id = $2
-          AND role = 'admin'
-      `,
-      [projectId, USERID],
+    const { isAdmin } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
     );
 
-    if (isAdmin.rows.length === 0) {
+    if (!isAdmin) {
       return res.status(403).json({
         error: true,
-        message: "Only project admins can assign teams",
+        message: "Only project admins can perform this action",
       });
     }
 

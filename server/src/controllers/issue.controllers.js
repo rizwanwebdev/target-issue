@@ -375,19 +375,63 @@ export async function changeIssueStatus(req, res) {
 }
 
 export async function assignIssuesToTeam(req, res) {
-  const { id: USERID } = req.user;
-  const { teamId, issueId, projectId, organizationId } = req.body;
-  if (!teamId || !issueId || !organizationId) {
-    return res.status(400).json({
-      error: true,
-      message: "teamId, issueId, organizationId are required",
+  try {
+    const { id: USERID } = req.user;
+    const { teamId, issueId, projectId, organizationId } = req.body;
+    if (!teamId || !issueId || !organizationId || !projectId) {
+      return res.status(400).json({
+        error: true,
+        message: "teamId, issueId, projectId and organizationId are required",
+      });
+    }
+    const { isAdmin } = checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only project admins can perform this action",
+      });
+    }
+
+    const result = await pool.query(
+      `WITH new_issue_team AS (
+    INSERT INTO  issue_teams (team_id, issue_id,assigned_by) VALUES ($1, $2, $3)
+    )
+    SELECT name as team_name from team WHERE id=$1
+    SELECT title, issue_number FROM issues WHERE id =$2
+    `,
+      [teamId, issueId, USERID],
+    );
+    const cleaned = result.rows[0];
+    await saveActivity({
+      organizationId: organizationId,
+      projectId: projectId,
+      actorId: USERID,
+      message: `Issue #${cleaned.issue_number}: ${cleaned.title} is assigned to team ${cleaned.team_name}`,
     });
-  }
-  const { isAdmin } = checkProjectMembership(USERID, organizationId, projectId);
-  if (!isAdmin) {
-    return res.status(403).json({
+    return res.status(200).json({
+      success: true,
+      message: `Issue #${cleaned.issue_number}: ${cleaned.title} is assigned to team ${cleaned.team_name}`,
+    });
+  } catch (error) {
+    console.log(error);
+    // PostgreSQL unique violation
+    if (
+      error.code === "23505" &&
+      error.constraint === "unique_organization_slug"
+    ) {
+      return res.status(409).json({
+        error: true,
+        message: "This issue is already been assigned to this team.",
+      });
+    }
+
+    return res.status(500).json({
       error: true,
-      message: "Only project admins can perform this action",
+      message: "Something went wrong while assigning this issue.",
     });
   }
 }
