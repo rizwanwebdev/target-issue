@@ -5,7 +5,7 @@ import {
 } from "../utils/dbUtiltyFuntions.js";
 export async function getOrganizationActivity(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { organizationId } = req.body;
     if (!organizationId) {
       return res.status(400).json({
@@ -49,7 +49,7 @@ export async function getOrganizationActivity(req, res) {
 }
 export async function getProjectActivity(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { organizationId, projectId } = req.body;
     if (!organizationId || !projectId) {
       return res.status(400).json({
@@ -100,7 +100,7 @@ export async function getProjectActivity(req, res) {
 
 export async function recentActivityByMe(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const recentActivity = await pool.query(
       `
         SELECT

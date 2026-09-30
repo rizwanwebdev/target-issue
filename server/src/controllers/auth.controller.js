@@ -444,9 +444,6 @@ export async function savePassword(req, res) {
         message: decoded.message,
       });
     }
-    // else something like this
-    const { id, sessionId } = decoded;
-    // or
 
     const result = await pool.query("SELECT id FROM users WHERE id=$1", [
       decoded.id,
@@ -484,7 +481,7 @@ export async function savePassword(req, res) {
 
 export async function getMe(req, res) {
   try {
-    const { id } = req.user;
+    const { USERID } = req.user;
 
     const result = await pool.query(
       `
@@ -492,7 +489,7 @@ export async function getMe(req, res) {
       FROM users
       WHERE id = $1
       `,
-      [id],
+      [USERID],
     );
 
     if (result.rows.length === 0) {
@@ -530,7 +527,7 @@ export async function getMe(req, res) {
  */
 export async function logout(req, res) {
   try {
-    const sessionId = req.user.sessionId;
+    const { USERID, sessionId } = req.user;
 
     if (sessionId) {
       const client = await pool.connect();
@@ -541,16 +538,16 @@ export async function logout(req, res) {
         await client.query(
           `UPDATE refresh_token
            SET revoked_at = NOW()
-           WHERE session_id = $1
+           WHERE session_id = $1 AND user_id =$2
              AND revoked_at IS NULL`,
-          [sessionId],
+          [sessionId, USERID],
         );
 
         await client.query(
           `UPDATE session
            SET is_active = FALSE
-           WHERE session_id = $1`,
-          [sessionId],
+           WHERE session_id = $1 AND user_id =$2`,
+          [sessionId, USERID],
         );
 
         await client.query("COMMIT");
@@ -570,6 +567,7 @@ export async function logout(req, res) {
       message: "Logged out from this device successfully",
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error: true,
       message: "Internal server error",
@@ -583,7 +581,7 @@ export async function logout(req, res) {
  */
 export async function logoutAll(req, res) {
   try {
-    const userId = req.user.id;
+    const { USERID } = req.user;
 
     const client = await pool.connect();
 
@@ -595,14 +593,14 @@ export async function logoutAll(req, res) {
          SET revoked_at = NOW()
          WHERE user_id = $1
            AND revoked_at IS NULL`,
-        [userId],
+        [USERID],
       );
 
       await client.query(
         `UPDATE session
          SET is_active = FALSE
          WHERE user_id = $1`,
-        [userId],
+        [USERID],
       );
 
       await client.query("COMMIT");
@@ -621,6 +619,7 @@ export async function logoutAll(req, res) {
       message: "You have been logged out from all devices successfully",
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error: true,
       message: "Internal server error",

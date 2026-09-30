@@ -55,7 +55,7 @@ export default async function authorize(req, res, next) {
     }
 
     req.user = {
-      id: decoded.id,
+      USERID: decoded.id,
       sessionId: decoded.sessionId,
     };
     console.log({

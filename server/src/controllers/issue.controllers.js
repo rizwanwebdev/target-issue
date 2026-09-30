@@ -10,7 +10,7 @@ import {
  */
 export async function createIssue(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const {
       organizationId,
       title,
@@ -100,7 +100,7 @@ export async function createIssue(req, res) {
 
 export async function getSingleIssue(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { issueId, projectId, organizationId } = req.body;
 
     if (!issueId || !projectId || !organizationId) {
@@ -147,7 +147,7 @@ export async function getSingleIssue(req, res) {
  */
 
 export async function getAllIssue(req, res) {
-  const { id: USERID } = req.user;
+  const { USERID } = req.user;
   try {
     const { organizationId, projectId } = req.body;
 
@@ -262,7 +262,7 @@ export async function getAllIssue(req, res) {
  */
 export async function changeIssueStatus(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
 
     const { issueId, projectId, organizationId, issue_status } = req.body;
 
@@ -376,7 +376,7 @@ export async function changeIssueStatus(req, res) {
 
 export async function assignIssuesToTeam(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { teamId, issueId, projectId, organizationId } = req.body;
     if (!teamId || !issueId || !organizationId || !projectId) {
       return res.status(400).json({

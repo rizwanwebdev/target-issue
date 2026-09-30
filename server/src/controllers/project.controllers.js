@@ -3,7 +3,7 @@ import { saveActivity } from "../utils/saveActivity.js";
 import { checkOrgMembership } from "../utils/dbUtiltyFuntions.js";
 import { cleanSlug, isValidSlug } from "../utils/slugValidator.js";
 export async function createProject(req, res) {
-  const { id: USERID } = req.user;
+  const { USERID } = req.user;
 
   let {
     organizationId,
@@ -129,7 +129,7 @@ export async function createProject(req, res) {
  */
 export async function getProjects(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { organizationId } = req.body;
     if (!organizationId) {
       return res.status(400).json({
@@ -189,7 +189,7 @@ export async function getProjects(req, res) {
 
 export async function getSingleProject(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { projectId, organizationId } = req.body;
     if (!projectId || !organizationId) {
       return res.status(400).json({

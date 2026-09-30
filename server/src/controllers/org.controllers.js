@@ -24,7 +24,7 @@ function isValidEmail(email) {
  */
 export async function getOrg(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { slug } = req.body;
 
     if (!slug) {
@@ -89,7 +89,7 @@ export async function getOrg(req, res) {
  */
 export async function createOrg(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { name, slug, description } = req.body;
 
     if (!name || !slug || !description) {
@@ -176,7 +176,7 @@ export async function createOrg(req, res) {
  */
 export async function getAllOrganizations(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
 
     const result = await pool.query(
       `
@@ -225,7 +225,7 @@ export async function getAllOrganizations(req, res) {
  */
 export async function inviteMembers(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { organizationId, emails } = req.body;
 
     if (!organizationId) {
@@ -393,7 +393,7 @@ export async function inviteMembers(req, res) {
  * @route /org/all-members
  */
 export async function getMembers(req, res) {
-  const { id: USERID } = req.user;
+  const { USERID } = req.user;
   try {
     let { organizationId, page = 1, limit = 20, projectId } = req.body;
 
@@ -530,7 +530,7 @@ export async function getMembers(req, res) {
  */
 
 export async function acceptInvitation(req, res) {
-  const { id: USERID } = req.user;
+  const { USERID } = req.user;
   const { token } = req.body;
 
   if (!token) {
@@ -628,7 +628,7 @@ export async function acceptInvitation(req, res) {
 
 export async function getSingleMember(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { username, organizationId } = req.body;
     if (!username || !organizationId) {
       return res.status(400).json({

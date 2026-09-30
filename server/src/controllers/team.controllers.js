@@ -12,7 +12,7 @@ import {
  */
 export async function createTeam(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { organizationId, name, description, color, slug } = req.body;
     if (!name || !organizationId || !slug || !description || !color) {
       return res.status(400).json({
@@ -85,7 +85,7 @@ export async function createTeam(req, res) {
  */
 export async function getTeams(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { organizationId, projectId } = req.body;
     if (!organizationId) {
       return res.status(400).json({
@@ -178,7 +178,7 @@ export async function getTeams(req, res) {
 
 export async function getSingleTeam(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { teamId, organizationId } = req.body;
     if (!teamId || !organizationId) {
       return res.status(400).json({
@@ -232,7 +232,7 @@ export async function getSingleTeam(req, res) {
 
 export async function assignTeams(req, res) {
   try {
-    const { id: USERID } = req.user;
+    const { USERID } = req.user;
     const { projectId, organizationId, teamIds } = req.body;
 
     if (
