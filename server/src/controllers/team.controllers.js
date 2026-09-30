@@ -36,7 +36,7 @@ export async function createTeam(req, res) {
       });
     }
 
-    const { isAdmin } = checkOrgMembership(USERID, organizationId);
+    const { isAdmin } = await checkOrgMembership(USERID, organizationId);
     if (!isAdmin) {
       return res.status(403).json({
         error: true,
@@ -127,7 +127,7 @@ export async function getTeams(req, res) {
         [projectId],
       );
     } else {
-      const { isMember } = checkOrgMembership(USERID, organizationId);
+      const { isMember } = await checkOrgMembership(USERID, organizationId);
       if (!isMember) {
         return res.status(403).json({
           error: true,
@@ -186,7 +186,7 @@ export async function getSingleTeam(req, res) {
         message: "Team Not Found",
       });
     }
-    const { isMember } = checkOrgMembership(USERID, organizationId);
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
     if (!isMember) {
       return res.status(403).json({
         error: true,

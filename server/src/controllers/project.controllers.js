@@ -65,7 +65,7 @@ export async function createProject(req, res) {
       message: "Target date must be after start date",
     });
   }
-  const { isAdmin } = checkOrgMembership(USERID, organizationId);
+  const { isAdmin } = await checkOrgMembership(USERID, organizationId);
   if (!isAdmin) {
     return res.status(403).json({
       error: true,
@@ -137,7 +137,7 @@ export async function getProjects(req, res) {
         message: "First join or create an organization to be in a project",
       });
     }
-    const { isMember } = checkOrgMembership(USERID, organizationId);
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
     if (!isMember) {
       return res.status(403).json({
         error: true,
@@ -198,7 +198,7 @@ export async function getSingleProject(req, res) {
       });
     }
 
-    const { isMember } = checkOrgMembership(USERID, organizationId);
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
     if (!isMember) {
       return res.status(403).json({
         error: true,

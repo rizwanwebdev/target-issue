@@ -636,7 +636,7 @@ export async function getSingleMember(req, res) {
         message: "username and organization id is required to find a member",
       });
     }
-    const { isMember } = checkOrgMembership(USERID, organizationId);
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
     if (!isMember) {
       return res.status(403).json({
         error: true,

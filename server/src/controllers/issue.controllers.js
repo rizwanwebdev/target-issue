@@ -109,7 +109,8 @@ export async function getSingleIssue(req, res) {
         message: "Issue Id, Project Id and Organization Id is required",
       });
     }
-    const { isMember } = checkOrgMembership(USERID, organizationId);
+
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
     if (!isMember) {
       return res.status(403).json({
         error: true,
@@ -166,7 +167,7 @@ export async function getAllIssue(req, res) {
     let countResult;
 
     if (projectId) {
-      const { isMember } = checkProjectMembership(USERID, projectId);
+      const { isMember } = await checkProjectMembership(USERID, projectId);
       if (!isMember) {
         return res.status(403).json({
           error: true,
@@ -200,7 +201,7 @@ export async function getAllIssue(req, res) {
         [projectId, organizationId],
       );
     } else {
-      const { isMember } = checkOrgMembership(USERID, organizationId);
+      const { isMember } = await checkOrgMembership(USERID, organizationId);
       if (!isMember) {
         return res.status(403).json({
           error: true,
@@ -274,7 +275,7 @@ export async function changeIssueStatus(req, res) {
       });
     }
 
-    const { isMember } = checkProjectMembership(USERID, projectId);
+    const { isMember } = await checkProjectMembership(USERID, projectId);
 
     if (!isMember) {
       return res.status(403).json({
@@ -384,7 +385,7 @@ export async function assignIssuesToTeam(req, res) {
         message: "teamId, issueId, projectId and organizationId are required",
       });
     }
-    const { isAdmin } = checkProjectMembership(
+    const { isAdmin } = await checkProjectMembership(
       USERID,
       organizationId,
       projectId,

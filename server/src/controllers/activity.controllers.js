@@ -13,7 +13,8 @@ export async function getOrganizationActivity(req, res) {
         message: "Organization Id is required",
       });
     }
-    const { isMember } = checkOrgMembership(USERID, organizationId);
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
+
     if (!isMember) {
       return res.status(403).json({
         error: true,

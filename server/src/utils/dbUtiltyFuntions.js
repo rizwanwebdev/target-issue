@@ -1,14 +1,14 @@
 import pool from "../db/connect.js";
 /**
  * @example 
- * const { isMember } = checkOrgMembership(USERID, organizationId);
+ * const { isMember } = await checkOrgMembership(USERID, organizationId);
  * if (!isMember) {
       return res.status(403).json({
         error: true,
         message: "You are not a member of this organization",
       });
     }
-  const { isMember , isAdmin } = checkOrgMembership(USERID, organizationId);
+  const { isMember , isAdmin } = await checkOrgMembership(USERID, organizationId);
     if (!isAdmin) {
       return res.status(403).json({
         error: true,
