@@ -117,3 +117,36 @@ export async function getProjectActivity(req, res) {
       .json({ error: true, message: "Internal Server Error" });
   }
 }
+
+export async function recentActivityByMe(req, res) {
+  try {
+    const { id: USERID } = req.user;
+    const recentActivity = await pool.query(
+      `
+        SELECT
+        a.id,
+        a.message,
+        a.created_at,
+        u.full_name AS actor_name
+    FROM activity a
+    LEFT JOIN users u
+        ON u.id = a.actor_id
+    WHERE a.actor_id = $1
+    ORDER BY a.created_at DESC
+    LIMIT 10`,
+      [USERID],
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Issues fetched successfully",
+      activities: recentActivity.rows,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Internal Server Error",
+    });
+  }
+}

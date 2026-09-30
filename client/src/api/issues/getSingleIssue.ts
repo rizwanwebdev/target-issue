@@ -1,15 +1,5 @@
 import apiFetch from "@/api/auth/client.ts";
 
-export type Issue = {
-  organizationId: number;
-  projectId: number;
-  title: string;
-  description: string;
-  due_date: string;
-  issue_status: string;
-  priority: string;
-  severity: string;
-};
 async function getSingleIssue(organizationId: number) {
   try {
     if (!organizationId) {

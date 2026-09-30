@@ -44,7 +44,7 @@ export async function passwordResetOtpTemplate(email, resetToken) {
             <div className="mt-4">
 
               <p className="text-lg font-bold text-center text-black">Type the above OTP or click the link below to verify: </p>
-              <a href="${config.CLIENT_URL}/verify-otp?token=${token}&type=email" className="font-medium text-indigo-600">${config.CLIENT_URL}/save-password?token=${token}&type=email</a>
+              <a href="${config.CLIENT_URL}/verify-otp?token=${resetToken}&type=email" className="font-medium text-indigo-600">${config.CLIENT_URL}/save-password?token=${resetToken}&type=email</a>
             </div>
             <p className="text-gray-700 mb-6">This Link is valid for <span className="font-semibold">5 minutes</span>. Please do not share this Link with anyone.</p>
             <p className="text-gray-700 mb-2">If you didn't request this Link, please ignore this email.</p>

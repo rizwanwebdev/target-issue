@@ -1,5 +1,9 @@
 import pool from "../db/connect.js";
 import { saveActivity } from "../utils/saveActivity.js";
+import {
+  checkOrgMembership,
+  checkProjectMembership,
+} from "../utils/dbUtiltyFuntions.js";
 /**
  * @method POST
  * @route /create-issue
@@ -32,23 +36,13 @@ export async function createIssue(req, res) {
           "All fileds are required i.e organizationId, name, description, projectId, due_date, priority, severity",
       });
     }
-    const checkMembership = await pool.query(
-      `
-        SELECT 1
-        FROM organization_members om
-        INNER JOIN project_members pm
-          ON pm.user_id = om.user_id
-        INNER JOIN project p
-          ON p.id = pm.project_id
-        AND p.organization_id = om.organization_id
-        WHERE om.organization_id = $1
-          AND om.user_id = $2
-          AND pm.project_id = $3
-      `,
-      [organizationId, USERID, projectId],
+    const { isMember } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
     );
 
-    if (checkMembership.rows.length === 0) {
+    if (!isMember) {
       return res.status(403).json({
         error: true,
         message: "You do not have access to this project",
@@ -115,6 +109,13 @@ export async function getSingleIssue(req, res) {
         message: "Issue Id, Project Id and Organization Id is required",
       });
     }
+    const { isMember } = checkOrgMembership(USERID, organizationId);
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You are not a member of this organization",
+      });
+    }
 
     const issueResult = await pool.query(
       "SELECT * FROM issues WHERE id =$1 AND project_id =$2 AND organization_id =$3",
@@ -146,6 +147,7 @@ export async function getSingleIssue(req, res) {
  */
 
 export async function getAllIssue(req, res) {
+  const { id: USERID } = req.user;
   try {
     const { organizationId, projectId } = req.body;
 
@@ -164,6 +166,13 @@ export async function getAllIssue(req, res) {
     let countResult;
 
     if (projectId) {
+      const { isMember } = checkProjectMembership(USERID, projectId);
+      if (!isMember) {
+        return res.status(403).json({
+          error: true,
+          message: "You do not have access to this project",
+        });
+      }
       issueResult = await pool.query(
         `
       SELECT
@@ -191,6 +200,13 @@ export async function getAllIssue(req, res) {
         [projectId, organizationId],
       );
     } else {
+      const { isMember } = checkOrgMembership(USERID, organizationId);
+      if (!isMember) {
+        return res.status(403).json({
+          error: true,
+          message: "You are not a member of this organization",
+        });
+      }
       issueResult = await pool.query(
         `
       SELECT
@@ -258,6 +274,14 @@ export async function changeIssueStatus(req, res) {
       });
     }
 
+    const { isMember } = checkProjectMembership(USERID, projectId);
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You do not have access to this project",
+      });
+    }
     const issueStatus =
       typeof issue_status === "string"
         ? issue_status.trim().toLowerCase()
@@ -346,6 +370,24 @@ export async function changeIssueStatus(req, res) {
     return res.status(500).json({
       error: true,
       message: "Internal Server Error",
+    });
+  }
+}
+
+export async function assignIssuesToTeam(req, res) {
+  const { id: USERID } = req.user;
+  const { teamId, issueId, projectId, organizationId } = req.body;
+  if (!teamId || !issueId || !organizationId) {
+    return res.status(400).json({
+      error: true,
+      message: "teamId, issueId, organizationId are required",
+    });
+  }
+  const { isAdmin } = checkProjectMembership(USERID, organizationId, projectId);
+  if (!isAdmin) {
+    return res.status(403).json({
+      error: true,
+      message: "Only project admins can perform this action",
     });
   }
 }

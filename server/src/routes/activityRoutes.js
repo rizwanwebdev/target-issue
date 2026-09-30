@@ -10,5 +10,6 @@ router.post(
   activityController.getOrganizationActivity,
 );
 router.post("/project", authorize, activityController.getProjectActivity);
+router.get("/by-me", authorize, activityController.recentActivityByMe);
 
 export default router;

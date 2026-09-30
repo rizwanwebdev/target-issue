@@ -1,13 +1,32 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext.tsx";
+import { useEffect, useState } from "react";
+import recentActivitiesByMe from "@/api/activity/recentActivitiesByMe.api";
+import type { Activity } from "@/types/Activity";
+import RecentActivitiesComponent from "@/components/dashboard/utils/RecentActivitiesComponent";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    async function getAll() {
+      const result = await recentActivitiesByMe();
+
+      if (result.error) {
+        return;
+      }
+
+      setActivities(result.activities);
+    }
+
+    getAll();
+  }, []);
 
   return (
     <>
       <title>Dashboard | TargetIssue</title>
-
       <div className="flex flex-col gap-8">
         {/* Header */}
         <section>
@@ -44,49 +63,7 @@ const Dashboard = () => {
         </section>
 
         {/* Recent Activity */}
-        <section className="flex flex-col gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-text">Recent Activity</h2>
-
-            <div className="mt-2 h-px bg-gray-200" />
-          </div>
-
-          <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4 transition hover:bg-gray-50">
-              <div>
-                <p className="text-sm font-medium text-text">Target Issue</p>
-
-                <p className="mt-1 text-sm text-gray-500">
-                  Issue #42 assigned to you
-                </p>
-              </div>
-
-              <time className="text-xs text-gray-400">10 minutes ago</time>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4 transition hover:bg-gray-50">
-              <div>
-                <p className="text-sm font-medium text-text">Another Org</p>
-
-                <p className="mt-1 text-sm text-gray-500">New member joined</p>
-              </div>
-
-              <time className="text-xs text-gray-400">1 hour ago</time>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:bg-gray-50">
-              <div>
-                <p className="text-sm font-medium text-text">Target Issue</p>
-
-                <p className="mt-1 text-sm text-gray-500">
-                  Issue #39 completed
-                </p>
-              </div>
-
-              <time className="text-xs text-gray-400">3 hours ago</time>
-            </div>
-          </div>
-        </section>
+        <RecentActivitiesComponent activities={activities} />
 
         {/* Organizations */}
         <section className="flex flex-col gap-4">

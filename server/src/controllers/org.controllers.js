@@ -1,8 +1,10 @@
 import crypto from "crypto";
 import pool from "../db/connect.js";
 import config from "../config/config.js";
-import { emailQueue } from "../queue/email.queue.js";
+// import { emailQueue } from "../queue/email.queue.js";
 import { saveActivity } from "../utils/saveActivity.js";
+import { checkOrgMembership } from "../utils/dbUtiltyFuntions.js";
+
 function generateInvitationToken() {
   return crypto.randomBytes(32).toString("hex");
 }
@@ -224,12 +226,30 @@ export async function getAllOrganizations(req, res) {
 export async function inviteMembers(req, res) {
   try {
     const { id: USERID } = req.user;
-    const { slug, emails } = req.body;
+    const { organizationId, emails } = req.body;
 
-    if (!slug) {
+    if (!organizationId) {
       return res.status(400).json({
         error: true,
-        message: "Organization slug is required",
+        message: "Organizaion Id is required",
+      });
+    }
+    const { isMember, isAdmin } = await checkOrgMembership(
+      USERID,
+      organizationId,
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You are not a member of this organization",
+      });
+    }
+
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only organization admins can perform this action",
       });
     }
 
@@ -262,46 +282,6 @@ export async function inviteMembers(req, res) {
         invalidEmails,
       });
     }
-    const cleanSlug = slug
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, "")
-      .replace(/-+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    // Find organization + user's role
-    const organizationResult = await pool.query(
-      `
-        SELECT
-          o.id,
-          o.name,
-          om.role
-        FROM organization o
-
-        JOIN organization_members om
-          ON om.organization_id = o.id
-
-        WHERE o.slug = $1
-        AND om.user_id = $2
-      `,
-      [cleanSlug, USERID],
-    );
-
-    if (organizationResult.rows.length === 0) {
-      return res.status(403).json({
-        error: true,
-        message: "You are not a member of this organization",
-      });
-    }
-
-    const organization = organizationResult.rows[0];
-
-    // Authorization
-    if (organization.role !== "admin") {
-      return res.status(403).json({
-        error: true,
-        message: "You don't have permission to invite members",
-      });
-    }
 
     const invitations = [];
 
@@ -327,7 +307,7 @@ export async function inviteMembers(req, res) {
           )
           RETURNING id
         `,
-        [organization.id, USERID, email, tokenHash],
+        [organizationId, USERID, email, tokenHash],
       );
 
       const invitationId = result.rows[0].id;
@@ -426,6 +406,14 @@ export async function getMembers(req, res) {
         message: "Valid organization Id and page number is required",
       });
     }
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You are not a member of this organization",
+      });
+    }
 
     if (!Number.isInteger(limit) || limit < 1) {
       limit = 20;
@@ -433,23 +421,6 @@ export async function getMembers(req, res) {
 
     if (limit > 50) {
       limit = 50;
-    }
-
-    // Find organization
-    const orgResult = await pool.query(
-      `
-        SELECT id
-        FROM organization
-        WHERE id = $1
-      `,
-      [organizationId],
-    );
-
-    if (orgResult.rows.length === 0) {
-      return res.status(404).json({
-        error: true,
-        message: "Organization not found",
-      });
     }
 
     const offset = (page - 1) * limit;
@@ -665,15 +636,11 @@ export async function getSingleMember(req, res) {
         message: "username and organization id is required to find a member",
       });
     }
-    const orgResult = await pool.query(
-      "SELECT id FROM organization WHERE id=$1",
-      [organizationId],
-    );
-
-    if (orgResult.rows.length === 0) {
-      return res.status(400).json({
+    const { isMember } = checkOrgMembership(USERID, organizationId);
+    if (!isMember) {
+      return res.status(403).json({
         error: true,
-        message: "Organization Not Found",
+        message: "You are not a member of this organization",
       });
     }
 
