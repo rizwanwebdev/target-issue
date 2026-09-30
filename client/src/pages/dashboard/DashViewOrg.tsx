@@ -1,12 +1,28 @@
 import { useOutletContext } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 import DisplayRecentActivities from "@/components/dashboard/utils/DisplayRecentActivities";
-
+import orgStatsApi from "@/api/stats/orgStatsApi";
+type Stat = {
+  members_count: string;
+  project_count: string;
+  team_count: string;
+  open_issues: string;
+};
 const DashViewOrg = () => {
   const { organization } = useOutletContext<OrganizationOutletContext>();
+  const [showStats, setShowStats] = useState<Stat | null>(null);
+  useEffect(() => {
+    async function getAll() {
+      const statsResult = await orgStatsApi(organization.id);
 
+      setShowStats(statsResult.stats);
+    }
+
+    getAll();
+  }, []);
+  console.log(showStats);
   useEffect(() => {
     document.title = organization
       ? `${organization.name} | TargetIssue`
@@ -68,22 +84,30 @@ const DashViewOrg = () => {
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-gray-500">Projects</p>
-            <p className="mt-2 text-2xl font-semibold text-text">0</p>
+            <p className="mt-2 text-2xl font-semibold text-text">
+              {showStats?.project_count || 0}
+            </p>
           </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-gray-500">Teams</p>
-            <p className="mt-2 text-2xl font-semibold text-text">0</p>
+            <p className="mt-2 text-2xl font-semibold text-text">
+              {showStats?.team_count || 0}
+            </p>
           </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-gray-500">Members</p>
-            <p className="mt-2 text-2xl font-semibold text-text">0</p>
+            <p className="mt-2 text-2xl font-semibold text-text">
+              {showStats?.members_count || 0}
+            </p>
           </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-gray-500">Open Issues</p>
-            <p className="mt-2 text-2xl font-semibold text-text">0</p>
+            <p className="mt-2 text-2xl font-semibold text-text">
+              {showStats?.open_issues || 0}
+            </p>
           </div>
         </section>
 

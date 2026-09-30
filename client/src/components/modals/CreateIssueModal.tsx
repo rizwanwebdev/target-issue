@@ -4,7 +4,7 @@ import { useState } from "react";
 type Props = {
   organizationId: number;
   projectId: number;
-  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  setFetchAgain?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const CreateIssueModal = ({
@@ -42,7 +42,9 @@ const CreateIssueModal = ({
       addToast(`${result.message}. Issue id: ${result.issueNumber}`, "success");
 
       form.reset();
-      setFetchAgain((prev) => !prev);
+      if (setFetchAgain) {
+        setFetchAgain((prev) => !prev);
+      }
       setOpenModal(false);
     } catch (error) {
       addToast(

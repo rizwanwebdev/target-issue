@@ -24,7 +24,7 @@ const DashOrganization = () => {
     }
 
     getAll();
-  }, [fetchAgain]);
+  }, [fetchAgain, addToast]);
 
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const handleDelete = (deleteId: number) => {
