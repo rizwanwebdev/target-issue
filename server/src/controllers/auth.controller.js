@@ -6,7 +6,6 @@ import { otpTemplate, passwordResetOtpTemplate } from "../utils/email.util.js";
 import jwtVerify from "../utils/jwtVerify.js";
 import useragent from "express-useragent";
 import crypto from "crypto";
-import { error } from "console";
 function genrateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
