@@ -104,8 +104,11 @@ export default function OtpVerification({
         return;
       }
       addToast(result.message, "success");
-    } catch (error: any) {
-      addToast(error.message, "error");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Something went wrong",
+        "error",
+      );
     }
   };
   return (

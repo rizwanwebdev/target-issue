@@ -101,8 +101,11 @@ const RegisterPage = () => {
       setUserNameError("");
       setPasswordCheck(null);
       navigate(`/verify-otp?token=${result?.verificationToken}&type=direct`);
-    } catch (error: any) {
-      addToast(error.message, "error");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Something went wrong",
+        "error",
+      );
     } finally {
       setLoading(false);
     }

@@ -20,8 +20,11 @@ async function getTeams(organizationId: number, projectId?: number) {
       }),
     });
     return await result.json();
-  } catch (error: any) {
-    return { error: true, message: error.message };
+  } catch (error) {
+    return {
+      error: true,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    };
   }
 }
 export default getTeams;

@@ -12,9 +12,8 @@ const Invitations = () => {
   const [loading, setloading] = useState(false);
   useEffect(() => {
     try {
-      setloading(true);
-
       async function checkInvite() {
+        setloading(true);
         if (!token) {
           return;
         }
@@ -27,12 +26,15 @@ const Invitations = () => {
         addToast(result.message, "success");
       }
       checkInvite();
-    } catch (error: any) {
-      addToast(error.message, "error");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Something went wrong",
+        "error",
+      );
     } finally {
       setloading(false);
     }
-  }, [token]);
+  }, [token, navigate, addToast]);
   return (
     <>
       <title>Accept Organization Invitation| Target Issue</title>

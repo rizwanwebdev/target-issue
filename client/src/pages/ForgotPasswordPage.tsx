@@ -20,8 +20,11 @@ const ForgotPasswordPage = () => {
         replace: true,
       });
       addToast("Test Message", "success");
-    } catch (error: any) {
-      addToast(error.message, "error");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Something went wrong",
+        "error",
+      );
     }
   };
   return (

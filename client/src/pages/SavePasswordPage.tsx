@@ -46,8 +46,11 @@ const SavePasswordPage = () => {
       }
       addToast(result.message, "success");
       navigate("/login");
-    } catch (error: any) {
-      addToast(error.message, "error");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Something went wrong",
+        "error",
+      );
     } finally {
       setLoading(true);
     }

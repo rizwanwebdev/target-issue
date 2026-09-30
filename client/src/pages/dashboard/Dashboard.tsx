@@ -1,28 +1,34 @@
-import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext.tsx";
 import { useEffect, useState } from "react";
 import recentActivitiesByMe from "@/api/activity/recentActivitiesByMe.api";
 import type { Activity } from "@/types/Activity";
 import RecentActivitiesComponent from "@/components/dashboard/utils/RecentActivitiesComponent";
+import dashStatsApi from "@/api/stats/dashStats.api";
 
+type Stat = {
+  organization_count: string;
+  project_count: string;
+  team_count: string;
+};
 const Dashboard = () => {
   const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
-
+  const [showStats, setShowStats] = useState<Stat | null>(null);
   useEffect(() => {
     if (!user) return;
     async function getAll() {
-      const result = await recentActivitiesByMe();
+      const [activityResult, statsResult] = await Promise.all([
+        recentActivitiesByMe(),
+        await dashStatsApi(),
+      ]);
+      console.log(activityResult, statsResult);
 
-      if (result.error) {
-        return;
-      }
-
-      setActivities(result.activities);
+      setShowStats(statsResult.stats);
+      setActivities(activityResult.activities);
     }
 
     getAll();
-  }, []);
+  }, [user]);
 
   return (
     <>
@@ -46,87 +52,30 @@ const Dashboard = () => {
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-gray-500">Organizations</p>
 
-            <p className="mt-2 text-3xl font-semibold text-text">4</p>
+            <p className="mt-2 text-3xl font-semibold text-text">
+              {showStats?.organization_count || 0}
+            </p>
           </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <p className="text-sm font-medium text-gray-500">Open Issues</p>
+            <p className="text-sm font-medium text-gray-500">Projects</p>
 
-            <p className="mt-2 text-3xl font-semibold text-text">24</p>
+            <p className="mt-2 text-3xl font-semibold text-text">
+              {showStats?.project_count || 0}
+            </p>
           </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <p className="text-sm font-medium text-gray-500">My Issues</p>
+            <p className="text-sm font-medium text-gray-500">Teams</p>
 
-            <p className="mt-2 text-3xl font-semibold text-primary">8</p>
+            <p className="mt-2 text-3xl font-semibold text-primary">
+              {showStats?.team_count || 0}
+            </p>
           </div>
         </section>
 
         {/* Recent Activity */}
         <RecentActivitiesComponent activities={activities} />
-
-        {/* Organizations */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-text">
-                Your Organizations
-              </h2>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Overview of your organization's issues.
-              </p>
-            </div>
-
-            <Link
-              to="/dashboard/organizations"
-              className="text-sm font-medium text-primary transition hover:text-hover"
-            >
-              View all
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <Link
-              to="/dashboard/organizations/test-org-4"
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-medium text-text">TargetIssue</p>
-
-                <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-                  12 open issues
-                </span>
-              </div>
-            </Link>
-
-            <Link
-              to="/dashboard/organizations/test-org-3"
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-medium text-text">Acme Engineering</p>
-
-                <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-                  8 open issues
-                </span>
-              </div>
-            </Link>
-
-            <Link
-              to="/dashboard/organizations/personal-projects"
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-medium text-text">Personal Projects</p>
-
-                <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-                  6 open issues
-                </span>
-              </div>
-            </Link>
-          </div>
-        </section>
       </div>
     </>
   );

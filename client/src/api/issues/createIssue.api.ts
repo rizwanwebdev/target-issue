@@ -42,10 +42,10 @@ async function createIssue(
       }),
     });
     return await result.json();
-  } catch (error: any) {
+  } catch (error) {
     return {
       error: true,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Something went wrong",
     };
   }
 }
