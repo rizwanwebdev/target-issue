@@ -6,6 +6,7 @@ import CreateOrgModal from "@/components/modals/CreateOrgModal";
 
 import type { Organization } from "@/types/Organization";
 import ActionMenu from "@/components/utils/ActionMenu";
+import deleteOrgApi from "@/api/org/deleteOrgApi";
 const DashOrganization = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const { addToast } = useToast();
@@ -27,9 +28,21 @@ const DashOrganization = () => {
   }, [fetchAgain, addToast]);
 
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
-  const handleDelete = (deleteId: number) => {
-    // call delete api here
-    console.log("test", deleteId);
+  const handleDelete = async (deleteId: number) => {
+    try {
+      const result = await deleteOrgApi(deleteId);
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+      setFetchAgain((prev) => !prev);
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
   };
   return (
     <>

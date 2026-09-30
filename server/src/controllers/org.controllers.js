@@ -530,19 +530,20 @@ export async function getMembers(req, res) {
  */
 
 export async function acceptInvitation(req, res) {
-  const { USERID } = req.user;
-  const { token } = req.body;
+  try {
+    const { USERID } = req.user;
+    const { token } = req.body;
 
-  if (!token) {
-    return res.status(400).json({
-      error: true,
-      message: "Token is required",
-    });
-  }
-  const tokenHash = hashToken(token);
+    if (!token) {
+      return res.status(400).json({
+        error: true,
+        message: "Token is required",
+      });
+    }
+    const tokenHash = hashToken(token);
 
-  const tokenResult = await pool.query(
-    `
+    const tokenResult = await pool.query(
+      `
       SELECT
         oi.id,
         oi.organization_id,
@@ -562,62 +563,69 @@ export async function acceptInvitation(req, res) {
         AND oi.accepted_at IS NULL
         AND oi.revoked_at IS NULL
     `,
-    [tokenHash, USERID],
-  );
-  if (tokenResult.rows.length === 0) {
-    return res.status(400).json({
-      error: true,
-      message: "Invalid or expired invitation",
-    });
-  }
+      [tokenHash, USERID],
+    );
+    if (tokenResult.rows.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid or expired invitation",
+      });
+    }
 
-  const invitation = tokenResult.rows[0];
+    const invitation = tokenResult.rows[0];
 
-  const client = await pool.connect();
+    const client = await pool.connect();
 
-  try {
-    await client.query("BEGIN");
+    try {
+      await client.query("BEGIN");
 
-    await client.query(
-      `
+      await client.query(
+        `
         INSERT INTO organization_members
           (organization_id, user_id, role, joined_at)
         VALUES ($1, $2, $3, NOW())
       `,
-      [invitation.organization_id, USERID, invitation.role],
-    );
+        [invitation.organization_id, USERID, invitation.role],
+      );
 
-    await client.query(
-      `
+      await client.query(
+        `
         UPDATE organization_invitations
         SET accepted_at = NOW()
         WHERE id = $1
           AND accepted_at IS NULL
       `,
-      [invitation.id],
-    );
+        [invitation.id],
+      );
 
-    await client.query("COMMIT");
-    await saveActivity({
-      organizationId: invitation.organization_id,
-      actorId: USERID,
-      message: "New Memeber Joined this organization",
-    });
-    return res.status(201).json({
-      success: true,
-      message: "You have joined a new organization.",
-    });
+      await client.query("COMMIT");
+      await saveActivity({
+        organizationId: invitation.organization_id,
+        actorId: USERID,
+        message: "New Memeber Joined this organization",
+      });
+      return res.status(201).json({
+        success: true,
+        message: "You have joined a new organization.",
+      });
+    } catch (error) {
+      await client.query("ROLLBACK");
+
+      console.error("Accept invitation error:", error);
+
+      return res.status(500).json({
+        error: true,
+        message: "Failed to accept invitation",
+      });
+    } finally {
+      client.release();
+    }
   } catch (error) {
-    await client.query("ROLLBACK");
-
-    console.error("Accept invitation error:", error);
-
+    console.log(error);
     return res.status(500).json({
       error: true,
-      message: "Failed to accept invitation",
+      message: error instanceof Error ? error.message : "Something Went Wrong",
     });
-  } finally {
-    client.release();
   }
 }
 
@@ -683,26 +691,35 @@ export async function getSingleMember(req, res) {
 }
 
 export async function deleteOrganization(req, res) {
-  const { USERID } = req.user;
-  const { organizationId } = req.body;
+  try {
+    const { USERID } = req.user;
+    const { organizationId } = req.body;
 
-  if (!organizationId) {
-    return res.status(400).json({
+    if (!organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "organization id is required",
+      });
+    }
+    const { isAdmin, role } = await checkOrgMembership(USERID, organizationId);
+    console.log(isAdmin, role);
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only organization admins can perform this action",
+      });
+    }
+
+    await pool.query("DELETE organization WHERE id = $1 ", [organizationId]);
+    return res.status(200).json({
+      success: true,
+      message: "Organization Deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
       error: true,
-      message: "organization id is required",
+      message: error instanceof Error ? error.message : "Something Went Wrong",
     });
   }
-  const { isAdmin } = checkOrgMembership(USERID, organizationId);
-  if (!isAdmin) {
-    return res.status(403).json({
-      error: true,
-      message: "Only organization admins can perform this action",
-    });
-  }
-
-  await pool.query("DELETE organization WHERE id = $1", [organizationId]);
-  return res.status(200).json({
-    success: true,
-    message: "Organization Deleted",
-  });
 }

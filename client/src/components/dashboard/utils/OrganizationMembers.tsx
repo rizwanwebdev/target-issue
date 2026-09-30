@@ -6,6 +6,7 @@ import { useToast } from "@/context/ToastProvider.tsx";
 import getAllMembersApi from "@/api/org/getAllMembers.api.ts";
 import type { Member } from "@/types/Member";
 import ActionMenu from "@/components/utils/ActionMenu";
+import deleteOrgApi from "@/api/org/deleteOrgApi";
 
 type Props = {
   slug: string;
@@ -46,9 +47,20 @@ const OrganizationMembers = ({
     getAll();
   }, [organizationId, slug, page, limit, fetchAgain]);
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
-  const handleDelete = (deleteId: number) => {
-    // call delete api here
-    console.log("test", deleteId);
+  const handleDelete = async (deleteId: number) => {
+    try {
+      const result = await deleteOrgApi(deleteId);
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
   };
   return members.length === 0 ? (
     <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">

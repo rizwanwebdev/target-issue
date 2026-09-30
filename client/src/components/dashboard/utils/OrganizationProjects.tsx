@@ -5,6 +5,7 @@ import { useToast } from "@/context/ToastProvider.tsx";
 import getProjects from "@/api/project/getProjects.api.ts";
 import type { Project } from "@/types/Project";
 import ActionMenu from "@/components/utils/ActionMenu";
+import deleteOrgApi from "@/api/org/deleteOrgApi";
 
 type Props = {
   organizationId: number;
@@ -31,9 +32,20 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
     getAll();
   }, [organizationId, slug, fetchAgain]);
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
-  const handleDelete = (deleteId: number) => {
-    // call delete api here
-    console.log("test", deleteId);
+  const handleDelete = async (deleteId: number) => {
+    try {
+      const result = await deleteOrgApi(deleteId);
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
   };
 
   return projects.length === 0 ? (

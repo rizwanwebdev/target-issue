@@ -3,15 +3,29 @@ import { Link, useParams } from "react-router-dom";
 import type { Team } from "@/types/Team";
 
 import ActionMenu from "@/components/utils/ActionMenu";
+import deleteOrgApi from "@/api/org/deleteOrgApi";
+import { useToast } from "@/context/ToastProvider";
 type Props = {
   teams: Team[];
 };
 const DisplayTeams = ({ teams }: Props) => {
+  const { addToast } = useToast();
   const { slug } = useParams<{ slug: string; projectId: string }>();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
-  const handleDelete = (deleteId: number) => {
-    // call delete api here
-    console.log("test", deleteId);
+  const handleDelete = async (deleteId: number) => {
+    try {
+      const result = await deleteOrgApi(deleteId);
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
   };
 
   return teams.length === 0 ? (

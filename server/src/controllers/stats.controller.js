@@ -6,10 +6,11 @@ import pool from "../db/connect.js";
  * @route /stats/dash
  */
 export async function dashboardStats(req, res) {
-  const { USERID } = req.user;
+  try {
+    const { USERID } = req.user;
 
-  const result = await pool.query(
-    `
+    const result = await pool.query(
+      `
       SELECT
         (SELECT COUNT(*)
          FROM organization_members
@@ -23,21 +24,29 @@ export async function dashboardStats(req, res) {
          FROM team_members
          WHERE user_id = $1) AS team_count
     `,
-    [USERID],
-  );
+      [USERID],
+    );
 
-  return res.status(200).json({
-    success: true,
-    message: "Counts fetched",
-    stats: result.rows[0],
-  });
+    return res.status(200).json({
+      success: true,
+      message: "Counts fetched",
+      stats: result.rows[0],
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
 }
 
 export async function organizationStats(req, res) {
-  const { organizationId } = req.body;
+  try {
+    const { organizationId } = req.body;
 
-  const result = await pool.query(
-    `
+    const result = await pool.query(
+      `
       SELECT
         (
           SELECT COUNT(*)
@@ -65,20 +74,28 @@ export async function organizationStats(req, res) {
           WHERE organization_id = $1
         ) AS open_issues
     `,
-    [organizationId],
-  );
+      [organizationId],
+    );
 
-  return res.status(200).json({
-    success: true,
-    message: "Counts fetched",
-    stats: result.rows[0],
-  });
+    return res.status(200).json({
+      success: true,
+      message: "Counts fetched",
+      stats: result.rows[0],
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
 }
 export async function projectStats(req, res) {
-  const { organizationId, projectId } = req.body;
+  try {
+    const { organizationId, projectId } = req.body;
 
-  const result = await pool.query(
-    `
+    const result = await pool.query(
+      `
       SELECT
         (
           SELECT COUNT(*)
@@ -101,12 +118,19 @@ export async function projectStats(req, res) {
           WHERE organization_id = $1 AND project_id =$2
         ) AS open_issues
     `,
-    [organizationId, projectId],
-  );
+      [organizationId, projectId],
+    );
 
-  return res.status(200).json({
-    success: true,
-    message: "Counts fetched",
-    stats: result.rows[0],
-  });
+    return res.status(200).json({
+      success: true,
+      message: "Counts fetched",
+      stats: result.rows[0],
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
 }
