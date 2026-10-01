@@ -26,7 +26,7 @@ const ProjectLayout = () => {
 
       const result = await apiRequest({
         method: "POST",
-        endpoint: "/issues/get-issues",
+        endpoint: "/project/project",
         body: {
           organizationId: organization.id,
           projectId: projectId,

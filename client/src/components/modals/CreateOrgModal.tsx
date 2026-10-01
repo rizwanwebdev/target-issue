@@ -1,4 +1,4 @@
-import createOrg from "@/api/org/createOrg";
+import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
@@ -19,10 +19,14 @@ const CreateOrgModal = ({ setFetchAgain }: Props) => {
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
 
-      const result = await createOrg({
-        name: String(credentials.name),
-        slug: String(credentials.slug),
-        description: String(credentials.description),
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/org/create-org",
+        body: {
+          name: String(credentials.name),
+          slug: String(credentials.slug),
+          description: String(credentials.description),
+        },
       });
 
       if (result.error) {

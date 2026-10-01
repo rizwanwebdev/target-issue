@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 
 import { useToast } from "@/context/ToastProvider.tsx";
 
-import getAllMembersApi from "@/api/org/getAllMembers.api.ts";
 import type { Member } from "@/types/Member";
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
@@ -31,12 +30,16 @@ const OrganizationMembers = ({
   const { addToast } = useToast();
   useEffect(() => {
     async function getAll() {
-      const result = await getAllMembersApi(
-        organizationId,
-        page,
-        limit,
-        projectId,
-      );
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/org/all-members",
+        body: {
+          organizationId: organizationId,
+          page: page,
+          limit: limit,
+          projectId: projectId,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

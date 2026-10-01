@@ -1,4 +1,4 @@
-import inviteMemebers from "@/api/org/inviteMembers.api";
+import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
@@ -32,7 +32,14 @@ const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
         return;
       }
 
-      const result = await inviteMemebers(organizationId, emails);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/org/invite",
+        body: {
+          organizationId: organizationId,
+          emails: emails,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

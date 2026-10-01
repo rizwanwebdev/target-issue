@@ -1,9 +1,9 @@
 import { useSearchParams } from "react-router-dom";
 import OtpVerification from "@/components/utils/OtpVerification.tsx";
 import { useToast } from "@/context/ToastProvider.tsx";
-import verifyOtp from "@/api/auth/verifyOtp.api.ts";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import apiRequest from "@/api/apiRequest";
 const OtpVerificationPage = () => {
   const { addToast } = useToast();
   const [searchParams] = useSearchParams();
@@ -26,7 +26,14 @@ const OtpVerificationPage = () => {
       }
       addToast(`Verifying OTP: ${otp}`, "info");
 
-      const result = await verifyOtp(otp, token);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/auth/verify-otp",
+        body: {
+          otp: otp,
+          verificationToken: token,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

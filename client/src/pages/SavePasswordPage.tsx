@@ -1,7 +1,7 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import savePassword from "@/api/auth/savePassword.api.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
 import { useState, useEffect } from "react";
+import apiRequest from "@/api/apiRequest";
 
 const SavePasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -34,7 +34,14 @@ const SavePasswordPage = () => {
       ) {
         setErr("Password Dose Not Matched");
       }
-      const result = await savePassword(token, String(credentials.password));
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/issues/issues",
+        body: {
+          token: token,
+          password: String(credentials.password),
+        },
+      });
       if (result.error && result.message.includes("Token")) {
         addToast(result.message, "error");
         navigate("/forgot-password");

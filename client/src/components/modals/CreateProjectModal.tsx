@@ -48,7 +48,7 @@ const CreateProjectModal = ({ organizationId, setFetchAgain }: Props) => {
 
       const result = await apiRequest({
         method: "POST",
-        endpoint: "project/create-project",
+        endpoint: "/project/create-project",
         body: {
           organizationId: organizationId,
           slug: String(credentials.slug),

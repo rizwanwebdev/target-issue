@@ -29,7 +29,7 @@ const AssignTeamModal = ({
       try {
         const result = await apiRequest({
           method: "POST",
-          endpoint: "/team/get-teams",
+          endpoint: "/team/assign-teams",
           body: {
             organizationId: organizationId,
             projectId: undefined,

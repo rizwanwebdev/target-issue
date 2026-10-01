@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import login from "@/api/auth/login.api.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
 import { useAuth } from "@/context/AuthContext.tsx";
+import apiRequest from "@/api/apiRequest";
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -18,11 +18,21 @@ const LoginPage = () => {
 
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
+      const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const email = String(credentials.email);
+      if (!EMAIL_REGEX.test(email)) {
+        addToast("Invalid Email", "error");
+        return;
+      }
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/auth/login",
+        body: {
+          email: email,
+          password: String(credentials.password),
+        },
+      });
 
-      const result = await login(
-        String(credentials.email),
-        String(credentials.password),
-      );
       if (result.error) {
         addToast(result.message, "error");
         return;

@@ -53,10 +53,10 @@ const CreateTeamModal = ({ organizationId, setFetchAgain }: Props) => {
         endpoint: "/team/create-team",
         body: {
           organizationId: organizationId,
-          title: String(credentials.name),
+          name: String(credentials.name),
           description: String(credentials.description),
-          due_date: String(credentials.slug),
-          slug: String(credentials.color),
+          slug: String(credentials.slug),
+          color: String(credentials.color),
         },
       });
 

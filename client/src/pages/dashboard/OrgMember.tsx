@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import getSingleMember from "@/api/org/getSingleMember.api.ts";
 
 import type { Member } from "@/types/Member";
 import { useToast } from "@/context/ToastProvider.tsx";
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import apiRequest from "@/api/apiRequest";
 
 const OrgMember = () => {
   const { slug, memberId, projectId } = useParams<{
@@ -22,8 +22,15 @@ const OrgMember = () => {
       if (!slug || !memberId) {
         return;
       }
-      const res = await getSingleMember(memberId, organization.id);
-      if (res.error) {
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/org/member",
+        body: {
+          organizationId: organization.id,
+          memberId: memberId,
+        },
+      });
+      if (result.error) {
         if (projectId) {
           navigate(
             `/dashboard/organizations/${slug}/projects/${projectId}/members`,
@@ -32,11 +39,11 @@ const OrgMember = () => {
           navigate(`/dashboard/organizations/${slug}/members`);
         }
 
-        addToast(res.message, "error");
+        addToast(result.message, "error");
 
         // return;
       }
-      setResult(res.member);
+      setResult(result.member);
     };
     getResults();
   }, [slug, memberId]);

@@ -1,25 +1,55 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { Team } from "@/types/Team";
 
 import ActionMenu from "@/components/utils/ActionMenu";
-import { useToast } from "@/context/ToastProvider";
 import apiRequest from "@/api/apiRequest";
 type Props = {
-  teams: Team[];
+  organizationId: number;
   projectId?: number;
-  organizationId?: number;
+  fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const DisplayTeams = ({
-  teams,
   setFetchAgain,
   organizationId,
   projectId,
+  fetchAgain,
 }: Props) => {
-  const { addToast } = useToast();
   const { slug } = useParams<{ slug: string; projectId: string }>();
+
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+
+  const [teams, setTeams] = useState<Team[]>([]);
+  useEffect(() => {
+    if (!organizationId) {
+      return;
+    }
+    const apiBody = projectId
+      ? {
+          projectId: projectId,
+          organizationId: organizationId,
+        }
+      : {
+          organizationId: organizationId,
+        };
+    async function getAll() {
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/team/get-teams",
+        body: apiBody,
+      });
+      console.log(result);
+      if (result.error) {
+        return;
+      }
+
+      setTeams(result.teams);
+    }
+
+    getAll();
+  }, [organizationId, projectId, fetchAgain]);
+
   const handleDelete = async (deleteId: number) => {
     try {
       const endpoint = projectId ? "/project/remove-team" : "/team/delete";
@@ -40,16 +70,19 @@ const DisplayTeams = ({
         body: apiBody,
       });
       if (result.error) {
-        addToast(result.message, "error");
+        // addToast(result.message, "error");
         return;
       }
-      addToast(result.message, "success");
+      // addToast(result.message, "success");
       setFetchAgain((prev) => !prev);
     } catch (error) {
-      addToast(
+      console.log(
         error instanceof Error ? error.message : "Failed to load comments",
-        "error",
       );
+      // addToast(
+      //   error instanceof Error ? error.message : "Failed to load comments",
+      //   "error",
+      // );
     }
   };
 

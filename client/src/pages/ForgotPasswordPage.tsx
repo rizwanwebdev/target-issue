@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import forgotPassword from "@/api/auth/forgotPassword.api.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
+import apiRequest from "@/api/apiRequest";
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();
@@ -10,7 +10,21 @@ const ForgotPasswordPage = () => {
     try {
       const formData = new FormData(e.currentTarget);
       const credentials = Object.fromEntries(formData.entries());
-      const result = await forgotPassword(String(credentials.email));
+
+      const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const email = String(credentials.email);
+      if (!EMAIL_REGEX.test(email)) {
+        addToast("Invalid Email", "error");
+        return;
+      }
+
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/auth/forgot-password",
+        body: {
+          email: email,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

@@ -5,7 +5,7 @@ import checkPasswordStrength, {
   type PasswordStrengthResult,
 } from "@/utils/CheckStrongPassowrd";
 import { useToast } from "@/context/ToastProvider.tsx";
-import register from "@/api/auth/register.api.ts";
+import apiRequest from "@/api/apiRequest";
 
 // Readable messages for each validation rule key
 const PASSWORD_ERROR_MESSAGES: Record<PasswordCheckRule, string> = {
@@ -72,7 +72,7 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     // Prevent submit if password invalid
     if (formData.password && passwordCheck && !passwordCheck.isValid) {
       return;
@@ -86,12 +86,23 @@ const RegisterPage = () => {
 
     try {
       setLoading(true);
-      const result = await register(
-        formData.name,
-        formData.username,
-        formData.email,
-        formData.password,
-      );
+
+      const email = formData.email;
+      if (!EMAIL_REGEX.test(email)) {
+        addToast("Invalid Email", "error");
+        return;
+      }
+
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/auth/register",
+        body: {
+          name: formData.name,
+          email: email,
+          password: formData.password,
+          username: formData.username,
+        },
+      });
 
       if (result?.error) {
         return addToast(result.message, "error");

@@ -19,7 +19,7 @@ const OrgProject = () => {
     async function getAll() {
       const result = await apiRequest({
         method: "POST",
-        endpoint: "/stats/org",
+        endpoint: "/stats/project",
         body: {
           organizationId: organization.id,
           projectId: project.id,

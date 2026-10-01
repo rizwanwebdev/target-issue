@@ -13,7 +13,7 @@ interface OtpVerificationProps {
   verificationToken: string | null;
   onVerify: (otp: string) => void;
 }
-import resendOtp from "@/api/auth/resendOtp.api.ts";
+import apiRequest from "@/api/apiRequest";
 export default function OtpVerification({
   length = 6,
   onVerify,
@@ -98,7 +98,13 @@ export default function OtpVerification({
       addToast("Missing Token", "warning");
     }
     try {
-      const result = await resendOtp(verificationToken);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/auth/resend-otp",
+        body: {
+          verificationToken: verificationToken,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

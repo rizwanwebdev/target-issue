@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import acceptInvitation from "@/api/org/acceptInvitation.api.ts";
 import { useEffect, useState } from "react";
 import { useToast } from "@/context/ToastProvider.tsx";
+import apiRequest from "@/api/apiRequest";
 
 const Invitations = () => {
   const [searchParams] = useSearchParams();
@@ -17,7 +17,13 @@ const Invitations = () => {
         if (!token) {
           return;
         }
-        const result = await acceptInvitation(token);
+        const result = await apiRequest({
+          method: "POST",
+          endpoint: "/org/accept-invitation",
+          body: {
+            token: token,
+          },
+        });
         if (result.error) {
           addToast(result.message, "error");
           return;

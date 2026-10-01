@@ -2,8 +2,8 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { useToast } from "@/context/ToastProvider.tsx";
-import getOrg from "@/api/org/getOrg.api.ts";
 import type { Organization } from "@/types/Organization";
+import apiRequest from "@/api/apiRequest";
 const OrganizationLayout = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -22,7 +22,13 @@ const OrganizationLayout = () => {
 
       setLoading(true);
 
-      const result = await getOrg(slug);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/org/get-org",
+        body: {
+          slug: slug,
+        },
+      });
 
       if (result.error || !result.organization) {
         if (result.status === 404) {
