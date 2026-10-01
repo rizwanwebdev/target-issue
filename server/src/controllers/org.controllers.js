@@ -701,8 +701,7 @@ export async function deleteOrganization(req, res) {
         message: "organization id is required",
       });
     }
-    const { isAdmin, role } = await checkOrgMembership(USERID, organizationId);
-    console.log(isAdmin, role);
+    const { isAdmin } = await checkOrgMembership(USERID, organizationId);
     if (!isAdmin) {
       return res.status(403).json({
         error: true,
@@ -710,7 +709,49 @@ export async function deleteOrganization(req, res) {
       });
     }
 
-    await pool.query("DELETE organization WHERE id = $1 ", [organizationId]);
+    await pool.query("DELETE FROM organization WHERE id = $1 ", [
+      organizationId,
+    ]);
+    return res.status(200).json({
+      success: true,
+      message: "Organization Deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
+export async function removeOrgMember(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { memberId, organizationId } = req.body;
+
+    if (!organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "organization id is required",
+      });
+    }
+    const { isAdmin } = await checkOrgMembership(USERID, organizationId);
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only organization admins can perform this action",
+      });
+    }
+    if (USERID === memberId) {
+      return res.status(403).json({
+        error: true,
+        message: "Your can not remove yourself from Organization",
+      });
+    }
+    await pool.query(
+      "DELETE FROM organization_members WHERE organization_id=$1 AND user_id = $2 ",
+      [organizationId, memberId],
+    );
     return res.status(200).json({
       success: true,
       message: "Organization Deleted",

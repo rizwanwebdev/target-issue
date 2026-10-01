@@ -13,5 +13,6 @@ router.post("/invite", authorize, orgRoutes.inviteMembers);
 router.post("/accept-invitation", authorize, orgRoutes.acceptInvitation);
 router.post("/member", authorize, orgRoutes.getSingleMember);
 router.delete("/delete", authorize, orgRoutes.deleteOrganization);
+router.delete("/remove-member", authorize, orgRoutes.removeOrgMember);
 
 export default router;

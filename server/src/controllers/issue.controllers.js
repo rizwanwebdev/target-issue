@@ -167,7 +167,12 @@ export async function getAllIssue(req, res) {
     let countResult;
 
     if (projectId) {
-      const { isMember } = await checkProjectMembership(USERID, projectId);
+      const { isMember, role } = await checkProjectMembership(
+        USERID,
+        organizationId,
+        projectId,
+      );
+      console.log(isMember, role);
       if (!isMember) {
         return res.status(403).json({
           error: true,
@@ -433,6 +438,53 @@ export async function assignIssuesToTeam(req, res) {
     return res.status(500).json({
       error: true,
       message: "Something went wrong while assigning this issue.",
+    });
+  }
+}
+export async function deleteIssue(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { issueId, projectId, organizationId } = req.body;
+
+    if (!issueId || !projectId || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "issueId, projectId, organizationId is required",
+      });
+    }
+    const { isMember, isAdmin } = checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You do not have access to this project",
+      });
+    }
+    if (isAdmin) {
+      await pool.query(
+        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3",
+        [issueId, organizationId, projectId, USERID],
+      );
+    } else {
+      const result = await pool.query(
+        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 AND created_by=$4 RETURNING 1",
+        [issueId, organizationId, projectId, USERID],
+      );
+      console.log(result);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Project Deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
     });
   }
 }

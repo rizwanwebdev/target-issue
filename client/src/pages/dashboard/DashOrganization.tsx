@@ -6,7 +6,8 @@ import CreateOrgModal from "@/components/modals/CreateOrgModal";
 
 import type { Organization } from "@/types/Organization";
 import ActionMenu from "@/components/utils/ActionMenu";
-import deleteOrgApi from "@/api/org/deleteOrgApi";
+import apiRequest from "@/api/apiRequest";
+
 const DashOrganization = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const { addToast } = useToast();
@@ -30,7 +31,13 @@ const DashOrganization = () => {
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const handleDelete = async (deleteId: number) => {
     try {
-      const result = await deleteOrgApi(deleteId);
+      const result = await apiRequest({
+        method: "DELETE",
+        endpoint: "/org/delete",
+        body: {
+          organizationId: deleteId,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

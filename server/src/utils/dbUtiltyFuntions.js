@@ -103,14 +103,14 @@ export async function checkProjectMembership(
  * if (!isMember) {
       return res.status(403).json({
         error: true,
-        message: "You are not a member of this organization",
+        message: "You are not a member of this Team",
       });
     }
   const { isMember , isAdmin } = await checkTeamMembership(USERID, organizationId, teamId);
     if (!isAdmin) {
       return res.status(403).json({
         error: true,
-        message: "Only organization admins can perform this action",
+        message: "Only Team admins can perform this action",
       });
     }
  * @returns isMember, isAdmin, role

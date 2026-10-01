@@ -3,23 +3,48 @@ import { Link, useParams } from "react-router-dom";
 import type { Team } from "@/types/Team";
 
 import ActionMenu from "@/components/utils/ActionMenu";
-import deleteOrgApi from "@/api/org/deleteOrgApi";
 import { useToast } from "@/context/ToastProvider";
+import apiRequest from "@/api/apiRequest";
 type Props = {
   teams: Team[];
+  projectId?: number;
+  organizationId?: number;
+  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const DisplayTeams = ({ teams }: Props) => {
+const DisplayTeams = ({
+  teams,
+  setFetchAgain,
+  organizationId,
+  projectId,
+}: Props) => {
   const { addToast } = useToast();
   const { slug } = useParams<{ slug: string; projectId: string }>();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const handleDelete = async (deleteId: number) => {
     try {
-      const result = await deleteOrgApi(deleteId);
+      const endpoint = projectId ? "/project/remove-team" : "/team/delete";
+      const apiBody = projectId
+        ? {
+            organizationId: organizationId,
+            projectId: projectId,
+            teamId: deleteId,
+          }
+        : {
+            organizationId: organizationId,
+            teamId: deleteId,
+          };
+      if (!organizationId) return;
+      const result = await apiRequest({
+        method: "DELETE",
+        endpoint: endpoint,
+        body: apiBody,
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;
       }
       addToast(result.message, "success");
+      setFetchAgain((prev) => !prev);
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",

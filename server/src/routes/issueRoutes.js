@@ -7,4 +7,5 @@ const router = express.Router();
 
 router.post("/create-issue", authorize, issueRoutes.createIssue);
 router.post("/get-issues", authorize, issueRoutes.getAllIssue);
+router.delete("/delete", authorize, issueRoutes.deleteIssue);
 export default router;

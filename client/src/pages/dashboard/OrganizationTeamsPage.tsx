@@ -31,7 +31,7 @@ const OrganizationTeamsPage = () => {
     }
 
     getAll();
-  }, [fetchAgain]);
+  }, [fetchAgain, addToast, organization]);
 
   return (
     <>
@@ -57,7 +57,13 @@ const OrganizationTeamsPage = () => {
           )}
         </div>
       </section>
-      {slug && <OragnizationTeams teams={teams} />}
+      {slug && (
+        <OragnizationTeams
+          organizationId={organization.id}
+          setFetchAgain={setFetchAgain}
+          teams={teams}
+        />
+      )}
     </>
   );
 };

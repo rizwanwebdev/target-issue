@@ -6,4 +6,6 @@ router.post("/create-project", authorize, projectRoutes.createProject);
 router.post("/get-projects", authorize, projectRoutes.getProjects);
 router.post("/project", authorize, projectRoutes.getSingleProject);
 router.delete("/delete", authorize, projectRoutes.deleteProject);
+router.delete("/remove-member", authorize, projectRoutes.removeProjectMember);
+router.delete("/remove-team", authorize, projectRoutes.removeProjectTeam);
 export default router;

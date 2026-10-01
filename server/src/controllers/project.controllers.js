@@ -278,13 +278,96 @@ export async function deleteProject(req, res) {
       });
     }
 
-    await pool.query("DELETE project WHERE id = $1 AND organization_id=$2", [
-      projectId,
-      organizationId,
-    ]);
+    await pool.query(
+      "DELETE FROM project WHERE id = $1 AND organization_id=$2",
+      [projectId, organizationId],
+    );
     return res.status(200).json({
       success: true,
       message: "Project Deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
+export async function removeProjectMember(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { memberId, projectId, organizationId } = req.body;
+
+    if (!memberId || !projectId || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "organization id is required",
+      });
+    }
+    const { isAdmin } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only project admins can perform this action",
+      });
+    }
+    if (USERID === memberId) {
+      return res.status(403).json({
+        error: true,
+        message: "Your can not remove yourself from Team",
+      });
+    }
+    await pool.query(
+      "DELETE FROM project_members WHERE project_id=$1 AND user_id = $2 AND organization_id=$3",
+      [projectId, memberId, organizationId],
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Organization Deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
+export async function removeProjectTeam(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { teamId, projectId, organizationId } = req.body;
+
+    if (!teamId || !projectId || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "organization id is required",
+      });
+    }
+    const { isAdmin } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only project admins can perform this action",
+      });
+    }
+
+    await pool.query(
+      "DELETE FROM project_teams WHERE project_id=$1 AND team_id = $2",
+      [projectId, teamId],
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Organization Deleted",
     });
   } catch (error) {
     console.log(error);

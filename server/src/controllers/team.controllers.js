@@ -376,13 +376,59 @@ export async function deleteTeam(req, res) {
       });
     }
 
-    await pool.query("DELETE team WHERE id = $1 AND organization_id=$2", [
+    await pool.query("DELETE FROM team WHERE id = $1 AND organization_id=$2", [
       teamId,
       organizationId,
     ]);
     return res.status(200).json({
       success: true,
       message: "Project Deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
+export async function removeTeamMember(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { memberId, teamId, organizationId } = req.body;
+
+    if (!teamId || !memberId || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "memberId, teamId, organizationId is required",
+      });
+    }
+
+    const { isAdmin } = await checkTeamMembership(
+      USERID,
+      organizationId,
+      teamId,
+    );
+
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only Team admins can perform this action",
+      });
+    }
+    if (USERID === memberId) {
+      return res.status(403).json({
+        error: true,
+        message: "Your can not remove yourself from Team",
+      });
+    }
+    await pool.query(
+      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2",
+      [teamId, memberId],
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Organization Deleted",
     });
   } catch (error) {
     console.log(error);

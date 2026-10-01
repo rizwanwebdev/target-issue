@@ -1,16 +1,25 @@
 import apiFetch from "@/api/auth/client.ts";
-
-async function deleteOrgApi(organizationId: number) {
+type Body = {
+  endpoint: string;
+  method: "GET" | "POST" | "DELETE" | "PUT";
+  body?:
+    | {
+        teamId?: string;
+        organizationId?: number;
+        projectId?: number;
+        issueId?: number;
+      }
+    | object;
+};
+async function deleteOrgApi(data: Body) {
   try {
-    const res = await apiFetch("/api/v1/org/delete", {
-      method: "DELETE",
+    const res = await apiFetch(`/api/v1${data.endpoint}`, {
+      method: data.method,
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        organizationId: organizationId,
-      }),
+      body: JSON.stringify({ ...data.body }),
     });
     return await res.json();
   } catch (error) {

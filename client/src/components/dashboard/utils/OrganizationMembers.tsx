@@ -6,7 +6,7 @@ import { useToast } from "@/context/ToastProvider.tsx";
 import getAllMembersApi from "@/api/org/getAllMembers.api.ts";
 import type { Member } from "@/types/Member";
 import ActionMenu from "@/components/utils/ActionMenu";
-import deleteOrgApi from "@/api/org/deleteOrgApi";
+import apiRequest from "@/api/apiRequest";
 
 type Props = {
   slug: string;
@@ -14,6 +14,7 @@ type Props = {
   fetchAgain?: boolean;
   projectId?: number;
   projectSlug?: string;
+  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const OrganizationMembers = ({
@@ -22,12 +23,12 @@ const OrganizationMembers = ({
   fetchAgain,
   projectId,
   projectSlug,
+  setFetchAgain,
 }: Props) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
   const { addToast } = useToast();
-
   useEffect(() => {
     async function getAll() {
       const result = await getAllMembersApi(
@@ -45,16 +46,28 @@ const OrganizationMembers = ({
     }
 
     getAll();
-  }, [organizationId, slug, page, limit, fetchAgain]);
+  }, [organizationId, slug, page, limit, fetchAgain, addToast, projectId]);
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const handleDelete = async (deleteId: number) => {
     try {
-      const result = await deleteOrgApi(deleteId);
+      const endpoint = projectId
+        ? "/project/remove-member"
+        : "/org/remove-member";
+      const result = await apiRequest({
+        method: "DELETE",
+        endpoint: endpoint,
+        body: {
+          organizationId: organizationId,
+          projectId: projectId,
+          memberId: deleteId,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;
       }
       addToast(result.message, "success");
+      setFetchAgain((prev) => !prev);
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",
