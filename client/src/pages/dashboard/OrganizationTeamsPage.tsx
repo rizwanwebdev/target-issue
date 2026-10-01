@@ -5,8 +5,8 @@ import CreateTeamModal from "@/components/modals/CreateTeamModal";
 
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 import { useToast } from "@/context/ToastProvider";
-import getTeams from "@/api/team/getTeams.api";
 import type { Team } from "@/types/Team";
+import apiRequest from "@/api/apiRequest";
 
 const OrganizationTeamsPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -22,7 +22,13 @@ const OrganizationTeamsPage = () => {
       return;
     }
     async function getAll() {
-      const result = await getTeams(organization.id);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/team/get-teams",
+        body: {
+          organizationId: organization.id,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

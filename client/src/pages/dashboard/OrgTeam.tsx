@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import getSingleTeam from "@/api/team/getSingleTeam.api.ts";
 import { useToast } from "@/context/ToastProvider.tsx";
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 import type { Team } from "@/types/Team";
+import apiRequest from "@/api/apiRequest";
 
 const OrgTeam = () => {
   const navigate = useNavigate();
@@ -16,16 +16,23 @@ const OrgTeam = () => {
       if (!slug || !teamId) {
         return;
       }
-      const res = await getSingleTeam(teamId, organization.id);
-      if (res.error) {
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/team/team",
+        body: {
+          teamId: teamId,
+          organizationId: organization.id,
+        },
+      });
+      if (result.error) {
         navigate(`/dashboard/organizations/${slug}/teams`);
-        addToast(res.message, "error");
+        addToast(result.message, "error");
         return;
       }
-      setResult(res.team);
+      setResult(result.team);
     };
     getResults();
-  }, [slug, teamId]);
+  }, [slug, teamId, addToast]);
   useEffect(() => {
     document.title = result?.name ? `${result.name} | Team` : "Team | About";
   }, [result?.name]);

@@ -19,7 +19,7 @@ const Dashboard = () => {
     async function getAll() {
       const [activityResult, statsResult] = await Promise.all([
         recentActivitiesByMe(),
-        await dashStatsApi(),
+        dashStatsApi(),
       ]);
 
       setShowStats(statsResult.stats);

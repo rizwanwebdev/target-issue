@@ -1,4 +1,4 @@
-import createTeam from "@/api/team/createTeam.api";
+import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
@@ -48,13 +48,17 @@ const CreateTeamModal = ({ organizationId, setFetchAgain }: Props) => {
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
 
-      const result = await createTeam(
-        organizationId,
-        String(credentials.slug),
-        String(credentials.name),
-        String(credentials.description),
-        String(credentials.color),
-      );
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/team/create-team",
+        body: {
+          organizationId: organizationId,
+          title: String(credentials.name),
+          description: String(credentials.description),
+          due_date: String(credentials.slug),
+          slug: String(credentials.color),
+        },
+      });
 
       if (result.error) {
         addToast(result.message, "error");

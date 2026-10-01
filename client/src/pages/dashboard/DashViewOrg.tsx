@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 import DisplayRecentActivities from "@/components/dashboard/utils/DisplayRecentActivities";
-import orgStatsApi from "@/api/stats/orgStatsApi";
+import apiRequest from "@/api/apiRequest";
 type Stat = {
   members_count: string;
   project_count: string;
@@ -15,13 +15,19 @@ const DashViewOrg = () => {
   const [showStats, setShowStats] = useState<Stat | null>(null);
   useEffect(() => {
     async function getAll() {
-      const statsResult = await orgStatsApi(organization.id);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/stats/org",
+        body: {
+          organizationId: organization.id,
+        },
+      });
 
-      setShowStats(statsResult.stats);
+      setShowStats(result.stats);
     }
 
     getAll();
-  }, []);
+  }, [organization]);
   useEffect(() => {
     document.title = organization
       ? `${organization.name} | TargetIssue`

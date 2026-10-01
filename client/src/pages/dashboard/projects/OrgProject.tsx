@@ -4,7 +4,7 @@ import CreateIssueModal from "@/components/modals/CreateIssueModal";
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
 import DisplayRecentActivities from "@/components/dashboard/utils/DisplayRecentActivities";
 import { useEffect, useState } from "react";
-import projectStatsApi from "@/api/stats/projectStats.api";
+import apiRequest from "@/api/apiRequest";
 
 type Stat = {
   members_count: string;
@@ -17,13 +17,20 @@ const OrgProject = () => {
   const [showStats, setShowStats] = useState<Stat | null>(null);
   useEffect(() => {
     async function getAll() {
-      const statsResult = await projectStatsApi(organization.id, project.id);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/stats/org",
+        body: {
+          organizationId: organization.id,
+          projectId: project.id,
+        },
+      });
 
-      setShowStats(statsResult.stats);
+      setShowStats(result.stats);
     }
 
     getAll();
-  }, []);
+  }, [project, organization]);
   return (
     <>
       <title>Project | About</title>

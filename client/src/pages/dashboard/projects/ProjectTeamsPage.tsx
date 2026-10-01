@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
 import AssignTeamModal from "@/components/modals/AssignTeamsModal";
 import type { Team } from "@/types/Team";
-import getTeams from "@/api/team/getTeams.api";
 import { useToast } from "@/context/ToastProvider";
+import apiRequest from "@/api/apiRequest";
 
 const ProjectTeamsPage = () => {
   const { organization, project } = useOutletContext<ProjectOutletContext>();
@@ -21,8 +21,14 @@ const ProjectTeamsPage = () => {
     }
 
     async function getAll() {
-      const result = await getTeams(organization.id, project.id);
-
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/team/get-teams",
+        body: {
+          projectId: project.id,
+          organizationId: organization.id,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;
@@ -57,7 +63,7 @@ const ProjectTeamsPage = () => {
           )}
         </div>
       </section>
-      <DisplayTeams teams={teams} />
+      <DisplayTeams setFetchAgain={setFetchAgain} teams={teams} />
     </>
   );
 };

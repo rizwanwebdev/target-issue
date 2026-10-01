@@ -1,4 +1,4 @@
-import createProject from "@/api/project/createProject.api";
+import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
@@ -46,15 +46,19 @@ const CreateProjectModal = ({ organizationId, setFetchAgain }: Props) => {
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
 
-      const result = await createProject(
-        organizationId,
-        String(credentials.slug),
-        String(credentials.name),
-        String(credentials.description),
-        String(credentials.startDate),
-        String(credentials.targetDate),
-        String(credentials.project_status),
-      );
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "project/create-project",
+        body: {
+          organizationId: organizationId,
+          slug: String(credentials.slug),
+          name: String(credentials.name),
+          project_status: String(credentials.project_status),
+          description: String(credentials.description),
+          startDate: String(credentials.startDate),
+          targetDate: String(credentials.targetDate),
+        },
+      });
 
       if (result.error) {
         addToast(result.message, "error");

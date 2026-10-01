@@ -1,31 +1,40 @@
-import GetRecentActivities from "@/api/activity/getRecentActivities.api";
 import { useEffect, useState } from "react";
 type Props = {
   organizationId: number;
   projectId?: number;
 };
 import type { Activity } from "@/types/Activity";
-import GetRecentProjectActivitiesApi from "@/api/activity/getRecentProjectActivities.api";
 import RecentActivitiesComponent from "@/components/dashboard/utils/RecentActivitiesComponent";
+import apiRequest from "@/api/apiRequest";
+import { useToast } from "@/context/ToastProvider";
 const DisplayRecentActivities = ({ organizationId, projectId }: Props) => {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const { addToast } = useToast();
+
   useEffect(() => {
     async function getAll() {
-      let result;
-      if (projectId) {
-        result = await GetRecentProjectActivitiesApi(organizationId, projectId);
-      } else {
-        result = await GetRecentActivities(organizationId);
-      }
+      const endpoint = projectId
+        ? "/activity/project"
+        : "/activity/organization";
+
+      const apiBody = projectId
+        ? { organizationId: organizationId, projectId: projectId }
+        : { organizationId: organizationId };
+      if (!organizationId) return;
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: endpoint,
+        body: apiBody,
+      });
       if (result.error) {
+        addToast(result.message, "error");
         return;
       }
-
       setActivities(result.activities);
     }
 
     getAll();
-  }, []);
+  }, [addToast, projectId, organizationId]);
   return <RecentActivitiesComponent activities={activities} />;
 };
 

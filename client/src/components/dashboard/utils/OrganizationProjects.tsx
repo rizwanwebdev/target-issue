@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useToast } from "@/context/ToastProvider.tsx";
-import getProjects from "@/api/project/getProjects.api.ts";
 import type { Project } from "@/types/Project";
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
@@ -20,7 +19,13 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
 
   useEffect(() => {
     async function getAll() {
-      const result = await getProjects(organizationId);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/project/get-projects",
+        body: {
+          organizationId: organizationId,
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

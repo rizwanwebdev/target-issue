@@ -1,4 +1,3 @@
-import getSingleproject from "@/api/project/getSingleproject.api.ts";
 import { Outlet, useOutletContext, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { Project } from "@/types/Project";
@@ -6,6 +5,7 @@ import type { Project } from "@/types/Project";
 import { useToast } from "@/context/ToastProvider.tsx";
 
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import apiRequest from "@/api/apiRequest";
 
 const ProjectLayout = () => {
   const [loading, setLoading] = useState(true);
@@ -23,15 +23,23 @@ const ProjectLayout = () => {
         return;
       }
       setLoading(true);
-      const res = await getSingleproject(projectId, organization.id);
-      if (res.error) {
-        addToast(res.message, "error");
+
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/issues/get-issues",
+        body: {
+          organizationId: organization.id,
+          projectId: projectId,
+        },
+      });
+      if (result.error) {
+        addToast(result.message, "error");
       }
-      setProject(res.project);
+      setProject(result.project);
       setLoading(false);
     };
     getResults();
-  }, [slug, projectId]);
+  }, [slug, projectId, addToast, organization]);
 
   if (!project) {
     return null;

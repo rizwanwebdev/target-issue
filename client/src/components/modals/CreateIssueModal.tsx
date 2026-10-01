@@ -1,4 +1,4 @@
-import createIssue from "@/api/issues/createIssue.api";
+import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/context/ToastProvider";
 import { useState } from "react";
 type Props = {
@@ -23,17 +23,19 @@ const CreateIssueModal = ({
     try {
       const formData = new FormData(form);
       const credentials = Object.fromEntries(formData.entries());
-
-      const result = await createIssue(
-        organizationId,
-        projectId,
-        String(credentials.name),
-        String(credentials.description),
-        String(credentials.due_date),
-        String(credentials.priority),
-        String(credentials.severity),
-      );
-
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/issues/create-issue",
+        body: {
+          organizationId: organizationId,
+          projectId: projectId,
+          title: String(credentials.name),
+          description: String(credentials.description),
+          due_date: String(credentials.due_date),
+          priority: String(credentials.priority),
+          severity: String(credentials.severity),
+        },
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

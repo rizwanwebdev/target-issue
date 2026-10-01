@@ -1,5 +1,4 @@
-import assignTeams from "@/api/team/assignTeams.api";
-import getTeams from "@/api/team/getTeams.api";
+import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/context/ToastProvider";
 import type { Team } from "@/types/Team";
 import { useEffect, useState } from "react";
@@ -28,7 +27,14 @@ const AssignTeamModal = ({
   useEffect(() => {
     async function getAllTeams() {
       try {
-        const result = await getTeams(organizationId, undefined);
+        const result = await apiRequest({
+          method: "POST",
+          endpoint: "/team/get-teams",
+          body: {
+            organizationId: organizationId,
+            projectId: undefined,
+          },
+        });
 
         if (result.error) {
           addToast(result.message, "error");
@@ -93,7 +99,15 @@ const AssignTeamModal = ({
     }
 
     try {
-      const result = await assignTeams(teamIds, organizationId, projectId);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/team/get-teams",
+        body: {
+          organizationId: organizationId,
+          projectId: projectId,
+          teamIds: teamIds,
+        },
+      });
 
       if (result.error) {
         addToast(result.message, "error");

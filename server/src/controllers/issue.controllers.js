@@ -167,12 +167,11 @@ export async function getAllIssue(req, res) {
     let countResult;
 
     if (projectId) {
-      const { isMember, role } = await checkProjectMembership(
+      const { isMember } = await checkProjectMembership(
         USERID,
         organizationId,
         projectId,
       );
-      console.log(isMember, role);
       if (!isMember) {
         return res.status(403).json({
           error: true,

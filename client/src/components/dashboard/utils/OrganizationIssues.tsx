@@ -1,8 +1,8 @@
-import getAllIssues from "@/api/issues/getAllIssues";
 import { useToast } from "@/context/ToastProvider";
 import { useEffect, useState } from "react";
 import IssueCard from "./IssueCard";
 import type { Issue } from "@/types/Issue";
+import apiRequest from "@/api/apiRequest";
 type Props = {
   organizationId: number;
   slug: string;
@@ -34,7 +34,15 @@ const OrganizationIssues = ({
     async function getAll() {
       setLoading(true);
 
-      const result = await getAllIssues(organizationId, page, projectId);
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/issues/get-issues",
+        body: {
+          organizationId: organizationId,
+          projectId: projectId,
+          page: page,
+        },
+      });
 
       if (result.error) {
         addToast(result.message, "error");
