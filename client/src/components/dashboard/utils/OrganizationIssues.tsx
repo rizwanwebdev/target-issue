@@ -8,6 +8,7 @@ type Props = {
   slug: string;
   projectId?: number;
   fetchAgain?: boolean;
+  setFetchAgain?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type Pagination = {
@@ -21,6 +22,7 @@ const OrganizationIssues = ({
   organizationId,
   projectId,
   fetchAgain,
+  setFetchAgain,
 }: Props) => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -45,6 +47,7 @@ const OrganizationIssues = ({
 
       if (result.error) {
         addToast(result.message, "error");
+        setIssues([]);
         setLoading(false);
         return;
       }
@@ -77,6 +80,7 @@ const OrganizationIssues = ({
         <div className="flex flex-col gap-3">
           {issues.map((issue) => (
             <IssueCard
+              setFetchAgain={setFetchAgain}
               key={issue.id}
               organizationId={organizationId}
               issue={issue}

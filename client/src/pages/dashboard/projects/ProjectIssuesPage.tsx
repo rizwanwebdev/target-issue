@@ -36,6 +36,7 @@ const ProjectIssuesPage = () => {
             slug={slug}
             fetchAgain={fetchAgain}
             organizationId={organization.id}
+            setFetchAgain={setFetchAgain}
           />
         )}
       </div>

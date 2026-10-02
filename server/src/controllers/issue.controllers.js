@@ -477,7 +477,7 @@ export async function deleteIssue(req, res) {
     if (result.rowCount === 0) {
       return res.status(404).json({
         error: true,
-        message: "Team not found",
+        message: "Issue not found",
       });
     }
     return res.status(200).json({

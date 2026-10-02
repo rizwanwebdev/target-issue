@@ -8,9 +8,15 @@ type Props = {
   issue: Issue;
   projectId?: number;
   organizationId: number;
+  setFetchAgain?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const IssueCard = ({ issue, projectId, organizationId }: Props) => {
+const IssueCard = ({
+  issue,
+  projectId,
+  organizationId,
+  setFetchAgain,
+}: Props) => {
   const [showComments, setShowComments] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const { addToast } = useToast();
@@ -31,6 +37,9 @@ const IssueCard = ({ issue, projectId, organizationId }: Props) => {
         return;
       }
       addToast(result.message, "success");
+      if (setFetchAgain) {
+        setFetchAgain((prev) => !prev);
+      }
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",
