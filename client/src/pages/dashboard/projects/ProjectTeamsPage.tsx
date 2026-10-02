@@ -3,13 +3,12 @@ import DisplayTeams from "@/components/dashboard/utils/DisplayTeams";
 import { useState } from "react";
 
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
-import AssignTeamModal from "@/components/modals/AssignTeamsModal";
+import AssignTeamsModal from "@/components/modals/AssignTeamsModal";
 
 const ProjectTeamsPage = () => {
   const { organization, project } = useOutletContext<ProjectOutletContext>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
   const isAdmin = organization.role === "admin";
-  console.log(isAdmin);
 
   return (
     <>
@@ -24,9 +23,8 @@ const ProjectTeamsPage = () => {
                 : "Teams in this project."}
             </p>
           </div>
-
           {isAdmin && (
-            <AssignTeamModal
+            <AssignTeamsModal
               projectId={project.id}
               organizationId={organization.id}
               setFetchAgain={setFetchAgain}

@@ -451,7 +451,7 @@ export async function deleteIssue(req, res) {
         message: "issueId, projectId, organizationId is required",
       });
     }
-    const { isMember, isAdmin } = checkProjectMembership(
+    const { isMember, isAdmin } = await checkProjectMembership(
       USERID,
       organizationId,
       projectId,
@@ -465,7 +465,7 @@ export async function deleteIssue(req, res) {
     if (isAdmin) {
       await pool.query(
         "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3",
-        [issueId, organizationId, projectId, USERID],
+        [issueId, organizationId, projectId],
       );
     } else {
       const result = await pool.query(
@@ -477,7 +477,7 @@ export async function deleteIssue(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: "Project Deleted",
+      message: "Issue Deleted",
     });
   } catch (error) {
     console.log(error);

@@ -4,6 +4,7 @@ import type { Team } from "@/types/Team";
 
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
+import { useToast } from "@/context/ToastProvider";
 type Props = {
   organizationId: number;
   projectId?: number;
@@ -17,11 +18,13 @@ const DisplayTeams = ({
   fetchAgain,
 }: Props) => {
   const { slug } = useParams<{ slug: string; projectId: string }>();
-
+  const { addToast } = useToast();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
 
   const [teams, setTeams] = useState<Team[]>([]);
+
   useEffect(() => {
+    console.log("render");
     if (!organizationId) {
       return;
     }
@@ -39,8 +42,9 @@ const DisplayTeams = ({
         endpoint: "/team/get-teams",
         body: apiBody,
       });
-      console.log(result);
+
       if (result.error) {
+        setTeams([]);
         return;
       }
 
@@ -51,6 +55,7 @@ const DisplayTeams = ({
   }, [organizationId, projectId, fetchAgain]);
 
   const handleDelete = async (deleteId: number) => {
+    if (!deleteId) return;
     try {
       const endpoint = projectId ? "/project/remove-team" : "/team/delete";
       const apiBody = projectId
@@ -70,19 +75,16 @@ const DisplayTeams = ({
         body: apiBody,
       });
       if (result.error) {
-        // addToast(result.message, "error");
+        addToast(result.message, "error");
         return;
       }
-      // addToast(result.message, "success");
+      addToast(result.message, "success");
       setFetchAgain((prev) => !prev);
     } catch (error) {
-      console.log(
+      addToast(
         error instanceof Error ? error.message : "Failed to load comments",
+        "error",
       );
-      // addToast(
-      //   error instanceof Error ? error.message : "Failed to load comments",
-      //   "error",
-      // );
     }
   };
 

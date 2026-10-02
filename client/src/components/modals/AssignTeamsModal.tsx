@@ -9,13 +9,12 @@ type Props = {
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const AssignTeamModal = ({
+const AssignTeamsModal = ({
   organizationId,
   projectId,
   setFetchAgain,
 }: Props) => {
   const { addToast } = useToast();
-
   const [openModal, setOpenModal] = useState(false);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeams, setSelectedTeams] = useState<Set<number>>(new Set());
@@ -25,11 +24,13 @@ const AssignTeamModal = ({
 
   // Fetch teams when component mounts
   useEffect(() => {
+    if (!openModal || !teamsLoading) return;
+
     async function getAllTeams() {
       try {
         const result = await apiRequest({
           method: "POST",
-          endpoint: "/team/assign-teams",
+          endpoint: "/team/get-teams",
           body: {
             organizationId: organizationId,
             projectId: undefined,
@@ -53,7 +54,7 @@ const AssignTeamModal = ({
     }
 
     getAllTeams();
-  }, [organizationId, addToast]);
+  }, [organizationId, addToast, openModal, teamsLoading]);
 
   const toggleTeam = (teamId: number) => {
     setSelectedTeams((prev) => {
@@ -101,7 +102,7 @@ const AssignTeamModal = ({
     try {
       const result = await apiRequest({
         method: "POST",
-        endpoint: "/team/get-teams",
+        endpoint: "/team/assign-teams",
         body: {
           organizationId: organizationId,
           projectId: projectId,
@@ -130,15 +131,13 @@ const AssignTeamModal = ({
   return (
     <>
       {/* Don't show Assign Teams while loading or when there are no teams */}
-      {!teamsLoading && teams.length > 0 && (
-        <button
-          type="button"
-          className="btn btn-primary w-fit"
-          onClick={() => setOpenModal(true)}
-        >
-          + Assign Teams
-        </button>
-      )}
+      <button
+        type="button"
+        className="btn btn-primary w-fit"
+        onClick={() => setOpenModal(true)}
+      >
+        + Assign Teams
+      </button>
 
       {openModal && (
         <div
@@ -234,4 +233,4 @@ const AssignTeamModal = ({
   );
 };
 
-export default AssignTeamModal;
+export default AssignTeamsModal;

@@ -102,7 +102,6 @@ export async function getTeams(req, res) {
         organizationId,
         projectId,
       );
-
       if (!isMember) {
         return res.status(403).json({
           error: true,
@@ -126,10 +125,10 @@ export async function getTeams(req, res) {
         LEFT JOIN team_members tm
           ON tm.team_id = t.id
           AND tm.user_id = $2
-        WHERE pt.project_id = $1
+        WHERE pt.project_id = $1 AND t.organization_id =$3
         ORDER BY t.name
       `,
-        [projectId, USERID],
+        [projectId, USERID, organizationId],
       );
     } else {
       const { isMember } = await checkOrgMembership(USERID, organizationId);
@@ -382,7 +381,7 @@ export async function deleteTeam(req, res) {
     ]);
     return res.status(200).json({
       success: true,
-      message: "Project Deleted",
+      message: "Team Deleted",
     });
   } catch (error) {
     console.log(error);
@@ -428,7 +427,7 @@ export async function removeTeamMember(req, res) {
     );
     return res.status(200).json({
       success: true,
-      message: "Organization Deleted",
+      message: "Member Removed From This Team",
     });
   } catch (error) {
     console.log(error);

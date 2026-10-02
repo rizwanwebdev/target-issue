@@ -24,7 +24,6 @@ const OrganizationIssues = ({
 }: Props) => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
-
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -77,7 +76,12 @@ const OrganizationIssues = ({
       ) : (
         <div className="flex flex-col gap-3">
           {issues.map((issue) => (
-            <IssueCard key={issue.id} issue={issue} projectId={projectId} />
+            <IssueCard
+              key={issue.id}
+              organizationId={organizationId}
+              issue={issue}
+              projectId={projectId}
+            />
           ))}
         </div>
       )}

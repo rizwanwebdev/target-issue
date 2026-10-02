@@ -754,7 +754,7 @@ export async function removeOrgMember(req, res) {
     );
     return res.status(200).json({
       success: true,
-      message: "Organization Deleted",
+      message: "Member Removed From This Organization",
     });
   } catch (error) {
     console.log(error);
