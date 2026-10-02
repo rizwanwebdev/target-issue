@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useParams } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext.tsx";
+import useAuth from "@/hooks/useAuth";
 import { Aside } from "./Aside.tsx";
 import DashHeader from "./DashHeader.tsx";
 const DashboardLayout = () => {

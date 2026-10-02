@@ -4,7 +4,7 @@ import checkPasswordStrength, {
   type PasswordCheckRule,
   type PasswordStrengthResult,
 } from "@/utils/CheckStrongPassowrd";
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 import apiRequest from "@/api/apiRequest";
 
 // Readable messages for each validation rule key

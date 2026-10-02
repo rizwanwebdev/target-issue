@@ -1,5 +1,5 @@
 import apiRequest from "@/api/apiRequest";
-import { useToast } from "@/context/ToastProvider";
+import { useToast } from "@/hooks/useToast";
 import type { Team } from "@/types/Team";
 import { useEffect, useState } from "react";
 

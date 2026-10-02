@@ -1,4 +1,4 @@
-import { useToast } from "@/context/ToastProvider";
+import { useToast } from "@/hooks/useToast";
 import { useEffect, useState } from "react";
 import IssueCard from "./IssueCard";
 import type { Issue } from "@/types/Issue";

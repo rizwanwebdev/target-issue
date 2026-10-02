@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 import { useState, useEffect } from "react";
 import apiRequest from "@/api/apiRequest";
 

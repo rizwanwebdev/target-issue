@@ -3,7 +3,7 @@ import type { Issue } from "@/types/Issue";
 import IssueComments from "@/components/dashboard/utils/IssueComments";
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
-import { useToast } from "@/context/ToastProvider";
+import { useToast } from "@/hooks/useToast";
 type Props = {
   issue: Issue;
   projectId?: number;

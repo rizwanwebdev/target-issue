@@ -7,7 +7,7 @@ import {
   type ClipboardEvent,
   type FormEvent,
 } from "react";
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 interface OtpVerificationProps {
   length?: number;
   verificationToken: string | null;

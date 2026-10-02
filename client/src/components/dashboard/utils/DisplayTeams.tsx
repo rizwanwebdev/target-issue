@@ -4,7 +4,7 @@ import type { Team } from "@/types/Team";
 
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
-import { useToast } from "@/context/ToastProvider";
+import { useToast } from "@/hooks/useToast";
 type Props = {
   organizationId: number;
   projectId?: number;

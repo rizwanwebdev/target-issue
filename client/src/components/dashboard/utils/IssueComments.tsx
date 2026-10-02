@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useToast } from "@/context/ToastProvider";
+import { useToast } from "@/hooks/useToast";
 
 type Comment = {
   id: number;

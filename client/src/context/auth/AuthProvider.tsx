@@ -1,26 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import getMe from "@/api/auth/getMe";
 import logoutApi from "@/api/auth/logout.api.ts";
-
-interface User {
-  fullName: string;
-  username: string;
-}
-
-interface LogoutResult {
-  error: boolean;
-  message: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  authenticated: boolean;
-  refreshUser: () => Promise<void>;
-  logout: () => Promise<LogoutResult>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext, type User, type AuthContextType } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -83,14 +64,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
-
-  return context;
 }

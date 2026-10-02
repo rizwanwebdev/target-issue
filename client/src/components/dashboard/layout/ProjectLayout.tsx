@@ -2,7 +2,7 @@ import { Outlet, useOutletContext, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { Project } from "@/types/Project";
 
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 import apiRequest from "@/api/apiRequest";

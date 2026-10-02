@@ -1,9 +1,9 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import { useToast } from "@/context/ToastProvider.tsx";
 import type { Organization } from "@/types/Organization";
 import apiRequest from "@/api/apiRequest";
+import { useToast } from "@/hooks/useToast";
 const OrganizationLayout = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();

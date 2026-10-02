@@ -9,8 +9,8 @@ import Dashboard from "@/pages/dashboard/Dashboard";
 import SavePasswordPage from "@/pages/SavePasswordPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
-import { ToastProvider } from "@/context/ToastProvider";
-import { AuthProvider } from "@/context/AuthContext";
+import { ToastProvider } from "@/context/toast/ToastProvider";
+import { AuthProvider } from "@/context/auth/AuthProvider";
 
 import DashOrganization from "@/pages/dashboard/DashOrganization.tsx";
 import DashViewOrg from "@/pages/dashboard/DashViewOrg.tsx";

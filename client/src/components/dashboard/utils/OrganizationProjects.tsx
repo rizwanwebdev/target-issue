@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 import type { Project } from "@/types/Project";
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";

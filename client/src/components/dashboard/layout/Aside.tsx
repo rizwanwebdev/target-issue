@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useToast } from "@/context/ToastProvider.tsx";
-import { useAuth } from "@/context/AuthContext.tsx";
+import { useToast } from "@/hooks/useToast";
+import useAuth from "@/hooks/useAuth";
 
 type Props = {
   slug: string | undefined;

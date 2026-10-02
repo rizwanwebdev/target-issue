@@ -1,5 +1,5 @@
 import Breadcrumbs from "@/components/dashboard/layout/Breadcrumbs";
-import { useAuth } from "@/context/AuthContext.tsx";
+import useAuth from "@/hooks/useAuth";
 
 const DashHeader = () => {
   const { user } = useAuth();

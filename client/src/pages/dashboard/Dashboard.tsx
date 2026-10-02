@@ -1,9 +1,8 @@
-import { useAuth } from "@/context/AuthContext.tsx";
 import { useEffect, useState } from "react";
-import recentActivitiesByMe from "@/api/activity/recentActivitiesByMe.api";
 import type { Activity } from "@/types/Activity";
 import RecentActivitiesComponent from "@/components/dashboard/utils/RecentActivitiesComponent";
-import dashStatsApi from "@/api/stats/dashStats.api";
+import apiRequest from "@/api/apiRequest";
+import useAuth from "@/hooks/useAuth";
 
 type Stat = {
   organization_count: string;
@@ -18,8 +17,14 @@ const Dashboard = () => {
     if (!user) return;
     async function getAll() {
       const [activityResult, statsResult] = await Promise.all([
-        recentActivitiesByMe(),
-        dashStatsApi(),
+        apiRequest({
+          method: "GET",
+          endpoint: "/activity/by-me",
+        }),
+        apiRequest({
+          method: "GET",
+          endpoint: "/stats/dash",
+        }),
       ]);
 
       setShowStats(statsResult.stats);

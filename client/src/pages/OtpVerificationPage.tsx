@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import OtpVerification from "@/components/utils/OtpVerification.tsx";
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import apiRequest from "@/api/apiRequest";

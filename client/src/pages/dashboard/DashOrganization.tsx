@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import getAllOrganizations from "@/api/org/getAllOrganizations.ts";
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 import { useEffect, useState } from "react";
 import CreateOrgModal from "@/components/modals/CreateOrgModal";
 
@@ -14,8 +13,10 @@ const DashOrganization = () => {
   const [orgs, setOrgs] = useState<Organization[]>([]);
   useEffect(() => {
     async function getAll() {
-      const result = await getAllOrganizations();
-
+      const result = await apiRequest({
+        method: "GET",
+        endpoint: "/org/all-organizations",
+      });
       if (result.error) {
         addToast(result.message, "error");
         return;

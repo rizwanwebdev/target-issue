@@ -6,7 +6,7 @@ type Props = {
 import type { Activity } from "@/types/Activity";
 import RecentActivitiesComponent from "@/components/dashboard/utils/RecentActivitiesComponent";
 import apiRequest from "@/api/apiRequest";
-import { useToast } from "@/context/ToastProvider";
+import { useToast } from "@/hooks/useToast";
 const DisplayRecentActivities = ({ organizationId, projectId }: Props) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const { addToast } = useToast();

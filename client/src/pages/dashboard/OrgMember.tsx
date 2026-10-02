@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 import type { Member } from "@/types/Member";
-import { useToast } from "@/context/ToastProvider.tsx";
+import { useToast } from "@/hooks/useToast";
 import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
 import apiRequest from "@/api/apiRequest";
 
