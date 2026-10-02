@@ -18,6 +18,7 @@ const DashOrganization = () => {
         endpoint: "/org/all-organizations",
       });
       if (result.error) {
+        setOrgs([]);
         addToast(result.message, "error");
         return;
       }

@@ -8,4 +8,5 @@ router.post("/project", authorize, projectRoutes.getSingleProject);
 router.delete("/delete", authorize, projectRoutes.deleteProject);
 router.delete("/remove-member", authorize, projectRoutes.removeProjectMember);
 router.delete("/remove-team", authorize, projectRoutes.removeProjectTeam);
+router.post("/assign-members", authorize, projectRoutes.assignProjectMembers);
 export default router;

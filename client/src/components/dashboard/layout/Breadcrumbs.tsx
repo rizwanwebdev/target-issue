@@ -16,22 +16,13 @@ const Breadcrumbs = () => {
 
   const segments = location.pathname.split("/").filter(Boolean);
 
-  let currentPath = "";
   return (
     <nav aria-label="Breadcrumb" className="px-6 py-3">
       <ol className="flex items-center flex-wrap gap-2 text-sm">
-        {/* <li>
-          <Link to="/dashboard" className="text-gray-500 hover:text-primary">
-            Dashboard
-          </Link>
-        </li>
-        // if need to not show dashboard
-        segments.filter((segment) => segment !== "dashboard")
-        .map((segment, index, filteredSegments)
-        */}
-
         {segments.map((segment, index, filteredSegments) => {
-          currentPath += `/${segment}`;
+          const currentPath = `/${filteredSegments
+            .slice(0, index + 1)
+            .join("/")}`;
 
           const isLast = index === filteredSegments.length - 1;
 

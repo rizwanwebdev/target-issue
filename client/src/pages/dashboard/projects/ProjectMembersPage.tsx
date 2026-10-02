@@ -1,10 +1,10 @@
 import OrganizationMembers from "@/components/dashboard/utils/OrganizationMembers.tsx";
 
 import { useOutletContext, useParams } from "react-router-dom";
-import InviteMembersModal from "@/components/modals/InviteMembersModal";
 import { useState } from "react";
 
 import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import AssignMembersModal from "@/components/modals/AssignMembersModal";
 
 const ProjectMembersPage = () => {
   const { slug, projectId } = useParams<{ slug: string; projectId: string }>();
@@ -29,8 +29,10 @@ const ProjectMembersPage = () => {
           </div>
 
           {isAdmin && slug && (
-            <InviteMembersModal
+            <AssignMembersModal
+              endpoint="/project/assign-members"
               organizationId={organization.id}
+              projectId={project.id}
               setFetchAgain={setFetchAgain}
             />
           )}

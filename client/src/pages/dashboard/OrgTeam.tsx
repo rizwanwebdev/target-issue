@@ -76,7 +76,7 @@ const OrgTeam = () => {
 
               {result?.role && (
                 <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-medium capitalize text-primary">
-                  {result.role}
+                  {result.role || "Not A Member"}
                 </span>
               )}
             </div>

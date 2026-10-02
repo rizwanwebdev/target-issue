@@ -135,15 +135,17 @@ const DisplayTeams = ({
               </div>
 
               {/* Role */}
-              <span
-                className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                  team.role === "admin"
-                    ? "bg-accent/10 text-accent"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {team.role}
-              </span>
+              {team.role && (
+                <span
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                    team.role === "admin"
+                      ? "bg-accent/10 text-accent"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {team.role}
+                </span>
+              )}
             </div>
             <ActionMenu
               isOpen={activeMenuId === team.team_id}

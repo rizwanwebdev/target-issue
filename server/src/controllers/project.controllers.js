@@ -389,3 +389,101 @@ export async function removeProjectTeam(req, res) {
     });
   }
 }
+export async function assignProjectMembers(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { projectId, organizationId, memberIds } = req.body;
+
+    if (
+      !projectId ||
+      !organizationId ||
+      !Array.isArray(memberIds) ||
+      memberIds.length === 0
+    ) {
+      return res.status(400).json({
+        error: true,
+        message: "projectId, organizationId and at least one team are required",
+      });
+    }
+
+    const validMemberIds = memberIds.every(
+      (id) => Number.isInteger(id) && id > 0,
+    );
+
+    if (!validMemberIds) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid Member IDs",
+      });
+    }
+    const { isAdmin } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only project admins can perform this action",
+      });
+    }
+
+    const checkMembers = await pool.query(
+      `
+        SELECT u.full_name
+        FROM users u
+        INNER JOIN organization_members om ON u.id = om.user_id
+        WHERE om.organization_id = $1
+          AND om.user_id = ANY($2::int[])
+      `,
+      [organizationId, memberIds],
+    );
+    console.log(checkMembers);
+    if (checkMembers.rows.length !== memberIds.length) {
+      return res.status(400).json({
+        error: true,
+        message: "One or more member do not belong to this organization",
+      });
+    }
+
+    await pool.query(
+      `
+        INSERT INTO project_members (
+          project_id,
+          user_id
+        )
+        SELECT
+          $1,
+          user_id
+        FROM unnest($2::int[]) AS user_id
+        ON CONFLICT (project_id, user_id)
+        DO NOTHING
+      `,
+      [projectId, memberIds],
+    );
+
+    const membersNames = checkMembers.rows
+      .map((member) => member.full_name)
+      .join(", ");
+
+    await saveActivity({
+      organizationId,
+      projectId,
+      actorId: USERID,
+      message: `Member${checkMembers.rows.length > 1 ? "s" : ""} ${membersNames} assigned to this project`,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Members assigned successfully",
+    });
+  } catch (error) {
+    console.error("Assign Members error:", error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Something went wrong while assigning teams",
+    });
+  }
+}
