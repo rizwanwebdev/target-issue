@@ -45,11 +45,11 @@ export async function createTeam(req, res) {
       });
     }
 
-    await pool.query(
+    const result = await pool.query(
       `WITH new_team AS (
     INSERT INTO team (organization_id, name, description, created_by,color,slug) VALUES ($1, $2, $3, $4,$5, $6) RETURNING id
     )
-    INSERT INTO team_members (team_id, user_id, role) VALUES ((SELECT id FROM new_team), $4, $7)
+    INSERT INTO team_members (team_id, user_id, role) VALUES ((SELECT id FROM new_team), $4, $7) RETURNING team_id
     `,
       [
         organizationId,
@@ -64,6 +64,7 @@ export async function createTeam(req, res) {
     await saveActivity({
       organizationId,
       projectId: null,
+      teamId: result.rows[0].team_id,
       actorId: USERID,
       message: `New Team Created: ${name.trim()}`,
     });
@@ -380,7 +381,7 @@ export async function deleteTeam(req, res) {
     }
 
     const result = await pool.query(
-      "DELETE FROM team WHERE id = $1 AND organization_id=$2 RETURNING id",
+      "DELETE FROM team WHERE id = $1 AND organization_id=$2 RETURNING name",
       [teamId, organizationId],
     );
     if (result.rowCount === 0) {
@@ -389,7 +390,12 @@ export async function deleteTeam(req, res) {
         message: "Team not found",
       });
     }
-
+    await saveActivity({
+      organizationId,
+      projectId: null,
+      actorId: USERID,
+      message: `Team Deleted: ${result.rows[0].name}`,
+    });
     return res.status(200).json({
       success: true,
       message: "Team Deleted",
@@ -433,7 +439,7 @@ export async function removeTeamMember(req, res) {
       });
     }
     const result = await pool.query(
-      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2 RETURNING id",
+      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2 RETURNING name",
       [teamId, memberId],
     );
     if (result.rowCount === 0) {
@@ -442,7 +448,13 @@ export async function removeTeamMember(req, res) {
         message: "Member not found",
       });
     }
-
+    await saveActivity({
+      organizationId,
+      projectId: null,
+      teamId: teamId,
+      actorId: USERID,
+      message: `Team Member Removed: ${result.rows[0].name}`,
+    });
     return res.status(200).json({
       success: true,
       message: "Member Removed From This Team",

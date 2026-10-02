@@ -1,48 +1,77 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useToast } from "@/hooks/useToast";
-
-type Comment = {
+import apiRequest from "@/api/apiRequest";
+import IssueCommentItem from "./IssueCommentItem";
+export type IssueComment = {
   id: number;
-  issue_id: number;
-  user_id: number;
+  issueId: number;
+  userId: number;
+  parentId: number | null;
   content: string;
-  edited_at: string | null;
-  created_at: string;
-  user_name?: string;
+  editedAt: string | null;
+  createdAt: string;
+  username: string;
+  fullName: string;
+  avatarUrl: string | null;
+  children: IssueComment[];
 };
 
 type Props = {
   issueId: number;
+  showComments: boolean;
+  projectId: number;
+  organizationId: number;
 };
 
-const IssueComments = ({ issueId }: Props) => {
-  const [comments, setComments] = useState<Comment[]>([]);
+const IssueComments = ({
+  issueId,
+  projectId,
+  organizationId,
+  showComments,
+}: Props) => {
+  const [comments, setComments] = useState<IssueComment[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [comment, setComment] = useState("");
+  const [replyTo, setReplyTo] = useState<number | null>(null);
+  const [reply, setReply] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
 
   const { addToast } = useToast();
 
+  // --------------------------------------------------
+  // Fetch comments
+  // --------------------------------------------------
+
+  const hasFetchedComments = useRef(false);
+
   useEffect(() => {
+    if (!showComments || hasFetchedComments.current) {
+      return;
+    }
+
     const getComments = async () => {
       try {
         setLoading(true);
 
-        /*
-         * Replace this with your actual API:
-         *
-         * const result = await getIssueComments(issueId);
-         *
-         * if (result.error) {
-         *   addToast(result.message, "error");
-         *   return;
-         * }
-         *
-         * setComments(result.comments);
-         */
+        const result = await apiRequest({
+          method: "GET",
+          endpoint: "/issues/get-comments",
+          body: {
+            organizationId,
+            projectId,
+            issueId,
+          },
+        });
 
-        // Temporary until your comments API is connected.
-        setComments([]);
+        if (result.error) {
+          addToast(result.message, "error");
+          return;
+        }
+
+        setComments(result.comments ?? []);
+        hasFetchedComments.current = true;
       } catch (error) {
         addToast(
           error instanceof Error ? error.message : "Failed to load comments",
@@ -54,34 +83,58 @@ const IssueComments = ({ issueId }: Props) => {
     };
 
     getComments();
-  }, [issueId]);
+  }, [showComments, organizationId, projectId, issueId, addToast]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // --------------------------------------------------
+  // Add comment / reply
+  // --------------------------------------------------
 
-    const content = comment.trim();
+  const addComment = async (content: string, parentId: number | null) => {
+    const trimmedContent = content.trim();
 
-    if (!content) {
+    if (!trimmedContent) {
       return;
     }
 
     try {
       setSubmitting(true);
 
-      /*
-       * Replace with:
-       *
-       * const result = await createIssueComment(issueId, content);
-       *
-       * if (result.error) {
-       *   addToast(result.message, "error");
-       *   return;
-       * }
-       *
-       * setComments((prev) => [...prev, result.comment]);
-       */
+      const result = await apiRequest({
+        method: "POST",
+        endpoint: "/issues/post-comment",
+        body: {
+          organizationId,
+          projectId,
+          issueId,
+          comment: trimmedContent,
+          parentId,
+        },
+      });
 
-      setComment("");
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+
+      const newComment: IssueComment = {
+        ...result.comment,
+        children: result.comment.children ?? [],
+      };
+
+      if (parentId === null) {
+        // New top-level comment
+        setComments((prev) => [...prev, newComment]);
+      } else {
+        // New reply
+        setComments((prev) => addReplyToComment(prev, parentId, newComment));
+      }
+
+      if (parentId === null) {
+        setComment("");
+      } else {
+        setReply("");
+        setReplyTo(null);
+      }
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to add comment",
@@ -92,46 +145,59 @@ const IssueComments = ({ issueId }: Props) => {
     }
   };
 
+  // --------------------------------------------------
+  // Add reply recursively
+  // --------------------------------------------------
+
+  const addReplyToComment = (
+    comments: IssueComment[],
+    parentId: number,
+    reply: IssueComment,
+  ): IssueComment[] => {
+    return comments.map((comment) => {
+      if (comment.id === parentId) {
+        return {
+          ...comment,
+          children: [...comment.children, reply],
+        };
+      }
+
+      if (comment.children.length > 0) {
+        return {
+          ...comment,
+          children: addReplyToComment(comment.children, parentId, reply),
+        };
+      }
+
+      return comment;
+    });
+  };
+
+  // --------------------------------------------------
+  // Submit top-level comment
+  // --------------------------------------------------
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    await addComment(comment, null);
+  };
+
+  // --------------------------------------------------
+  // Submit reply
+  // --------------------------------------------------
+
+  const handleReplySubmit = async (
+    e: FormEvent<HTMLFormElement>,
+    parentId: number,
+  ) => {
+    e.preventDefault();
+
+    await addComment(reply, parentId);
+  };
+
   return (
     <div className="border-t border-gray-200 bg-gray-50 p-5">
-      <h3 className="text-sm font-semibold text-text">Comments</h3>
-
-      {/* Comments */}
-      <div className="mt-4 flex flex-col gap-4">
-        {loading ? (
-          <p className="text-sm text-gray-500">Loading comments...</p>
-        ) : comments.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No comments yet. Start the discussion.
-          </p>
-        ) : (
-          comments.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-lg border border-gray-200 bg-white p-4"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-text">
-                  {item.user_name ?? `User #${item.user_id}`}
-                </p>
-
-                <time className="text-xs text-gray-400">
-                  {new Date(item.created_at).toLocaleString()}
-                </time>
-              </div>
-
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-600">
-                {item.content}
-              </p>
-
-              {item.edited_at && (
-                <p className="mt-2 text-xs text-gray-400">Edited</p>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-
       {/* Add comment */}
       <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3">
         <textarea
@@ -144,7 +210,7 @@ const IssueComments = ({ issueId }: Props) => {
           className="w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
         />
 
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-start justify-between gap-3">
           <span className="text-xs text-gray-400">{comment.length}/2000</span>
 
           <button
@@ -156,6 +222,31 @@ const IssueComments = ({ issueId }: Props) => {
           </button>
         </div>
       </form>
+      <h3 className="text-sm font-semibold text-text">Comments</h3>
+
+      {/* Comments */}
+      <div className="mt-4 flex flex-col gap-4">
+        {loading ? (
+          <p className="text-sm text-gray-500">Loading comments...</p>
+        ) : comments.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No comments yet. Start the discussion.
+          </p>
+        ) : (
+          comments.map((item) => (
+            <IssueCommentItem
+              key={item.id}
+              item={item}
+              replyTo={replyTo}
+              reply={reply}
+              submitting={submitting}
+              setReplyTo={setReplyTo}
+              setReply={setReply}
+              onReplySubmit={handleReplySubmit}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

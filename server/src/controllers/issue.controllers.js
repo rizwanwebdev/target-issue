@@ -465,12 +465,12 @@ export async function deleteIssue(req, res) {
     let result;
     if (isAdmin) {
       result = await pool.query(
-        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 RETURNING id",
+        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 RETURNING id, issue_number, title",
         [issueId, organizationId, projectId],
       );
     } else {
       result = await pool.query(
-        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 AND created_by=$4 RETURNING id",
+        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 AND created_by=$4 RETURNING id, issue_number, title",
         [issueId, organizationId, projectId, USERID],
       );
     }
@@ -480,6 +480,12 @@ export async function deleteIssue(req, res) {
         message: "Issue not found Or you didn't created this issue",
       });
     }
+    await saveActivity({
+      organizationId,
+      projectId,
+      actorId: USERID,
+      message: `Deleted Issue #${result.rows[0].issue_number}: ${result.rows[0].title}`,
+    });
     return res.status(200).json({
       success: true,
       message: "Issue Deleted",
@@ -489,6 +495,235 @@ export async function deleteIssue(req, res) {
     return res.status(500).json({
       error: true,
       message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
+
+export async function addIssueComment(req, res) {
+  try {
+    const { USERID } = req.user;
+    const {
+      organizationId,
+      projectId,
+      issueId,
+      comment,
+      parentId = null,
+    } = req.body;
+
+    if (
+      !organizationId ||
+      !projectId ||
+      !issueId ||
+      typeof comment !== "string" ||
+      !comment.trim()
+    ) {
+      return res.status(400).json({
+        error: true,
+        message:
+          "Organization ID, project ID, issue ID and comment are required",
+      });
+    }
+
+    const { isMember } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You do not have access to this project",
+      });
+    }
+
+    // If this is a reply, make sure the parent belongs
+    // to the same issue.
+    if (parentId) {
+      const parentResult = await pool.query(
+        `
+          SELECT id
+          FROM issue_comments
+          WHERE id = $1
+            AND issue_id = $2
+        `,
+        [parentId, issueId],
+      );
+
+      if (parentResult.rowCount === 0) {
+        return res.status(400).json({
+          error: true,
+          message: "Invalid parent comment",
+        });
+      }
+    }
+
+    const result = await pool.query(
+      `
+        INSERT INTO issue_comments (
+          issue_id,
+          user_id,
+          parent_comment_id,
+          content
+        )
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, issue_id, user_id, parent_comment_id, content, created_at
+      `,
+      [issueId, USERID, parentId, comment.trim()],
+    );
+
+    const newComment = result.rows[0];
+
+    const userResult = await pool.query(
+      `
+        SELECT username, full_name, avatar_url
+        FROM users
+        WHERE id = $1
+      `,
+      [USERID],
+    );
+
+    const user = userResult.rows[0];
+
+    return res.status(201).json({
+      success: true,
+      message: "Comment added",
+      comment: {
+        id: newComment.id,
+        issueId: newComment.issue_id,
+        userId: newComment.user_id,
+        parentId: newComment.parent_comment_id,
+        content: newComment.content,
+        createdAt: newComment.created_at,
+        username: user.username,
+        fullName: user.full_name,
+        avatarUrl: user.avatar_url,
+        children: [],
+      },
+    });
+  } catch (error) {
+    console.error("Add issue comment error:", error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error",
+    });
+  }
+}
+export async function getIssueComments(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { organizationId, projectId, issueId } = req.query;
+
+    if (!organizationId || !projectId || !issueId) {
+      return res.status(400).json({
+        error: true,
+        message: "Organization ID, project ID and issue ID are required",
+      });
+    }
+
+    const { isMember } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You do not have access to this project",
+      });
+    }
+
+    // Make sure the issue belongs to this project/org.
+    const issueResult = await pool.query(
+      `
+        SELECT id
+        FROM issues
+        WHERE id = $1
+          AND project_id = $2
+          AND organization_id = $3
+      `,
+      [issueId, projectId, organizationId],
+    );
+
+    if (issueResult.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Issue not found",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT
+          ic.id,
+          ic.issue_id,
+          ic.user_id,
+          ic.parent_comment_id,
+          ic.content,
+          ic.edited_at,
+          ic.created_at,
+          u.username,
+          u.full_name,
+          u.avatar_url
+        FROM issue_comments ic
+        INNER JOIN users u
+          ON u.id = ic.user_id
+        WHERE ic.issue_id = $1
+        ORDER BY ic.created_at ASC
+      `,
+      [issueId],
+    );
+
+    const comments = result.rows;
+
+    const commentMap = new Map();
+
+    // First create every node.
+    for (const comment of comments) {
+      commentMap.set(comment.id, {
+        id: comment.id,
+        issueId: comment.issue_id,
+        userId: comment.user_id,
+        parentId: comment.parent_comment_id,
+        content: comment.content,
+        editedAt: comment.edited_at,
+        createdAt: comment.created_at,
+        username: comment.username,
+        fullName: comment.full_name,
+        avatarUrl: comment.avatar_url,
+        children: [],
+      });
+    }
+
+    const rootComments = [];
+
+    // Then connect children to their parents.
+    for (const comment of commentMap.values()) {
+      if (comment.parentId === null) {
+        rootComments.push(comment);
+        continue;
+      }
+
+      const parent = commentMap.get(comment.parentId);
+
+      if (parent) {
+        parent.children.push(comment);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Comments fetched successfully",
+      comments: rootComments,
+    });
+  } catch (error) {
+    console.error("Get issue comments error:", error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error",
     });
   }
 }

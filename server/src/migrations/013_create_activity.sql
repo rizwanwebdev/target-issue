@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS activity (
     project_id INTEGER
         REFERENCES project(id)
         ON DELETE CASCADE,
+    
+    team_id INTEGER
+        REFERENCES team(id)
+        ON DELETE CASCADE,
 
     actor_id INTEGER
         REFERENCES users(id)

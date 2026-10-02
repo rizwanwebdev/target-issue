@@ -8,4 +8,6 @@ const router = express.Router();
 router.post("/create-issue", authorize, issueRoutes.createIssue);
 router.post("/get-issues", authorize, issueRoutes.getAllIssue);
 router.delete("/delete", authorize, issueRoutes.deleteIssue);
+router.post("/post-comment", authorize, issueRoutes.addIssueComment);
+router.get("/get-comments", authorize, issueRoutes.getIssueComments);
 export default router;

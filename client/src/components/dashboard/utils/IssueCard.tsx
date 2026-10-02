@@ -136,9 +136,14 @@ const IssueCard = ({
           />
         )}
       </div>
-
-      {/* Comments */}
-      {showComments && <IssueComments issueId={issue.id} />}
+      <div className={showComments ? "block" : "hidden"}>
+        <IssueComments
+          showComments={showComments}
+          issueId={issue.id}
+          projectId={issue.project_id}
+          organizationId={issue.organization_id}
+        />
+      </div>
     </article>
   );
 };
