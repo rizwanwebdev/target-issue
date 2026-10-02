@@ -709,9 +709,16 @@ export async function deleteOrganization(req, res) {
       });
     }
 
-    await pool.query("DELETE FROM organization WHERE id = $1 ", [
-      organizationId,
-    ]);
+    const result = await pool.query(
+      "DELETE FROM organization WHERE id = $1 RETURNING id",
+      [organizationId],
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Organization not found",
+      });
+    }
     return res.status(200).json({
       success: true,
       message: "Organization Deleted",

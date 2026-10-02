@@ -462,19 +462,24 @@ export async function deleteIssue(req, res) {
         message: "You do not have access to this project",
       });
     }
+    let result;
     if (isAdmin) {
-      await pool.query(
-        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3",
+      result = await pool.query(
+        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 RETURNING id",
         [issueId, organizationId, projectId],
       );
     } else {
-      const result = await pool.query(
-        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 AND created_by=$4 RETURNING 1",
+      result = await pool.query(
+        "DELETE FROM issues WHERE id = $1 AND organization_id=$2 AND project_id=$3 AND created_by=$4 RETURNING id",
         [issueId, organizationId, projectId, USERID],
       );
-      console.log(result);
     }
-
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Team not found",
+      });
+    }
     return res.status(200).json({
       success: true,
       message: "Issue Deleted",

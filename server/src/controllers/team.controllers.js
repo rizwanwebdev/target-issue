@@ -367,7 +367,11 @@ export async function deleteTeam(req, res) {
         message: "Team id and organization Id is required",
       });
     }
-    const { isAdmin } = checkTeamMembership(USERID, organizationId, teamId);
+    const { isAdmin } = await checkTeamMembership(
+      USERID,
+      organizationId,
+      teamId,
+    );
     if (!isAdmin) {
       return res.status(403).json({
         error: true,
@@ -375,10 +379,17 @@ export async function deleteTeam(req, res) {
       });
     }
 
-    await pool.query("DELETE FROM team WHERE id = $1 AND organization_id=$2", [
-      teamId,
-      organizationId,
-    ]);
+    const result = await pool.query(
+      "DELETE FROM team WHERE id = $1 AND organization_id=$2 RETURNING id",
+      [teamId, organizationId],
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Team not found",
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "Team Deleted",
@@ -421,10 +432,17 @@ export async function removeTeamMember(req, res) {
         message: "Your can not remove yourself from Team",
       });
     }
-    await pool.query(
-      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2",
+    const result = await pool.query(
+      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2 RETURNING id",
       [teamId, memberId],
     );
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Member not found",
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "Member Removed From This Team",

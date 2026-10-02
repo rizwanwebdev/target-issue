@@ -322,10 +322,16 @@ export async function removeProjectMember(req, res) {
         message: "Your can not remove yourself from Team",
       });
     }
-    await pool.query(
-      "DELETE FROM project_members WHERE project_id=$1 AND user_id = $2 AND organization_id=$3",
+    const result = await pool.query(
+      "DELETE FROM project_members WHERE project_id=$1 AND user_id = $2 AND organization_id=$3 RETURNING id",
       [projectId, memberId, organizationId],
     );
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Member not found",
+      });
+    }
     return res.status(200).json({
       success: true,
       message: "Member Removed From This Project",
@@ -361,10 +367,16 @@ export async function removeProjectTeam(req, res) {
       });
     }
 
-    await pool.query(
-      "DELETE FROM project_teams WHERE project_id=$1 AND team_id = $2",
+    const result = await pool.query(
+      "DELETE FROM project_teams WHERE project_id=$1 AND team_id = $2 RETURNING id",
       [projectId, teamId],
     );
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Team not found",
+      });
+    }
     return res.status(200).json({
       success: true,
       message: "Member Removed From This Project",
