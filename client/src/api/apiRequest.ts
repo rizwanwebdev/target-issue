@@ -43,15 +43,15 @@ async function apiRequest({ endpoint, method, body }: ApiRequest) {
     }
 
     const res = await apiFetch(url, options);
-    if (!res.ok) {
-      console.log(
-        res.status + " End Point: " + endpoint + " " + res.statusText,
-      );
-      return {
-        error: true,
-        message: res.status + " End Point: " + endpoint + " " + res.statusText,
-      };
-    }
+    // if (!res.ok) {
+    //   console.log(
+    //     res.status + " End Point: " + endpoint + " " + res.statusText,
+    //   );
+    //   return {
+    //     error: true,
+    //     message: res.status + " End Point: " + endpoint + " " + res.statusText,
+    //   };
+    // }
 
     return await res.json();
   } catch (error) {

@@ -1,4 +1,5 @@
 import apiRequest from "@/api/apiRequest";
+import useAuth from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import type { Member } from "@/types/Member";
 import { useEffect, useState } from "react";
@@ -16,6 +17,7 @@ const AssignMembersModal = ({
   setFetchAgain,
   projectId,
 }: Props) => {
+  const { user } = useAuth();
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
@@ -189,6 +191,7 @@ const AssignMembersModal = ({
                       id={`select-member-${member.user_id}`}
                       checked={isSelected}
                       onChange={() => toggleMember(member.user_id)}
+                      disabled={user?.username === member.username}
                     />
 
                     <label

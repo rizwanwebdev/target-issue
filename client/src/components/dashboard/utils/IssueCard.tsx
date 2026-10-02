@@ -4,6 +4,9 @@ import IssueComments from "@/components/dashboard/utils/IssueComments";
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/hooks/useToast";
+import { useOutletContext } from "react-router-dom";
+import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import useAuth from "@/hooks/useAuth";
 type Props = {
   issue: Issue;
   projectId?: number;
@@ -17,6 +20,8 @@ const IssueCard = ({
   organizationId,
   setFetchAgain,
 }: Props) => {
+  const { user } = useAuth();
+  const { project } = useOutletContext<ProjectOutletContext>();
   const [showComments, setShowComments] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const { addToast } = useToast();
@@ -47,6 +52,16 @@ const IssueCard = ({
       );
     }
   };
+  let isAllowed = false;
+  if (project || projectId) {
+    if (project.role === "admin") {
+      isAllowed = true;
+    }
+    if (user && issue.created_by === user.id) {
+      isAllowed = true;
+    }
+  }
+
   return (
     <article className="rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* Issue */}
@@ -111,13 +126,15 @@ const IssueCard = ({
           </div>
         </div>
 
-        <ActionMenu
-          isOpen={activeMenuId === issue.id}
-          onToggle={() =>
-            setActiveMenuId((prev) => (prev === issue.id ? null : issue.id))
-          }
-          onDelete={() => handleDelete(issue.id)}
-        />
+        {isAllowed && (
+          <ActionMenu
+            isOpen={activeMenuId === issue.id}
+            onToggle={() =>
+              setActiveMenuId((prev) => (prev === issue.id ? null : issue.id))
+            }
+            onDelete={() => handleDelete(issue.id)}
+          />
+        )}
       </div>
 
       {/* Comments */}
