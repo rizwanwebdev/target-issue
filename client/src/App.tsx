@@ -19,7 +19,7 @@ import OrgTeam from "@/pages/dashboard/OrgTeam.tsx";
 import OrganizationTeamsPage from "@/pages/dashboard/OrganizationTeamsPage.tsx";
 import OrganizationProjectsPage from "@/pages/dashboard/OrganizationProjectsPage.tsx";
 import OrgProject from "@/pages/dashboard/projects/OrgProject";
-import OrganizationMemebersPage from "@/pages/dashboard/OrganizationMembersPage.tsx";
+import OrganizationMemebersPage from "@/pages/dashboard/DisplayMembersPage.tsx";
 import OrgMember from "@/pages/dashboard/OrgMember.tsx";
 import NotAuthorized from "@/components/utils/NotAuthorized.tsx";
 import DashboardLayout from "@/components/dashboard/layout/DashboradLayout.tsx";
@@ -33,6 +33,7 @@ import ProjectIssuesPage from "@/pages/dashboard/projects/ProjectIssuesPage";
 import ProjectTeamsPage from "@/pages/dashboard/projects/ProjectTeamsPage";
 import TeamLayout from "@/components/dashboard/layout/TeamLayout";
 import ProjectTeamIndex from "@/pages/dashboard/projects/team/ProjectTeamIndex";
+import TeamMembersPage from "@/pages/dashboard/projects/team/TeamMembersPage";
 
 function App() {
   return (
@@ -86,6 +87,7 @@ function App() {
 
                 <Route path="teams/:teamSlug" element={<TeamLayout />}>
                   <Route index element={<ProjectTeamIndex />} />
+                  <Route path="members" element={<TeamMembersPage />} />
                 </Route>
                 <Route path="members/:username" element={<OrgMember />} />
               </Route>

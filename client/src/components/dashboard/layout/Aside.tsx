@@ -5,6 +5,7 @@ import useAuth from "@/hooks/useAuth";
 type Props = {
   slug: string | undefined;
   projectSlug: string | undefined;
+  teamSlug: string | undefined;
 };
 
 type AsideLink = {
@@ -26,7 +27,7 @@ const AsideNavLink = ({ linkName, to }: AsideLink) => {
   );
 };
 
-export const Aside = ({ slug, projectSlug }: Props) => {
+export const Aside = ({ slug, projectSlug, teamSlug }: Props) => {
   const { logout } = useAuth();
   const { addToast } = useToast();
 
@@ -92,6 +93,7 @@ export const Aside = ({ slug, projectSlug }: Props) => {
       to: `/dashboard/organizations/${slug}`,
     },
   ];
+
   const organizationLinks = [
     {
       linkName: "Organization",
@@ -116,6 +118,24 @@ export const Aside = ({ slug, projectSlug }: Props) => {
     {
       linkName: "Organizations",
       to: `/dashboard/organizations`,
+    },
+  ];
+  const teamLinks = [
+    {
+      linkName: "Overview",
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}/teams/${teamSlug}`,
+    },
+    {
+      linkName: "Members",
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}/teams/${teamSlug}/members`,
+    },
+    {
+      linkName: "Issues",
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}/teams/${teamSlug}/issues`,
+    },
+    {
+      linkName: "Project",
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}`,
     },
   ];
   return (
@@ -143,6 +163,7 @@ export const Aside = ({ slug, projectSlug }: Props) => {
               ))}
             </div>
           )}
+
           {!projectSlug && slug && (
             <div>
               {organizationLinks.map((link) => (
@@ -150,9 +171,16 @@ export const Aside = ({ slug, projectSlug }: Props) => {
               ))}
             </div>
           )}
-          {slug && projectSlug && (
+          {slug && projectSlug && !teamSlug && (
             <div>
               {projectLinks.map((link) => (
+                <AsideNavLink key={link.linkName} {...link} />
+              ))}
+            </div>
+          )}
+          {slug && projectSlug && teamSlug && (
+            <div>
+              {teamLinks.map((link) => (
                 <AsideNavLink key={link.linkName} {...link} />
               ))}
             </div>

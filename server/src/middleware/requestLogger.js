@@ -11,7 +11,7 @@ const requestLogger = (req, res, next) => {
       duration: `${duration}ms`,
       ip: req.ip,
       userAgent: req.get("user-agent"),
-      body: req.body,
+      body: req.body || req.query,
     });
   });
 

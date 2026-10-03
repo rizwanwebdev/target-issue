@@ -4,9 +4,10 @@ import { Aside } from "./Aside.tsx";
 import DashHeader from "./DashHeader.tsx";
 const DashboardLayout = () => {
   const { loading, authenticated } = useAuth();
-  const { slug, projectSlug } = useParams<{
+  const { slug, projectSlug, teamSlug } = useParams<{
     slug: string;
     projectSlug: string;
+    teamSlug: string;
   }>();
 
   if (loading) {
@@ -23,7 +24,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex">
-      <Aside slug={slug} projectSlug={projectSlug} />
+      <Aside slug={slug} projectSlug={projectSlug} teamSlug={teamSlug} />
 
       <div className="flex-1 min-w-0">
         <DashHeader />

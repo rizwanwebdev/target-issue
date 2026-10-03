@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { useToast } from "@/hooks/useToast";
 
@@ -9,36 +9,45 @@ import apiRequest from "@/api/apiRequest";
 import useAuth from "@/hooks/useAuth";
 
 type Props = {
-  slug: string;
   organizationId: number;
+  fetchUrl: string;
+  leaveUrl: string;
+  removeUrl: string;
   fetchAgain?: boolean;
   projectId?: number;
-  projectSlug?: string;
+  teamId?: number;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const OrganizationMembers = ({
-  slug,
+const DisplayMembers = ({
   organizationId,
+  fetchUrl,
+  leaveUrl,
+  removeUrl,
   fetchAgain,
+  teamId,
   projectId,
-  projectSlug,
 }: Props) => {
+  const { slug, projectSlug } = useParams<{
+    slug: string;
+    projectSlug: string;
+  }>();
   const [members, setMembers] = useState<Member[]>([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(1);
+  const [limit, setLimit] = useState(10);
   const { addToast } = useToast();
   const { user } = useAuth();
   useEffect(() => {
     async function getAll() {
       const result = await apiRequest({
-        method: "POST",
-        endpoint: "/org/all-members",
+        method: "GET",
+        endpoint: fetchUrl,
         body: {
           organizationId: organizationId,
+          teamId: teamId,
+          projectId: projectId,
           page: page,
           limit: limit,
-          projectId: projectId,
         },
       });
       if (result.error) {
@@ -50,20 +59,28 @@ const OrganizationMembers = ({
     }
 
     getAll();
-  }, [organizationId, slug, page, limit, fetchAgain, addToast, projectId]);
+  }, [
+    organizationId,
+    slug,
+    page,
+    limit,
+    fetchAgain,
+    addToast,
+    projectId,
+    fetchUrl,
+    teamId,
+  ]);
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
-  const handleDelete = async (deleteId: number) => {
+  const handleRemove = async (deleteId: number) => {
     try {
-      const endpoint = projectId
-        ? "/project/remove-member"
-        : "/org/remove-member";
       const result = await apiRequest({
         method: "DELETE",
-        endpoint: endpoint,
+        endpoint: removeUrl,
         body: {
           organizationId: organizationId,
           projectId: projectId,
           memberId: deleteId,
+          teamId: teamId,
         },
       });
       if (result.error) {
@@ -86,9 +103,11 @@ const OrganizationMembers = ({
       if (!deleteId) return;
       const result = await apiRequest({
         method: "DELETE",
-        endpoint: "/org/leave",
+        endpoint: leaveUrl,
         body: {
           organizationId: deleteId,
+          projectId: deleteId,
+          teamId: deleteId,
         },
       });
       if (result.error) {
@@ -193,7 +212,7 @@ const OrganizationMembers = ({
                   roles: ["admin"],
                   visible: member.user_id !== user?.id,
                   variant: "danger",
-                  onClick: () => handleDelete(member.user_id),
+                  onClick: () => handleRemove(member.user_id),
                   confirm: {
                     title: "Remove Member",
                     message:
@@ -210,4 +229,4 @@ const OrganizationMembers = ({
   );
 };
 
-export default OrganizationMembers;
+export default DisplayMembers;

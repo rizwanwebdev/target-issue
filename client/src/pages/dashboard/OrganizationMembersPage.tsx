@@ -1,4 +1,4 @@
-import OrganizationMembers from "@/components/dashboard/utils/OrganizationMembers.tsx";
+import DisplayMembers from "@/components/dashboard/utils/DisplayMembers";
 
 import { useOutletContext, useParams } from "react-router-dom";
 import InviteMembersModal from "@/components/modals/InviteMembersModal";
@@ -39,7 +39,10 @@ const OrganizationMemebersPage = () => {
         </div>
       </section>
       {slug && (
-        <OrganizationMembers
+        <DisplayMembers
+          fetchUrl="/org/all-members"
+          removeUrl="/org/remove-member"
+          leaveUrl="/org/leave"
           setFetchAgain={setFetchAgain}
           fetchAgain={fetchAgain}
           slug={slug}

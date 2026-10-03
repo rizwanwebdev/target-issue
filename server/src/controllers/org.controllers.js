@@ -395,7 +395,7 @@ export async function inviteMembers(req, res) {
 export async function getMembers(req, res) {
   const { USERID } = req.user;
   try {
-    let { organizationId, page = 1, limit = 20, projectId } = req.body;
+    let { organizationId, page = 1, limit = 20, projectId } = req.query;
 
     page = Number(page);
     limit = Number(limit);

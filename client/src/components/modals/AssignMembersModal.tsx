@@ -6,13 +6,16 @@ import { useEffect, useState } from "react";
 
 type Props = {
   organizationId: number;
-  endpoint: string;
+  fetchMembersUrl: string;
+  assignMembersUrl: string;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
   projectId?: number;
+  teamId?: number;
 };
 
 const AssignMembersModal = ({
-  endpoint,
+  fetchMembersUrl,
+  assignMembersUrl,
   organizationId,
   setFetchAgain,
   projectId,
@@ -35,10 +38,10 @@ const AssignMembersModal = ({
       try {
         const result = await apiRequest({
           method: "POST",
-          endpoint: "/org/all-members",
+          endpoint: fetchMembersUrl,
           body: {
             organizationId: organizationId,
-            projectId: undefined,
+            projectId: projectId,
           },
         });
 
@@ -60,7 +63,14 @@ const AssignMembersModal = ({
     }
 
     getAllMembers();
-  }, [organizationId, addToast, openModal, membersLoading]);
+  }, [
+    organizationId,
+    addToast,
+    openModal,
+    membersLoading,
+    fetchMembersUrl,
+    projectId,
+  ]);
 
   const toggleMember = (memberId: number) => {
     setSelectedMembers((prev) => {
@@ -108,7 +118,7 @@ const AssignMembersModal = ({
     try {
       const result = await apiRequest({
         method: "POST",
-        endpoint: endpoint, // dynamic url
+        endpoint: assignMembersUrl, // dynamic url
         body: {
           organizationId: organizationId,
           projectId: projectId,

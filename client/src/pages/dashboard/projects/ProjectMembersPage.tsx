@@ -1,4 +1,4 @@
-import OrganizationMembers from "@/components/dashboard/utils/OrganizationMembers.tsx";
+import DisplayMembers from "@/components/dashboard/utils/DisplayMembers";
 
 import { useOutletContext, useParams } from "react-router-dom";
 import { useState } from "react";
@@ -33,7 +33,8 @@ const ProjectMembersPage = () => {
 
           {isAdmin && slug && (
             <AssignMembersModal
-              endpoint="/project/assign-members"
+              fetchMembersUrl="/org/all-members"
+              assignMembersUrl="/project/assign-members"
               organizationId={organization.id}
               projectId={project.id}
               setFetchAgain={setFetchAgain}
@@ -42,7 +43,10 @@ const ProjectMembersPage = () => {
         </div>
       </section>
       {slug && (
-        <OrganizationMembers
+        <DisplayMembers
+          fetchUrl="/org/all-members"
+          removeUrl="/project/remove-member"
+          leaveUrl="/project/leave"
           setFetchAgain={setFetchAgain}
           fetchAgain={fetchAgain}
           projectId={project.id}

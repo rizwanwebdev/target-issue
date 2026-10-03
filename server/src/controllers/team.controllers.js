@@ -523,3 +523,63 @@ export async function leaveTeam(req, res) {
     });
   }
 }
+
+export async function getTeamMembers(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { teamId, organizationId } = req.query;
+    console.log(teamId, organizationId, "------");
+    if (!teamId || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "organization id is required",
+      });
+    }
+    const { isMember } = await checkTeamMembership(
+      USERID,
+      organizationId,
+      teamId,
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You do not have access to this team",
+      });
+    }
+    const result = await pool.query(
+      `
+          SELECT
+            u.full_name,
+            u.avatar_url,
+            u.username,
+            tm.user_id,
+            tm.role,
+            tm.joined_at
+          FROM team_members tm
+          JOIN users u
+            ON u.id = tm.user_id
+          WHERE tm.team_id = $1
+        `,
+      [teamId],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Members not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Members in this team",
+      members: result.rows,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
