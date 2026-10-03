@@ -36,7 +36,6 @@ const ProjectTeamsPage = () => {
         organizationId={organization.id}
         projectId={project.id}
         fetchAgain={fetchAgain}
-        setFetchAgain={setFetchAgain}
       />
     </>
   );

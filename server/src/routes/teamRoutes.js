@@ -8,4 +8,5 @@ router.post("/team", authorize, teamRoutes.getSingleTeam);
 router.post("/assign-teams", authorize, teamRoutes.assignTeams);
 router.delete("/delete", authorize, teamRoutes.deleteTeam);
 router.delete("/remove-member", authorize, teamRoutes.removeTeamMember);
+router.delete("/leave", authorize, teamRoutes.leaveTeam);
 export default router;

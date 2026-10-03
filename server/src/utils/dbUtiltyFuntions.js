@@ -120,7 +120,7 @@ export async function checkTeamMembership(userId, organizationId, teamId) {
     `
       SELECT tm.role
       FROM team_members tm INNER JOIN team t ON t.id = tm.team_id
-      WHERE t.id=$1 AMD t.organization_id = $2
+      WHERE t.id=$1 AND t.organization_id = $2
         AND tm.user_id = $3
     `,
     [teamId, organizationId, userId],

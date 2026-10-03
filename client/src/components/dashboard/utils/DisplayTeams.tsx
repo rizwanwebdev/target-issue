@@ -9,38 +9,26 @@ type Props = {
   organizationId: number;
   projectId?: number;
   fetchAgain: boolean;
-  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const DisplayTeams = ({
-  setFetchAgain,
-  organizationId,
-  projectId,
-  fetchAgain,
-}: Props) => {
+const DisplayTeams = ({ organizationId, projectId, fetchAgain }: Props) => {
   const { slug } = useParams<{ slug: string; projectId: string }>();
   const { addToast } = useToast();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
-
   const [teams, setTeams] = useState<Team[]>([]);
 
   useEffect(() => {
-    console.log("render");
     if (!organizationId) {
       return;
     }
-    const apiBody = projectId
-      ? {
-          projectId: projectId,
-          organizationId: organizationId,
-        }
-      : {
-          organizationId: organizationId,
-        };
+
     async function getAll() {
       const result = await apiRequest({
         method: "POST",
         endpoint: "/team/get-teams",
-        body: apiBody,
+        body: {
+          projectId: projectId,
+          organizationId: organizationId,
+        },
       });
 
       if (result.error) {
@@ -53,7 +41,6 @@ const DisplayTeams = ({
 
     getAll();
   }, [organizationId, projectId, fetchAgain]);
-
   const handleDelete = async (deleteId: number) => {
     if (!deleteId) return;
     try {
@@ -79,7 +66,7 @@ const DisplayTeams = ({
         return;
       }
       addToast(result.message, "success");
-      setFetchAgain((prev) => !prev);
+      setTeams((prev) => prev.filter((team) => team.team_id !== deleteId));
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",
@@ -88,37 +75,28 @@ const DisplayTeams = ({
     }
   };
   const handleLeave = async (deleteId: number) => {
-    if (!deleteId) return;
-    // try {
-    //   const endpoint = projectId ? "/project/remove-team" : "/team/delete";
-    //   const apiBody = projectId
-    //     ? {
-    //         organizationId: organizationId,
-    //         projectId: projectId,
-    //         teamId: deleteId,
-    //       }
-    //     : {
-    //         organizationId: organizationId,
-    //         teamId: deleteId,
-    //       };
-    //   if (!organizationId) return;
-    //   const result = await apiRequest({
-    //     method: "DELETE",
-    //     endpoint: endpoint,
-    //     body: apiBody,
-    //   });
-    //   if (result.error) {
-    //     addToast(result.message, "error");
-    //     return;
-    //   }
-    //   addToast(result.message, "success");
-    //   setFetchAgain((prev) => !prev);
-    // } catch (error) {
-    //   addToast(
-    //     error instanceof Error ? error.message : "Failed to load comments",
-    //     "error",
-    //   );
-    // }
+    try {
+      if (!organizationId || !deleteId) return;
+      const result = await apiRequest({
+        method: "DELETE",
+        endpoint: "/team/leave",
+        body: {
+          organizationId: organizationId,
+          teamId: deleteId,
+        },
+      });
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+      setTeams((prev) => prev.filter((team) => team.team_id !== deleteId));
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
   };
 
   return teams.length === 0 ? (
@@ -187,25 +165,30 @@ const DisplayTeams = ({
                   prev === team.team_id ? null : team.team_id,
                 )
               }
+              role={team.role}
               actions={[
                 {
-                  label: "Leave Team",
+                  label: "Leave",
+                  roles: ["member", "admin"],
+                  visible: !!team.role,
                   variant: "danger",
                   onClick: () => handleLeave(team.team_id),
                   confirm: {
                     title: "Leave Team",
-                    message: "Are you sure you want to leave this team?",
+                    message: "Are you sure you want to leave?",
                     confirmText: "Yes, Leave",
                   },
                 },
                 {
-                  label: "Delete",
+                  label: "Remove",
+                  roles: ["admin"],
+                  visible: team.role === "admin",
                   variant: "danger",
                   onClick: () => handleDelete(team.team_id),
                   confirm: {
-                    title: "Delete Member",
+                    title: "Remove Member",
                     message:
-                      "Are you sure you want to remove this member from the team?",
+                      "Are you sure you want to remove this team? This action cannot be undone.",
                     confirmText: "Yes, Remove",
                   },
                 },

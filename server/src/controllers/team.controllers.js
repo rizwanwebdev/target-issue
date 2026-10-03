@@ -360,7 +360,7 @@ export async function assignTeams(req, res) {
 export async function deleteTeam(req, res) {
   try {
     const { USERID } = req.user;
-    const { teamId, organizationId } = req.body;
+    const { teamId, organizationId } = req.query;
 
     if (!teamId || !organizationId) {
       return res.status(400).json({
@@ -411,7 +411,7 @@ export async function deleteTeam(req, res) {
 export async function removeTeamMember(req, res) {
   try {
     const { USERID } = req.user;
-    const { memberId, teamId, organizationId } = req.body;
+    const { memberId, teamId, organizationId } = req.query;
 
     if (!teamId || !memberId || !organizationId) {
       return res.status(400).json({
@@ -458,6 +458,62 @@ export async function removeTeamMember(req, res) {
     return res.status(200).json({
       success: true,
       message: "Member Removed From This Team",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
+export async function leaveTeam(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { teamId, organizationId } = req.query;
+
+    if (!teamId || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "organization id is required",
+      });
+    }
+    const { isMember } = await checkTeamMembership(
+      USERID,
+      organizationId,
+      teamId,
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You do not have access to this team",
+      });
+    }
+    const result = await pool.query(
+      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2  RETURNING id",
+      [teamId, USERID],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Member not found",
+      });
+    }
+    const userInfo = await pool.query(
+      "SELECT username FROM users where id =$1",
+      [USERID],
+    );
+    await saveActivity({
+      organizationId: organizationId,
+      teamId: result.rows[0].project_id,
+      actorId: USERID,
+      message: `User ${userInfo.rows[0].username} Left the Team`,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "You are no longer a member of this Team",
     });
   } catch (error) {
     console.log(error);

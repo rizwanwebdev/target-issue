@@ -443,7 +443,7 @@ export async function assignIssuesToTeam(req, res) {
 export async function deleteIssue(req, res) {
   try {
     const { USERID } = req.user;
-    const { issueId, projectId, organizationId } = req.body;
+    const { issueId, projectId, organizationId } = req.query;
 
     if (!issueId || !projectId || !organizationId) {
       return res.status(400).json({

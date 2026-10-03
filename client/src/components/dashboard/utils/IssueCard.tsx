@@ -135,13 +135,14 @@ const IssueCard = ({
             actions={[
               {
                 label: "Delete",
+                roles: ["member"],
                 variant: "danger",
                 onClick: () => handleDelete(issue.id),
                 confirm: {
-                  title: "Delete Member",
+                  title: "Delete Issue",
                   message:
-                    "Are you sure you want to remove this member from the team?",
-                  confirmText: "Yes, Remove",
+                    "Are you sure you want to delete this issue? This action cannot be undone.",
+                  confirmText: "Yes, Delete",
                 },
               },
             ]}

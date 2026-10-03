@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/useToast";
 import type { Member } from "@/types/Member";
 import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
+import useAuth from "@/hooks/useAuth";
 
 type Props = {
   slug: string;
@@ -22,12 +23,12 @@ const OrganizationMembers = ({
   fetchAgain,
   projectId,
   projectSlug,
-  setFetchAgain,
 }: Props) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(1);
   const { addToast } = useToast();
+  const { user } = useAuth();
   useEffect(() => {
     async function getAll() {
       const result = await apiRequest({
@@ -70,7 +71,9 @@ const OrganizationMembers = ({
         return;
       }
       addToast(result.message, "success");
-      setFetchAgain((prev) => !prev);
+      setMembers((prev) =>
+        prev.filter((member) => member.user_id !== deleteId),
+      );
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",
@@ -78,6 +81,34 @@ const OrganizationMembers = ({
       );
     }
   };
+  const handleLeave = async (deleteId: number) => {
+    try {
+      if (!deleteId) return;
+      const result = await apiRequest({
+        method: "DELETE",
+        endpoint: "/org/leave",
+        body: {
+          organizationId: deleteId,
+        },
+      });
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+      setMembers((prev) =>
+        prev.filter((member) => member.user_id !== deleteId),
+      );
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
+  };
+
+  const currentMember = members.find((member) => member.user_id === user?.id);
+  const currentUserRole = currentMember?.role;
   return members.length === 0 ? (
     <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
       <p className="font-medium text-text">Members Not Found</p>
@@ -135,6 +166,7 @@ const OrganizationMembers = ({
                 {member.role}
               </span>
             </div>
+
             <ActionMenu
               isOpen={activeMenuId === member.user_id}
               onToggle={() =>
@@ -142,15 +174,30 @@ const OrganizationMembers = ({
                   prev === member.user_id ? null : member.user_id,
                 )
               }
+              role={currentUserRole}
               actions={[
                 {
-                  label: "Delete",
+                  label: "Leave",
+                  roles: ["member", "admin"],
+                  visible: member.user_id === user?.id,
+                  variant: "danger",
+                  onClick: () => handleLeave(member.user_id),
+                  confirm: {
+                    title: "Leave Team",
+                    message: "Are you sure you want to leave?",
+                    confirmText: "Yes, Leave",
+                  },
+                },
+                {
+                  label: "Remove",
+                  roles: ["admin"],
+                  visible: member.user_id !== user?.id,
                   variant: "danger",
                   onClick: () => handleDelete(member.user_id),
                   confirm: {
-                    title: "Delete Member",
+                    title: "Remove Member",
                     message:
-                      "Are you sure you want to remove this member from the team?",
+                      "Are you sure you want to remove this member? This action cannot be undone.",
                     confirmText: "Yes, Remove",
                   },
                 },

@@ -11,6 +11,7 @@ const DashOrganization = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const { addToast } = useToast();
   const [orgs, setOrgs] = useState<Organization[]>([]);
+  console.log(orgs);
   useEffect(() => {
     async function getAll() {
       const result = await apiRequest({
@@ -45,7 +46,7 @@ const DashOrganization = () => {
         return;
       }
       addToast(result.message, "success");
-      setFetchAgain((prev) => !prev);
+      setOrgs((prev) => prev.filter((org) => org.id !== deleteId));
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",
@@ -53,6 +54,31 @@ const DashOrganization = () => {
       );
     }
   };
+
+  const handleLeave = async (deleteId: number) => {
+    try {
+      if (!deleteId) return;
+      const result = await apiRequest({
+        method: "DELETE",
+        endpoint: "/org/leave",
+        body: {
+          organizationId: deleteId,
+        },
+      });
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+      setOrgs((prev) => prev.filter((org) => org.id !== deleteId));
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
+  };
+
   return (
     <>
       <title>Organizations | Create & Manage</title>
@@ -133,16 +159,29 @@ const DashOrganization = () => {
                   onToggle={() =>
                     setActiveMenuId((prev) => (prev === org.id ? null : org.id))
                   }
+                  role={org.role ?? ""}
                   actions={[
                     {
+                      label: "Leave",
+                      roles: ["member", "admin"],
+                      variant: "danger",
+                      onClick: () => handleLeave(org.id),
+                      confirm: {
+                        title: "Leave Team",
+                        message: "Are you sure you want to leave this team?",
+                        confirmText: "Yes, Leave",
+                      },
+                    },
+                    {
                       label: "Delete",
+                      roles: ["admin"],
                       variant: "danger",
                       onClick: () => handleDelete(org.id),
                       confirm: {
-                        title: "Delete Member",
+                        title: "Delete Organization",
                         message:
-                          "Are you sure you want to remove this member from the team?",
-                        confirmText: "Yes, Remove",
+                          "Are you sure you want to delete this organization? This action cannot be undone.",
+                        confirmText: "Yes, Delete",
                       },
                     },
                   ]}

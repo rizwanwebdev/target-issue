@@ -258,7 +258,7 @@ export async function getSingleProject(req, res) {
 export async function deleteProject(req, res) {
   try {
     const { USERID } = req.user;
-    const { projectId, organizationId } = req.body;
+    const { projectId, organizationId } = req.query;
 
     if (!projectId || !organizationId) {
       return res.status(400).json({
@@ -266,11 +266,12 @@ export async function deleteProject(req, res) {
         message: "project id and organizationId is required",
       });
     }
-    const { isAdmin } = checkProjectMembership(
+    const { isAdmin, role } = await checkProjectMembership(
       USERID,
       organizationId,
       projectId,
     );
+    console.log(role);
     if (!isAdmin) {
       return res.status(403).json({
         error: true,
@@ -297,7 +298,7 @@ export async function deleteProject(req, res) {
 export async function removeProjectMember(req, res) {
   try {
     const { USERID } = req.user;
-    const { memberId, projectId, organizationId } = req.body;
+    const { memberId, projectId, organizationId } = req.query;
 
     if (!memberId || !projectId || !organizationId) {
       return res.status(400).json({
@@ -323,8 +324,8 @@ export async function removeProjectMember(req, res) {
       });
     }
     const result = await pool.query(
-      "DELETE FROM project_members WHERE project_id=$1 AND user_id = $2 AND organization_id=$3 RETURNING id",
-      [projectId, memberId, organizationId],
+      "DELETE FROM project_members WHERE project_id=$1 AND user_id = $2  RETURNING id",
+      [projectId, memberId],
     );
     if (result.rowCount === 0) {
       return res.status(404).json({
@@ -347,7 +348,7 @@ export async function removeProjectMember(req, res) {
 export async function removeProjectTeam(req, res) {
   try {
     const { USERID } = req.user;
-    const { teamId, projectId, organizationId } = req.body;
+    const { teamId, projectId, organizationId } = req.query;
 
     if (!teamId || !projectId || !organizationId) {
       return res.status(400).json({
@@ -484,6 +485,63 @@ export async function assignProjectMembers(req, res) {
     return res.status(500).json({
       error: true,
       message: "Something went wrong while assigning teams",
+    });
+  }
+}
+
+export async function leaveProject(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { projectId, organizationId } = req.query;
+
+    if (!projectId || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "organization id is required",
+      });
+    }
+    const { isMember } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You do not have access to this project",
+      });
+    }
+    const result = await pool.query(
+      "DELETE FROM project_members WHERE project_id=$1 AND user_id = $2 RETURNING id",
+      [projectId, USERID],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Member not found",
+      });
+    }
+    const userInfo = await pool.query(
+      "SELECT username FROM users where id =$1",
+      [USERID],
+    );
+    await saveActivity({
+      organizationId,
+      projectId: result.rows[0].project_id,
+      actorId: USERID,
+      message: `User ${userInfo.rows[0].username} Left the project`,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "You are no longer a member of this project",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
     });
   }
 }

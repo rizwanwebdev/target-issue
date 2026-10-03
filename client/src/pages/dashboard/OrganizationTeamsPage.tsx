@@ -40,7 +40,6 @@ const OrganizationTeamsPage = () => {
         <DisplayTeams
           organizationId={organization.id}
           fetchAgain={fetchAgain}
-          setFetchAgain={setFetchAgain}
         />
       )}
     </>

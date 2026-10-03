@@ -1,23 +1,26 @@
 import { useState } from "react";
+export type UserRole = "admin" | "member" | "viewer";
 
 export type ActionItem = {
   label: string;
   onClick: () => void;
   variant?: "danger" | "default";
+  roles?: UserRole[];
+  visible?: boolean;
   confirm?: {
     title: string;
     message: string;
     confirmText?: string;
   };
 };
-
 type Props = {
   isOpen: boolean;
   onToggle: () => void;
   actions: ActionItem[];
+  role?: UserRole;
 };
 
-const ActionMenu = ({ isOpen, onToggle, actions }: Props) => {
+const ActionMenu = ({ isOpen, onToggle, actions, role }: Props) => {
   const [selectedAction, setSelectedAction] = useState<ActionItem | null>(null);
 
   const handleActionClick = (action: ActionItem) => {
@@ -41,53 +44,60 @@ const ActionMenu = ({ isOpen, onToggle, actions }: Props) => {
   const handleCancel = () => {
     setSelectedAction(null);
   };
-
+  const visibleActions = actions.filter(
+    (action) =>
+      action.visible !== false &&
+      (!action.roles || (role && action.roles.includes(role))),
+  );
   return (
     <>
-      <div className="relative shrink-0">
-        <button
-          type="button"
-          onClick={onToggle}
-          className={`${
-            isOpen ? "bg-gray-300" : ""
-          } rounded px-0.5 py-1 transition-all duration-200`}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      {visibleActions.length > 0 && (
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label="Open actions"
+            className={`rounded px-0.5 py-1 transition-all duration-200 ${
+              isOpen ? "bg-gray-300" : ""
+            }`}
           >
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="12" cy="5" r="1" />
-            <circle cx="12" cy="19" r="1" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="12" cy="5" r="1" />
+              <circle cx="12" cy="19" r="1" />
+            </svg>
+          </button>
 
-        {isOpen && (
-          <div className="absolute right-8 top-0 z-20 flex w-fit flex-col gap-1 rounded-xl border border-border bg-white p-2 shadow">
-            {actions.map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                onClick={() => handleActionClick(action)}
-                className={
-                  action.variant === "danger"
-                    ? "rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-                    : "rounded px-3 py-2 text-left text-sm text-text hover:bg-gray-100"
-                }
-              >
-                {action.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+          {isOpen && (
+            <div className="absolute right-8 top-0 z-20 flex w-fit flex-col rounded border-x border-t border-gray-400 bg-white">
+              {visibleActions.map((action) => (
+                <button
+                  key={action.label}
+                  type="button"
+                  onClick={() => handleActionClick(action)}
+                  className={`w-full border-b border-b-gray-400 px-6 py-2 text-center text-sm transition-all duration-200 ${
+                    action.variant === "danger"
+                      ? "hover:bg-red-400 hover:text-white"
+                      : "text-text hover:bg-gray-200"
+                  }`}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {selectedAction?.confirm && (
         <ConfirmationModal

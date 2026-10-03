@@ -154,7 +154,7 @@ const AssignMembersModal = ({
             }
           }}
         >
-          <div className="w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-xl">
+          <div className="w-full max-w-xl overflow-y-auto h-full scrollbar-none rounded-xl bg-white shadow-xl">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <h2 className="text-xl font-semibold text-text">
@@ -179,7 +179,7 @@ const AssignMembersModal = ({
                 return (
                   <div
                     key={member.user_id}
-                    className={`flex w-full flex-row gap-4 rounded-lg border p-3 transition-colors ${
+                    className={`flex w-full  flex-row gap-4 rounded-lg border p-3 transition-colors ${
                       isSelected
                         ? "border-primary bg-primary/10"
                         : "border-gray-200 bg-white hover:bg-gray-50"

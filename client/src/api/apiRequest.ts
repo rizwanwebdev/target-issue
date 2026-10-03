@@ -13,7 +13,7 @@ async function apiRequest({ endpoint, method, body }: ApiRequest) {
     let url = `/api/v1${endpoint}`;
 
     // GET → query parameters
-    if (method === "GET" && body) {
+    if ((method === "GET" || method === "DELETE") && body) {
       const params = new URLSearchParams();
 
       Object.entries(body).forEach(([key, value]) => {
@@ -37,22 +37,10 @@ async function apiRequest({ endpoint, method, body }: ApiRequest) {
       },
     };
 
-    // Only send body for non-GET requests
-    if (method !== "GET" && body) {
+    if (method !== "GET" && method !== "DELETE" && body) {
       options.body = JSON.stringify(body);
     }
-
     const res = await apiFetch(url, options);
-    // if (!res.ok) {
-    //   console.log(
-    //     res.status + " End Point: " + endpoint + " " + res.statusText,
-    //   );
-    //   return {
-    //     error: true,
-    //     message: res.status + " End Point: " + endpoint + " " + res.statusText,
-    //   };
-    // }
-
     return await res.json();
   } catch (error) {
     return {

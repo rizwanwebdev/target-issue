@@ -40,6 +40,7 @@ const OrganizationProjectsPage = () => {
 
       {slug && (
         <OrganizationProjects
+          setFetchAgain={setFetchAgain}
           fetchAgain={fetchAgain}
           slug={slug}
           organizationId={organization.id}

@@ -10,9 +10,15 @@ type Props = {
   organizationId: number;
   slug: string;
   fetchAgain: boolean;
+  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
+const OrganizationProjects = ({
+  organizationId,
+  slug,
+  fetchAgain,
+  setFetchAgain,
+}: Props) => {
   const [projects, setProjects] = useState<Project[]>([]);
 
   const { addToast } = useToast();
@@ -27,7 +33,7 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
         },
       });
       if (result.error) {
-        addToast(result.message, "error");
+        setProjects([]);
         return;
       }
 
@@ -52,6 +58,8 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
         return;
       }
       addToast(result.message, "success");
+      setProjects((prev) => prev.filter((project) => project.id !== deleteId));
+      setFetchAgain((prev) => !prev);
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",
@@ -59,7 +67,30 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
       );
     }
   };
-
+  const handleLeave = async (deleteId: number) => {
+    try {
+      if (!organizationId || !deleteId) return;
+      const result = await apiRequest({
+        method: "DELETE",
+        endpoint: "/project/leave",
+        body: {
+          organizationId: organizationId,
+          projectId: deleteId,
+        },
+      });
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+      setProjects((prev) => prev.filter((project) => project.id !== deleteId));
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
+  };
   return projects.length === 0 ? (
     <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
       <p className="font-medium text-text">Projects Not Found</p>
@@ -141,16 +172,29 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
                   prev === project.id ? null : project.id,
                 )
               }
+              role={project.role ?? ""}
               actions={[
                 {
+                  label: "Leave",
+                  roles: ["member", "admin"],
+                  variant: "danger",
+                  onClick: () => handleLeave(project.id),
+                  confirm: {
+                    title: "Leave Project",
+                    message: "Are you sure you want to leave this project?",
+                    confirmText: "Yes, Leave",
+                  },
+                },
+                {
                   label: "Delete",
+                  roles: ["admin"],
                   variant: "danger",
                   onClick: () => handleDelete(project.id),
                   confirm: {
-                    title: "Delete Member",
+                    title: "Delete Project",
                     message:
-                      "Are you sure you want to remove this member from the team?",
-                    confirmText: "Yes, Remove",
+                      "Are you sure you want to delete this project? This action cannot be undone.",
+                    confirmText: "Yes, Delete",
                   },
                 },
               ]}
