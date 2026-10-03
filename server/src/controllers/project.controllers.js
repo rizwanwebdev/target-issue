@@ -200,8 +200,8 @@ export async function getProjects(req, res) {
 export async function getSingleProject(req, res) {
   try {
     const { USERID } = req.user;
-    const { projectId, organizationId } = req.body;
-    if (!projectId || !organizationId) {
+    const { projectSlug, organizationId } = req.body;
+    if (!projectSlug || !organizationId) {
       return res.status(400).json({
         error: true,
         message: "Project Not Found",
@@ -231,7 +231,7 @@ export async function getSingleProject(req, res) {
     FROM project_members pm 
     INNER JOIN project p ON p.id = pm.project_id
     WHERE p.organization_id=$1 AND p.slug=$2 AND pm.user_id =$3`,
-      [organizationId, projectId, USERID],
+      [organizationId, projectSlug, USERID],
     );
 
     if (result.rows.length === 0) {

@@ -33,7 +33,7 @@ const AssignTeamsModal = ({
           endpoint: "/team/get-teams",
           body: {
             organizationId: organizationId,
-            projectId: undefined,
+            projectId: projectId,
           },
         });
 

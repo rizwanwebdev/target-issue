@@ -9,9 +9,9 @@ import apiRequest from "@/api/apiRequest";
 
 const ProjectLayout = () => {
   const [loading, setLoading] = useState(true);
-  const { slug, projectId } = useParams<{
+  const { slug, projectSlug } = useParams<{
     slug: string;
-    projectId: string;
+    projectSlug: string;
   }>();
   const { addToast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
@@ -19,7 +19,7 @@ const ProjectLayout = () => {
 
   useEffect(() => {
     const getResults = async () => {
-      if (!slug || !projectId) {
+      if (!slug || !projectSlug) {
         return;
       }
       setLoading(true);
@@ -29,7 +29,7 @@ const ProjectLayout = () => {
         endpoint: "/project/project",
         body: {
           organizationId: organization.id,
-          projectId: projectId,
+          projectSlug: projectSlug,
         },
       });
       if (result.error) {
@@ -39,7 +39,7 @@ const ProjectLayout = () => {
       setLoading(false);
     };
     getResults();
-  }, [slug, projectId, addToast, organization]);
+  }, [slug, projectSlug, addToast, organization]);
 
   if (!project) {
     return null;

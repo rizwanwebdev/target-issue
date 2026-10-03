@@ -4,7 +4,7 @@ import useAuth from "@/hooks/useAuth";
 
 type Props = {
   slug: string | undefined;
-  projectId: string | undefined;
+  projectSlug: string | undefined;
 };
 
 type AsideLink = {
@@ -26,7 +26,7 @@ const AsideNavLink = ({ linkName, to }: AsideLink) => {
   );
 };
 
-export const Aside = ({ slug, projectId }: Props) => {
+export const Aside = ({ slug, projectSlug }: Props) => {
   const { logout } = useAuth();
   const { addToast } = useToast();
 
@@ -69,19 +69,19 @@ export const Aside = ({ slug, projectId }: Props) => {
   const projectLinks = [
     {
       linkName: "Overview",
-      to: `/dashboard/organizations/${slug}/projects/${projectId}`,
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}`,
     },
     {
       linkName: "Teams",
-      to: `/dashboard/organizations/${slug}/projects/${projectId}/teams`,
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}/teams`,
     },
     {
       linkName: "Members",
-      to: `/dashboard/organizations/${slug}/projects/${projectId}/members`,
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}/members`,
     },
     {
       linkName: "Issues",
-      to: `/dashboard/organizations/${slug}/projects/${projectId}/issues`,
+      to: `/dashboard/organizations/${slug}/projects/${projectSlug}/issues`,
     },
     {
       linkName: "Projects",
@@ -143,14 +143,14 @@ export const Aside = ({ slug, projectId }: Props) => {
               ))}
             </div>
           )}
-          {!projectId && slug && (
+          {!projectSlug && slug && (
             <div>
               {organizationLinks.map((link) => (
                 <AsideNavLink key={link.linkName} {...link} />
               ))}
             </div>
           )}
-          {slug && projectId && (
+          {slug && projectSlug && (
             <div>
               {projectLinks.map((link) => (
                 <AsideNavLink key={link.linkName} {...link} />

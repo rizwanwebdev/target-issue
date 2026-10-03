@@ -1,8 +1,12 @@
 import type { TeamOutletContext } from "@/types/OutletContexts";
+import { useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 
 const ProjectTeamIndex = () => {
   const { team } = useOutletContext<TeamOutletContext>();
+  useEffect(() => {
+    document.title = team.name ? team.name + " | Team" : "Team";
+  }, [team.name]);
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
       {/* Header */}

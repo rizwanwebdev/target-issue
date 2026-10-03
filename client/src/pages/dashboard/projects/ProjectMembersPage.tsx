@@ -7,7 +7,10 @@ import type { ProjectOutletContext } from "@/types/OutletContexts";
 import AssignMembersModal from "@/components/modals/AssignMembersModal";
 
 const ProjectMembersPage = () => {
-  const { slug, projectId } = useParams<{ slug: string; projectId: string }>();
+  const { slug, projectSlug } = useParams<{
+    slug: string;
+    projectSlug: string;
+  }>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
 
   const { organization, project } = useOutletContext<ProjectOutletContext>();
@@ -45,7 +48,7 @@ const ProjectMembersPage = () => {
           projectId={project.id}
           slug={slug}
           organizationId={organization.id}
-          projectSlug={projectId}
+          projectSlug={projectSlug}
         />
       )}
       {/* projects */}

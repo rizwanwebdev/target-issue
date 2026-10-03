@@ -17,7 +17,7 @@ const DisplayTeams = ({
   fetchAgain,
   projectSlug,
 }: Props) => {
-  const { slug } = useParams<{ slug: string; projectId: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { addToast } = useToast();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);

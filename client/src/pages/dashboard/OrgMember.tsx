@@ -7,10 +7,10 @@ import type { OrganizationOutletContext } from "@/types/OutletContexts";
 import apiRequest from "@/api/apiRequest";
 
 const OrgMember = () => {
-  const { slug, memberId, projectId } = useParams<{
+  const { slug, username, projectSlug } = useParams<{
     slug: string;
-    projectId: string;
-    memberId: string;
+    projectSlug: string;
+    username: string;
   }>();
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -19,7 +19,7 @@ const OrgMember = () => {
 
   useEffect(() => {
     const getResults = async () => {
-      if (!slug || !memberId) {
+      if (!slug || !username) {
         return;
       }
       const result = await apiRequest({
@@ -27,13 +27,13 @@ const OrgMember = () => {
         endpoint: "/org/member",
         body: {
           organizationId: organization.id,
-          memberId: memberId,
+          username: username,
         },
       });
       if (result.error) {
-        if (projectId) {
+        if (projectSlug) {
           navigate(
-            `/dashboard/organizations/${slug}/projects/${projectId}/members`,
+            `/dashboard/organizations/${slug}/projects/${projectSlug}/members`,
           );
         } else {
           navigate(`/dashboard/organizations/${slug}/members`);
@@ -46,14 +46,14 @@ const OrgMember = () => {
       setResult(result.member);
     };
     getResults();
-  }, [slug, memberId]);
+  }, [slug, username]);
   useEffect(() => {
     if (!result) return;
 
-    document.title = projectId
+    document.title = projectSlug
       ? `${result.full_name} | Project Member`
       : `${result.full_name} | ${organization.name}`;
-  }, [result, organization.name, projectId]);
+  }, [result, organization.name, projectSlug]);
   return (
     <main className="mx-auto w-full max-w-6xl py-6 sm:px-6">
       {/* Header */}
@@ -89,7 +89,7 @@ const OrgMember = () => {
             <p className="mt-1 text-sm text-gray-500">@{result?.username}</p>
 
             <p className="mt-3 text-sm text-gray-500">
-              {projectId
+              {projectSlug
                 ? "Member of this project"
                 : "Member of this organization"}
             </p>
