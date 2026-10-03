@@ -190,8 +190,8 @@ export async function getTeams(req, res) {
 export async function getSingleTeam(req, res) {
   try {
     const { USERID } = req.user;
-    const { teamId, organizationId } = req.body;
-    if (!teamId || !organizationId) {
+    const { teamSlug, organizationId } = req.body;
+    if (!teamSlug || !organizationId) {
       return res.status(400).json({
         error: true,
         message: "Team Not Found",
@@ -227,7 +227,7 @@ export async function getSingleTeam(req, res) {
 
     GROUP BY t.id, current_tm.role
   `,
-      [teamId, organizationId, USERID],
+      [teamSlug, organizationId, USERID],
     );
 
     if (result.rows.length === 0) {

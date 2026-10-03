@@ -8,9 +8,15 @@ import { useToast } from "@/hooks/useToast";
 type Props = {
   organizationId: number;
   projectId?: number;
+  projectSlug?: string;
   fetchAgain: boolean;
 };
-const DisplayTeams = ({ organizationId, projectId, fetchAgain }: Props) => {
+const DisplayTeams = ({
+  organizationId,
+  projectId,
+  fetchAgain,
+  projectSlug,
+}: Props) => {
   const { slug } = useParams<{ slug: string; projectId: string }>();
   const { addToast } = useToast();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
@@ -133,7 +139,7 @@ const DisplayTeams = ({ organizationId, projectId, fetchAgain }: Props) => {
                 {/* Name + description */}
                 <div className="min-w-0">
                   <Link
-                    to={`/dashboard/organizations/${slug}/teams/${team.slug}`}
+                    to={`/dashboard/organizations/${slug}/${projectSlug ? `projects/${projectSlug}/teams/${team.slug}` : `teams/${team.slug}`}`}
                     className="block truncate text-base font-semibold text-text transition-colors hover:text-hover"
                   >
                     {team.name}

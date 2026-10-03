@@ -1,7 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import type { OrganizationOutletContext } from "@/types/OutletContexts";
 import DisplayRecentActivities from "@/components/dashboard/utils/DisplayRecentActivities";
 import apiRequest from "@/api/apiRequest";
 type Stat = {

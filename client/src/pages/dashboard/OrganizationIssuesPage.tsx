@@ -1,6 +1,6 @@
 import { useOutletContext, useParams } from "react-router-dom";
 
-import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import type { OrganizationOutletContext } from "@/types/OutletContexts";
 import OrganizationIssues from "@/components/dashboard/utils/OrganizationIssues";
 
 const OrganizationIssuesPage = () => {

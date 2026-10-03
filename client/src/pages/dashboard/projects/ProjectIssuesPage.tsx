@@ -1,6 +1,6 @@
 import { useOutletContext, useParams } from "react-router-dom";
 
-import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import type { ProjectOutletContext } from "@/types/OutletContexts";
 import OrganizationIssues from "@/components/dashboard/utils/OrganizationIssues";
 import CreateIssueModal from "@/components/modals/CreateIssueModal";
 import { useState } from "react";

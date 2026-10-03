@@ -4,7 +4,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import InviteMembersModal from "@/components/modals/InviteMembersModal";
 import { useState } from "react";
 
-import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import type { OrganizationOutletContext } from "@/types/OutletContexts";
 
 const OrganizationMemebersPage = () => {
   const { slug } = useParams<{ slug: string }>();

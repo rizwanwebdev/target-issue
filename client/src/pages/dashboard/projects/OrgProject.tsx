@@ -1,7 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import CreateIssueModal from "@/components/modals/CreateIssueModal";
 
-import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import type { ProjectOutletContext } from "@/types/OutletContexts";
 import DisplayRecentActivities from "@/components/dashboard/utils/DisplayRecentActivities";
 import { useEffect, useState } from "react";
 import apiRequest from "@/api/apiRequest";

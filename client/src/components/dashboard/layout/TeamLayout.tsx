@@ -3,15 +3,15 @@ import { useEffect, useState } from "react";
 
 import { useToast } from "@/hooks/useToast";
 
-import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import type { ProjectOutletContext } from "@/types/OutletContexts";
 import apiRequest from "@/api/apiRequest";
 import type { Team } from "@/types/Team";
 
 const TeamLayout = () => {
   const [loading, setLoading] = useState(true);
-  const { slug, teamId } = useParams<{
+  const { slug, teamSlug } = useParams<{
     slug: string;
-    teamId: string;
+    teamSlug: string;
   }>();
   const { addToast } = useToast();
   const [team, setTeam] = useState<Team | null>(null);
@@ -19,7 +19,7 @@ const TeamLayout = () => {
 
   useEffect(() => {
     const getResults = async () => {
-      if (!slug || !teamId) {
+      if (!slug || !teamSlug) {
         return;
       }
       setLoading(true);
@@ -30,7 +30,7 @@ const TeamLayout = () => {
         body: {
           organizationId: organization.id,
           projectId: project.id,
-          teamId: teamId,
+          teamSlug: teamSlug,
         },
       });
       if (result.error) {
@@ -40,7 +40,7 @@ const TeamLayout = () => {
       setLoading(false);
     };
     getResults();
-  }, [slug, project, addToast, organization, teamId]);
+  }, [slug, project, addToast, organization, teamSlug]);
 
   if (!team) {
     return null;

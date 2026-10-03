@@ -5,7 +5,7 @@ import ActionMenu from "@/components/utils/ActionMenu";
 import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/hooks/useToast";
 import { useOutletContext } from "react-router-dom";
-import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import type { ProjectOutletContext } from "@/types/OutletContexts";
 import useAuth from "@/hooks/useAuth";
 type Props = {
   issue: Issue;

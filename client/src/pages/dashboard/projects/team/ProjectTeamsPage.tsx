@@ -2,7 +2,7 @@ import { useOutletContext } from "react-router-dom";
 import DisplayTeams from "@/components/dashboard/utils/DisplayTeams";
 import { useState } from "react";
 
-import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import type { ProjectOutletContext } from "@/types/OutletContexts";
 import AssignTeamsModal from "@/components/modals/AssignTeamsModal";
 
 const ProjectTeamsPage = () => {
@@ -35,6 +35,7 @@ const ProjectTeamsPage = () => {
       <DisplayTeams
         organizationId={organization.id}
         projectId={project.id}
+        projectSlug={project.slug}
         fetchAgain={fetchAgain}
       />
     </>

@@ -2,7 +2,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import { useState } from "react";
 import CreateTeamModal from "@/components/modals/CreateTeamModal";
 
-import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import type { OrganizationOutletContext } from "@/types/OutletContexts";
 import DisplayTeams from "@/components/dashboard/utils/DisplayTeams";
 
 const OrganizationTeamsPage = () => {

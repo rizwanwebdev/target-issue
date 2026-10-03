@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 import type { Member } from "@/types/Member";
 import { useToast } from "@/hooks/useToast";
-import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import type { OrganizationOutletContext } from "@/types/OutletContexts";
 import apiRequest from "@/api/apiRequest";
 
 const OrgMember = () => {

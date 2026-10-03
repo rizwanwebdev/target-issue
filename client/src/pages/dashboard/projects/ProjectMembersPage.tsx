@@ -3,7 +3,7 @@ import OrganizationMembers from "@/components/dashboard/utils/OrganizationMember
 import { useOutletContext, useParams } from "react-router-dom";
 import { useState } from "react";
 
-import type { ProjectOutletContext } from "@/types/ProjectOutletContext";
+import type { ProjectOutletContext } from "@/types/OutletContexts";
 import AssignMembersModal from "@/components/modals/AssignMembersModal";
 
 const ProjectMembersPage = () => {

@@ -4,7 +4,7 @@ import type { Project } from "@/types/Project";
 
 import { useToast } from "@/hooks/useToast";
 
-import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import type { OrganizationOutletContext } from "@/types/OutletContexts";
 import apiRequest from "@/api/apiRequest";
 
 const ProjectLayout = () => {

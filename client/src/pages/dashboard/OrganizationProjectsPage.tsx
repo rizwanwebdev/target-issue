@@ -4,7 +4,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import CreateProjectModal from "@/components/modals/CreateProjectModal";
 import { useState } from "react";
 
-import type { OrganizationOutletContext } from "@/types/OrganizationOutletContext";
+import type { OrganizationOutletContext } from "@/types/OutletContexts";
 
 const OrganizationProjectsPage = () => {
   const { slug } = useParams<{ slug: string }>();
