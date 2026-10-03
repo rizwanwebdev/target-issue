@@ -311,7 +311,7 @@ export async function verifyOtp(req, res) {
 
     await pool.query(
       `WITH verified_user AS (
-        UPDATE otp_verification SET verified_at = NOW() WHERE otp_id = $1 RETURNING user_id
+        DELETE FROM otp_verification WHERE otp_id = $1 RETURNING user_id
       )
       UPDATE users SET email_verified = TRUE WHERE id = (SELECT user_id FROM verified_user)`,
       [otpSession.otp_id],
@@ -321,6 +321,7 @@ export async function verifyOtp(req, res) {
       .status(200)
       .json({ success: true, message: "OTP verified, you can now log in" });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ error: true, message: "Internal Server Error" });

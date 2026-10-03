@@ -11,16 +11,19 @@ const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
   const { addToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
+  const [emailInput, setEmailInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const mails = e.target.value;
+    const value = e.target.value;
 
-    setEmails(
-      mails
-        .split(/[,;\n]+/)
-        .map((mail) => mail.trim())
-        .filter(Boolean),
-    );
+    setEmailInput(value);
+
+    const mails = value
+      .split(/[,;\n]+/)
+      .map((mail) => mail.trim())
+      .filter(Boolean);
+
+    setEmails(mails);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,6 +50,7 @@ const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
       setFetchAgain((prev) => !prev);
       addToast(result.message, "success");
       setEmails([]);
+      setEmailInput("");
       setOpenModal(false);
     } catch (error) {
       addToast(
@@ -55,7 +59,8 @@ const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
       );
     }
   };
-
+  const hasInvalidEmail =
+    emails.length === 0 || emails.some((email) => !EMAIL_REGEX.test(email));
   return (
     <>
       <button
@@ -107,11 +112,11 @@ const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
                   name="emails"
                   id="emails"
                   onChange={handleChange}
-                  value={emails}
-                  placeholder="Enter Emails Commas Seperate Or On New Line"
+                  value={emailInput}
+                  placeholder="Enter Emails Commas Separated Or On New Line"
                   rows={6}
                   required
-                ></textarea>
+                />
               </div>
               {emails.length > 0 && (
                 <div className="flex flex-wrap gap-2 border border-border p-3 rounded-xl">
@@ -143,9 +148,12 @@ const InviteMembersModal = ({ organizationId, setFetchAgain }: Props) => {
                 >
                   Cancel
                 </button>
-
-                <button type="submit" className="btn btn-primary">
-                  Create Team
+                <button
+                  disabled={hasInvalidEmail}
+                  type="submit"
+                  className="btn btn-primary disabled:bg-gray-500"
+                >
+                  Invite Members
                 </button>
               </div>
             </form>
