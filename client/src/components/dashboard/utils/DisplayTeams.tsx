@@ -87,6 +87,39 @@ const DisplayTeams = ({
       );
     }
   };
+  const handleLeave = async (deleteId: number) => {
+    if (!deleteId) return;
+    // try {
+    //   const endpoint = projectId ? "/project/remove-team" : "/team/delete";
+    //   const apiBody = projectId
+    //     ? {
+    //         organizationId: organizationId,
+    //         projectId: projectId,
+    //         teamId: deleteId,
+    //       }
+    //     : {
+    //         organizationId: organizationId,
+    //         teamId: deleteId,
+    //       };
+    //   if (!organizationId) return;
+    //   const result = await apiRequest({
+    //     method: "DELETE",
+    //     endpoint: endpoint,
+    //     body: apiBody,
+    //   });
+    //   if (result.error) {
+    //     addToast(result.message, "error");
+    //     return;
+    //   }
+    //   addToast(result.message, "success");
+    //   setFetchAgain((prev) => !prev);
+    // } catch (error) {
+    //   addToast(
+    //     error instanceof Error ? error.message : "Failed to load comments",
+    //     "error",
+    //   );
+    // }
+  };
 
   return teams.length === 0 ? (
     <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
@@ -154,7 +187,29 @@ const DisplayTeams = ({
                   prev === team.team_id ? null : team.team_id,
                 )
               }
-              onDelete={() => handleDelete(team.team_id)}
+              actions={[
+                {
+                  label: "Leave Team",
+                  variant: "danger",
+                  onClick: () => handleLeave(team.team_id),
+                  confirm: {
+                    title: "Leave Team",
+                    message: "Are you sure you want to leave this team?",
+                    confirmText: "Yes, Leave",
+                  },
+                },
+                {
+                  label: "Delete",
+                  variant: "danger",
+                  onClick: () => handleDelete(team.team_id),
+                  confirm: {
+                    title: "Delete Member",
+                    message:
+                      "Are you sure you want to remove this member from the team?",
+                    confirmText: "Yes, Remove",
+                  },
+                },
+              ]}
             />
           </div>
         ))}

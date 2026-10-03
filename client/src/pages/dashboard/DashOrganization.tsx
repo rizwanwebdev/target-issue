@@ -133,7 +133,19 @@ const DashOrganization = () => {
                   onToggle={() =>
                     setActiveMenuId((prev) => (prev === org.id ? null : org.id))
                   }
-                  onDelete={() => handleDelete(org.id)}
+                  actions={[
+                    {
+                      label: "Delete",
+                      variant: "danger",
+                      onClick: () => handleDelete(org.id),
+                      confirm: {
+                        title: "Delete Member",
+                        message:
+                          "Are you sure you want to remove this member from the team?",
+                        confirmText: "Yes, Remove",
+                      },
+                    },
+                  ]}
                 />
               </div>
             ))}

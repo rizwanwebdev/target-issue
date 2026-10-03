@@ -132,7 +132,19 @@ const IssueCard = ({
             onToggle={() =>
               setActiveMenuId((prev) => (prev === issue.id ? null : issue.id))
             }
-            onDelete={() => handleDelete(issue.id)}
+            actions={[
+              {
+                label: "Delete",
+                variant: "danger",
+                onClick: () => handleDelete(issue.id),
+                confirm: {
+                  title: "Delete Member",
+                  message:
+                    "Are you sure you want to remove this member from the team?",
+                  confirmText: "Yes, Remove",
+                },
+              },
+            ]}
           />
         )}
       </div>

@@ -142,7 +142,19 @@ const OrganizationMembers = ({
                   prev === member.user_id ? null : member.user_id,
                 )
               }
-              onDelete={() => handleDelete(member.user_id)}
+              actions={[
+                {
+                  label: "Delete",
+                  variant: "danger",
+                  onClick: () => handleDelete(member.user_id),
+                  confirm: {
+                    title: "Delete Member",
+                    message:
+                      "Are you sure you want to remove this member from the team?",
+                    confirmText: "Yes, Remove",
+                  },
+                },
+              ]}
             />
           </div>
         ))}

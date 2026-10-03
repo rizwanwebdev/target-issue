@@ -141,7 +141,19 @@ const OrganizationProjects = ({ organizationId, slug, fetchAgain }: Props) => {
                   prev === project.id ? null : project.id,
                 )
               }
-              onDelete={() => handleDelete(project.id)}
+              actions={[
+                {
+                  label: "Delete",
+                  variant: "danger",
+                  onClick: () => handleDelete(project.id),
+                  confirm: {
+                    title: "Delete Member",
+                    message:
+                      "Are you sure you want to remove this member from the team?",
+                    confirmText: "Yes, Remove",
+                  },
+                },
+              ]}
             />
           </div>
         ))}
