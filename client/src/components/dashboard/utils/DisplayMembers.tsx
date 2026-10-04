@@ -105,9 +105,9 @@ const DisplayMembers = ({
         method: "DELETE",
         endpoint: leaveUrl,
         body: {
-          organizationId: deleteId,
-          projectId: deleteId,
-          teamId: deleteId,
+          organizationId: organizationId ? organizationId : deleteId,
+          projectId: projectId ? projectId : deleteId,
+          teamId: teamId ? teamId : deleteId,
         },
       });
       if (result.error) {

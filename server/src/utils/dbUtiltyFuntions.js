@@ -126,6 +126,8 @@ export async function checkTeamMembership(userId, organizationId, teamId) {
     [teamId, organizationId, userId],
   );
 
+  console.log(result);
+
   if (result.rows.length === 0) {
     return {
       isMember: false,

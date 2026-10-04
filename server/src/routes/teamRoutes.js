@@ -11,4 +11,5 @@ router.delete("/remove-member", authorize, teamRoutes.removeTeamMember);
 router.delete("/leave", authorize, teamRoutes.leaveTeam);
 
 router.get("/members", authorize, teamRoutes.getTeamMembers);
+router.post("/assign-members", authorize, teamRoutes.assignTeamMembers);
 export default router;

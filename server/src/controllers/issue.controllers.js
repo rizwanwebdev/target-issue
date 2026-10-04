@@ -484,7 +484,7 @@ export async function deleteIssue(req, res) {
       organizationId,
       projectId,
       actorId: USERID,
-      message: `Deleted Issue #${result.rows[0].issue_number}: ${result.rows[0].title}`,
+      message: `#${result.rows[0].issue_number} issue deleted : ${result.rows[0].title}`,
     });
     return res.status(200).json({
       success: true,

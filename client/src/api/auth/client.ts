@@ -42,8 +42,7 @@ async function apiFetch(input: RequestInfo | URL, options: RequestInit = {}) {
 
   // First request
   const response = await request();
-
-  console.log("[API]", input, response.status);
+  console.log("[API] " + response.status + " " + response.statusText, input);
 
   // Not unauthorized
   if (response.status !== 401) {

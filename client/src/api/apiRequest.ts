@@ -41,6 +41,12 @@ async function apiRequest({ endpoint, method, body }: ApiRequest) {
       options.body = JSON.stringify(body);
     }
     const res = await apiFetch(url, options);
+    if (!res.ok && res.status === 502) {
+      return {
+        error: true,
+        message: res.statusText + " Disconnected",
+      };
+    }
     return await res.json();
   } catch (error) {
     return {

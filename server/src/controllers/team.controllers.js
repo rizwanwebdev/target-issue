@@ -439,7 +439,7 @@ export async function removeTeamMember(req, res) {
       });
     }
     const result = await pool.query(
-      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2 RETURNING name",
+      "DELETE FROM team_members WHERE team_id=$1 AND user_id = $2 RETURNING user_id",
       [teamId, memberId],
     );
     if (result.rowCount === 0) {
@@ -448,12 +448,17 @@ export async function removeTeamMember(req, res) {
         message: "Member not found",
       });
     }
-    await saveActivity({
+    const userInfo = await pool.query(
+      "SELECT username FROM users where id =$1",
+      [USERID],
+    );
+
+    await await saveActivity({
       organizationId,
       projectId: null,
       teamId: teamId,
       actorId: USERID,
-      message: `Team Member Removed: ${result.rows[0].name}`,
+      message: `@${userInfo.rows[0].username} has been removed from team`,
     });
     return res.status(200).json({
       success: true,
@@ -471,7 +476,6 @@ export async function leaveTeam(req, res) {
   try {
     const { USERID } = req.user;
     const { teamId, organizationId } = req.query;
-
     if (!teamId || !organizationId) {
       return res.status(400).json({
         error: true,
@@ -580,6 +584,107 @@ export async function getTeamMembers(req, res) {
     return res.status(500).json({
       error: true,
       message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}
+export async function assignTeamMembers(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { teamId, projectId, organizationId, memberIds } = req.body;
+
+    if (
+      !teamId ||
+      !projectId ||
+      !organizationId ||
+      !Array.isArray(memberIds) ||
+      memberIds.length === 0
+    ) {
+      return res.status(400).json({
+        error: true,
+        message:
+          "teamId, projectId, organizationId and at least one member are required",
+      });
+    }
+
+    const validMemberIds = memberIds.every(
+      (id) => Number.isInteger(id) && id > 0,
+    );
+
+    if (!validMemberIds) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid Member IDs",
+      });
+    }
+    const { isAdmin } = await checkTeamMembership(
+      USERID,
+      organizationId,
+      teamId,
+    );
+
+    if (!isAdmin) {
+      return res.status(403).json({
+        error: true,
+        message: "Only Team admins can perform this action",
+      });
+    }
+
+    const checkMembers = await pool.query(
+      `
+        SELECT u.full_name
+        FROM users u
+        INNER JOIN project_members pm ON u.id = pm.user_id
+        WHERE pm.project_id = $1
+          AND pm.user_id = ANY($2::int[])
+      `,
+      [projectId, memberIds],
+    );
+    console.log(checkMembers);
+    if (checkMembers.rows.length !== memberIds.length) {
+      return res.status(400).json({
+        error: true,
+        message: "One or more member do not belong to this project",
+      });
+    }
+
+    await pool.query(
+      `
+        INSERT INTO team_members (
+          team_id,
+          user_id
+        )
+        SELECT
+          $1,
+          user_id
+        FROM unnest($2::int[]) AS user_id
+        ON CONFLICT (team_id, user_id)
+        DO NOTHING
+      `,
+      [teamId, memberIds],
+    );
+
+    const membersNames = checkMembers.rows
+      .map((member) => member.full_name)
+      .join(", ");
+
+    await saveActivity({
+      organizationId,
+      projectId: projectId,
+      teamId: teamId,
+      actorId: USERID,
+      message: `Member${checkMembers.rows.length > 1 ? "s" : ""} ${membersNames} assigned to this team`,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Members assigned successfully",
+    });
+  } catch (error) {
+    console.error("Assign Members error:", error);
+
+    return res.status(500).json({
+      error: true,
+      message: "Something went wrong while assigning teams",
     });
   }
 }

@@ -19,7 +19,7 @@ import OrgTeam from "@/pages/dashboard/OrgTeam.tsx";
 import OrganizationTeamsPage from "@/pages/dashboard/OrganizationTeamsPage.tsx";
 import OrganizationProjectsPage from "@/pages/dashboard/OrganizationProjectsPage.tsx";
 import OrgProject from "@/pages/dashboard/projects/OrgProject";
-import OrganizationMemebersPage from "@/pages/dashboard/DisplayMembersPage.tsx";
+import OrganizationMemebersPage from "@/pages/dashboard/OrganizationMembersPage";
 import OrgMember from "@/pages/dashboard/OrgMember.tsx";
 import NotAuthorized from "@/components/utils/NotAuthorized.tsx";
 import DashboardLayout from "@/components/dashboard/layout/DashboradLayout.tsx";

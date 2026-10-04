@@ -122,15 +122,15 @@ export const Aside = ({ slug, projectSlug, teamSlug }: Props) => {
   ];
   const teamLinks = [
     {
-      linkName: "Overview",
+      linkName: "Team Overview",
       to: `/dashboard/organizations/${slug}/projects/${projectSlug}/teams/${teamSlug}`,
     },
     {
-      linkName: "Members",
+      linkName: "Team Members",
       to: `/dashboard/organizations/${slug}/projects/${projectSlug}/teams/${teamSlug}/members`,
     },
     {
-      linkName: "Issues",
+      linkName: "Team Issues",
       to: `/dashboard/organizations/${slug}/projects/${projectSlug}/teams/${teamSlug}/issues`,
     },
     {

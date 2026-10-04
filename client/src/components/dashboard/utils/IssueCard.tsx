@@ -52,15 +52,6 @@ const IssueCard = ({
       );
     }
   };
-  let isAllowed = false;
-  if (project || projectId) {
-    if (project.role === "admin") {
-      isAllowed = true;
-    }
-    if (user && issue.created_by === user.id) {
-      isAllowed = true;
-    }
-  }
 
   return (
     <article className="rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -126,28 +117,29 @@ const IssueCard = ({
           </div>
         </div>
 
-        {isAllowed && (
-          <ActionMenu
-            isOpen={activeMenuId === issue.id}
-            onToggle={() =>
-              setActiveMenuId((prev) => (prev === issue.id ? null : issue.id))
-            }
-            actions={[
-              {
-                label: "Delete",
-                roles: ["member"],
-                variant: "danger",
-                onClick: () => handleDelete(issue.id),
-                confirm: {
-                  title: "Delete Issue",
-                  message:
-                    "Are you sure you want to delete this issue? This action cannot be undone.",
-                  confirmText: "Yes, Delete",
-                },
+        <ActionMenu
+          isOpen={activeMenuId === issue.id}
+          onToggle={() =>
+            setActiveMenuId((prev) => (prev === issue.id ? null : issue.id))
+          }
+          role={project.role}
+          actions={[
+            {
+              label: "Delete",
+              roles: ["admin", "member"],
+              visible:
+                user?.id === issue.created_by || project.role === "admin",
+              variant: "danger",
+              onClick: () => handleDelete(issue.id),
+              confirm: {
+                title: "Delete Issue",
+                message:
+                  "Are you sure you want to delete this issue? This action cannot be undone.",
+                confirmText: "Yes, Delete",
               },
-            ]}
-          />
-        )}
+            },
+          ]}
+        />
       </div>
       <div className={showComments ? "block" : "hidden"}>
         <IssueComments

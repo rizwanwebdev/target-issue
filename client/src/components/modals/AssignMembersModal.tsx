@@ -19,6 +19,7 @@ const AssignMembersModal = ({
   organizationId,
   setFetchAgain,
   projectId,
+  teamId,
 }: Props) => {
   const { user } = useAuth();
   const { addToast } = useToast();
@@ -37,7 +38,7 @@ const AssignMembersModal = ({
     async function getAllMembers() {
       try {
         const result = await apiRequest({
-          method: "POST",
+          method: "GET",
           endpoint: fetchMembersUrl,
           body: {
             organizationId: organizationId,
@@ -122,6 +123,7 @@ const AssignMembersModal = ({
         body: {
           organizationId: organizationId,
           projectId: projectId,
+          teamId: teamId,
           memberIds: memberIds,
         },
       });

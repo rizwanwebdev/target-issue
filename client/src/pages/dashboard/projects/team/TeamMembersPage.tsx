@@ -35,10 +35,11 @@ const TeamMembersPage = () => {
 
           {isAdmin && slug && (
             <AssignMembersModal
-              fetchMembersUrl="/project/all-members"
+              fetchMembersUrl="/org/all-members"
               assignMembersUrl="/team/assign-members"
               organizationId={organization.id}
               projectId={project.id}
+              teamId={team.id}
               setFetchAgain={setFetchAgain}
             />
           )}
@@ -47,8 +48,8 @@ const TeamMembersPage = () => {
       {slug && (
         <DisplayMembers
           fetchUrl="/team/members"
-          removeUrl="/project/remove-member"
-          leaveUrl="/project/leave"
+          removeUrl="/team/remove-member"
+          leaveUrl="/team/leave"
           setFetchAgain={setFetchAgain}
           fetchAgain={fetchAgain}
           teamId={team.id}
