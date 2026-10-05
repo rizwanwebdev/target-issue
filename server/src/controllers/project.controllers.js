@@ -378,9 +378,17 @@ export async function removeProjectTeam(req, res) {
         message: "Team not found",
       });
     }
+    const teamInfo = await pool.query("SELECT name FROM team where id =$1", [
+      teamId,
+    ]);
+    await saveActivity({
+      organizationId: organizationId,
+      actorId: USERID,
+      message: `Team ${teamInfo.rows[0].name} has been removed from this Project`,
+    });
     return res.status(200).json({
       success: true,
-      message: "Member Removed From This Project",
+      message: "Team Removed From This Project",
     });
   } catch (error) {
     console.log(error);
@@ -531,7 +539,7 @@ export async function leaveProject(req, res) {
       organizationId,
       projectId: result.rows[0].project_id,
       actorId: USERID,
-      message: `User ${userInfo.rows[0].username} Left the project`,
+      message: `User ${userInfo.rows[0].username} Left this project`,
     });
     return res.status(200).json({
       success: true,

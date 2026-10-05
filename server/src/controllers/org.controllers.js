@@ -759,6 +759,15 @@ export async function removeOrgMember(req, res) {
       "DELETE FROM organization_members WHERE organization_id=$1 AND user_id = $2 ",
       [organizationId, memberId],
     );
+    const userInfo = await pool.query(
+      "SELECT username FROM users where id =$1",
+      [memberId],
+    );
+    await saveActivity({
+      organizationId: organizationId,
+      actorId: USERID,
+      message: `@${userInfo.rows[0].username} has been removed from this Organization`,
+    });
     return res.status(200).json({
       success: true,
       message: "Member Removed From This Organization",
