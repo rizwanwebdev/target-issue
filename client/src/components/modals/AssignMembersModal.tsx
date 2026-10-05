@@ -166,7 +166,7 @@ const AssignMembersModal = ({
             }
           }}
         >
-          <div className="w-full max-w-xl overflow-y-auto h-full scrollbar-none rounded-xl bg-white shadow-xl">
+          <div className="w-full max-w-xl overflow-y-auto h-fit max-h-full scrollbar-none rounded-xl bg-white shadow-xl">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <h2 className="text-xl font-semibold text-text">

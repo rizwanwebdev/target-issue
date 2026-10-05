@@ -1,7 +1,7 @@
 import { useOutletContext, useParams } from "react-router-dom";
 
 import type { OrganizationOutletContext } from "@/types/OutletContexts";
-import OrganizationIssues from "@/components/dashboard/utils/OrganizationIssues";
+import DisplayIssues from "@/components/dashboard/utils/DisplayIssues";
 
 const OrganizationIssuesPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -24,9 +24,7 @@ const OrganizationIssuesPage = () => {
         </div>
       </section>
       <div className="flex flex-col gap-4 ">
-        {slug && (
-          <OrganizationIssues slug={slug} organizationId={organization.id} />
-        )}
+        {slug && <DisplayIssues slug={slug} organizationId={organization.id} />}
       </div>
     </>
   );

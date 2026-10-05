@@ -12,7 +12,7 @@ const ProjectTeamsPage = () => {
 
   return (
     <>
-      <title>Teams | Assign & Manage</title>
+      <title>Project Teams | Assign & Manage</title>
       <section className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

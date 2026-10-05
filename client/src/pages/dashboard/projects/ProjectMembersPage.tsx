@@ -7,9 +7,8 @@ import type { ProjectOutletContext } from "@/types/OutletContexts";
 import AssignMembersModal from "@/components/modals/AssignMembersModal";
 
 const ProjectMembersPage = () => {
-  const { slug, projectSlug } = useParams<{
+  const { slug } = useParams<{
     slug: string;
-    projectSlug: string;
   }>();
   const [fetchAgain, setFetchAgain] = useState<boolean>(false);
 
@@ -19,7 +18,7 @@ const ProjectMembersPage = () => {
 
   return (
     <>
-      <title>Members | Create & Manage</title>
+      <title>Project Members | Create & Manage</title>
       <section className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -50,9 +49,7 @@ const ProjectMembersPage = () => {
           setFetchAgain={setFetchAgain}
           fetchAgain={fetchAgain}
           projectId={project.id}
-          slug={slug}
           organizationId={organization.id}
-          projectSlug={projectSlug}
         />
       )}
       {/* projects */}

@@ -26,3 +26,11 @@ VALUES
     ('user18@example.com', 'Test User 18', 'test_user_18', 'dummy_hash_18', TRUE),
     ('user19@example.com', 'Test User 19', 'test_user_19', 'dummy_hash_19', TRUE),
     ('user20@example.com', 'Test User 20', 'test_user_20', 'dummy_hash_20', TRUE);
+
+
+
+INSERT INTO organization_members (organization_id, user_id, joined_at)
+SELECT 11, id, NOW()
+FROM users
+WHERE id <> 1
+ON CONFLICT (organization_id, user_id) DO NOTHING;

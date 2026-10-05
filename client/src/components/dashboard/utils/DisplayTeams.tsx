@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import type { Team } from "@/types/Team";
 
 import ActionMenu from "@/components/utils/ActionMenu";
@@ -21,7 +21,7 @@ const DisplayTeams = ({
   const { addToast } = useToast();
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (!organizationId) {
       return;
@@ -96,6 +96,7 @@ const DisplayTeams = ({
         return;
       }
       addToast(result.message, "success");
+      navigate("");
       setTeams((prev) => prev.filter((team) => team.team_id !== deleteId));
     } catch (error) {
       addToast(
@@ -186,7 +187,7 @@ const DisplayTeams = ({
                   },
                 },
                 {
-                  label: "Remove",
+                  label: "Delete",
                   roles: ["admin"],
                   visible: team.role === "admin",
                   variant: "danger",

@@ -10,4 +10,5 @@ router.post("/get-issues", authorize, issueRoutes.getAllIssue);
 router.delete("/delete", authorize, issueRoutes.deleteIssue);
 router.post("/post-comment", authorize, issueRoutes.addIssueComment);
 router.get("/get-comments", authorize, issueRoutes.getIssueComments);
+router.put("/change-status", authorize, issueRoutes.changeIssueStatus);
 export default router;

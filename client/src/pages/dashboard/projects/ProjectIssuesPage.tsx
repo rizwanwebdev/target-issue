@@ -1,7 +1,7 @@
 import { useOutletContext, useParams } from "react-router-dom";
 
 import type { ProjectOutletContext } from "@/types/OutletContexts";
-import OrganizationIssues from "@/components/dashboard/utils/OrganizationIssues";
+import DisplayIssues from "@/components/dashboard/utils/DisplayIssues";
 import CreateIssueModal from "@/components/modals/CreateIssueModal";
 import { useState } from "react";
 
@@ -11,7 +11,7 @@ const ProjectIssuesPage = () => {
   const { organization, project } = useOutletContext<ProjectOutletContext>();
   return (
     <>
-      <title>Issues | Create & Manage</title>
+      <title>Project Issues | Create & Manage</title>
       <section className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -31,7 +31,7 @@ const ProjectIssuesPage = () => {
       </section>
       <div className="flex flex-col gap-4 ">
         {slug && (
-          <OrganizationIssues
+          <DisplayIssues
             projectId={project.id}
             slug={slug}
             fetchAgain={fetchAgain}

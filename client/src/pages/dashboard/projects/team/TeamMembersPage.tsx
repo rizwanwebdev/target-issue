@@ -17,7 +17,7 @@ const TeamMembersPage = () => {
   console.log(team);
   const isAdmin = team.role === "admin";
   useEffect(() => {
-    document.title = team.name ? team.name + " | Team" : "Team";
+    document.title = team.name ? team.name + " | Project Team" : "Project Team";
   }, [team.name]);
   return (
     <>

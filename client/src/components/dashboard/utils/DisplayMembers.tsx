@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { useToast } from "@/hooks/useToast";
 
@@ -37,6 +37,7 @@ const DisplayMembers = ({
   const [limit, setLimit] = useState(10);
   const { addToast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   useEffect(() => {
     async function getAll() {
       const result = await apiRequest({
@@ -115,9 +116,19 @@ const DisplayMembers = ({
         return;
       }
       addToast(result.message, "success");
-      setMembers((prev) =>
-        prev.filter((member) => member.user_id !== deleteId),
-      );
+      if (teamId) {
+        navigate("/dashboard/organizations");
+        return;
+      } else if (projectId) {
+        navigate(`/dashboard/organizations/${slug}/projects`);
+        return;
+      } else if (organizationId) {
+        navigate("/dashboard/organizations");
+        return;
+      } else {
+        navigate("/dashboard");
+        return;
+      }
     } catch (error) {
       addToast(
         error instanceof Error ? error.message : "Failed to load comments",

@@ -76,7 +76,7 @@ export async function createIssue(req, res) {
       organizationId,
       projectId,
       actorId: USERID,
-      message: `New Issue: #${result.rows[0].issue_number} ${title.trim()}`,
+      message: `#${result.rows[0].issue_number} New Issue: ${title.trim()} | p: ${priority.toUpperCase()} | s: ${severity.toUpperCase()}`,
     });
 
     return res.status(201).json({
@@ -279,7 +279,11 @@ export async function changeIssueStatus(req, res) {
       });
     }
 
-    const { isMember } = await checkProjectMembership(USERID, projectId);
+    const { isMember } = await checkProjectMembership(
+      USERID,
+      organizationId,
+      projectId,
+    );
 
     if (!isMember) {
       return res.status(403).json({
@@ -296,7 +300,7 @@ export async function changeIssueStatus(req, res) {
       "orphan",
       "assigned",
       "resolved",
-      "archive",
+      "archived",
       "closed",
     ];
 
@@ -335,26 +339,26 @@ export async function changeIssueStatus(req, res) {
         message: "Not Authorized",
       });
     }
-
+    console.log(issueStatus, issueId, projectId, organizationId);
     const updateIssue = await pool.query(
       `
-        UPDATE issues
-        SET
-          status = $1,
-          updated_at = NOW(),
-          resolved_at = CASE
-            WHEN $1 = 'resolved' THEN NOW()
-            ELSE resolved_at
-          END,
-          closed_at = CASE
-            WHEN $1 = 'closed' THEN NOW()
-            ELSE closed_at
-          END
-        WHERE id = $2
-          AND project_id = $3
-          AND organization_id = $4
-        RETURNING id, issue_number,title, status, resolved_at, closed_at
-      `,
+    UPDATE issues
+    SET
+      status = $1::varchar,
+      updated_at = NOW(),
+      resolved_at = CASE
+        WHEN $1::varchar = 'resolved' THEN NOW()
+        ELSE resolved_at
+      END,
+      closed_at = CASE
+        WHEN $1::varchar = 'closed' THEN NOW()
+        ELSE closed_at
+      END
+    WHERE id = $2
+      AND project_id = $3
+      AND organization_id = $4
+    RETURNING id, issue_number, title, status, resolved_at, closed_at
+  `,
       [issueStatus, issueId, projectId, organizationId],
     );
     const updatedIssue = updateIssue.rows[0];

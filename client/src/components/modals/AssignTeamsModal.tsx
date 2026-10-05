@@ -2,6 +2,7 @@ import apiRequest from "@/api/apiRequest";
 import { useToast } from "@/hooks/useToast";
 import type { Team } from "@/types/Team";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 type Props = {
   organizationId: number;
@@ -33,12 +34,10 @@ const AssignTeamsModal = ({
           endpoint: "/team/get-teams",
           body: {
             organizationId: organizationId,
-            projectId: projectId,
           },
         });
 
         if (result.error) {
-          addToast(result.message, "error");
           return;
         }
 
@@ -165,47 +164,57 @@ const AssignTeamsModal = ({
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
-              {teams.map((team) => {
-                const isSelected = selectedTeams.has(team.team_id);
+              {teams.length === 0 ? (
+                <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+                  <p className="font-medium text-text">Teams Not Found</p>
 
-                return (
-                  <div
-                    key={team.team_id}
-                    className={`flex w-full flex-row gap-4 rounded-lg border p-3 transition-colors ${
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-gray-200 bg-white hover:bg-gray-50"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="w-5 cursor-pointer accent-primary"
-                      id={`select-team-${team.team_id}`}
-                      checked={isSelected}
-                      onChange={() => toggleTeam(team.team_id)}
-                    />
+                  <p className="mt-1 text-sm text-gray-500">
+                    First create OR joing a team in Organization. Then Assign
+                  </p>
+                </div>
+              ) : (
+                teams.map((team) => {
+                  const isSelected = selectedTeams.has(team.team_id);
 
-                    <label
-                      htmlFor={`select-team-${team.team_id}`}
-                      className="w-full cursor-pointer"
+                  return (
+                    <div
+                      key={team.team_id}
+                      className={`flex w-full flex-row gap-4 rounded-lg border p-3 transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/10"
+                          : "border-gray-200 bg-white hover:bg-gray-50"
+                      }`}
                     >
-                      <div className="flex justify-between gap-4">
-                        <div className="flex flex-col">
-                          <p className="font-medium text-text">{team.name}</p>
+                      <input
+                        type="checkbox"
+                        className="w-5 cursor-pointer accent-primary"
+                        id={`select-team-${team.team_id}`}
+                        checked={isSelected}
+                        onChange={() => toggleTeam(team.team_id)}
+                      />
 
-                          <p className="text-sm text-gray-500">
-                            {team.description || "No description"}
+                      <label
+                        htmlFor={`select-team-${team.team_id}`}
+                        className="w-full cursor-pointer"
+                      >
+                        <div className="flex justify-between gap-4">
+                          <div className="flex flex-col">
+                            <p className="font-medium text-text">{team.name}</p>
+
+                            <p className="text-sm text-gray-500">
+                              {team.description || "No description"}
+                            </p>
+                          </div>
+
+                          <p className="text-sm capitalize text-gray-500">
+                            {team.role}
                           </p>
                         </div>
-
-                        <p className="text-sm capitalize text-gray-500">
-                          {team.role}
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-                );
-              })}
+                      </label>
+                    </div>
+                  );
+                })
+              )}
 
               {/* Actions */}
               <div className="flex justify-end gap-2 pt-2">

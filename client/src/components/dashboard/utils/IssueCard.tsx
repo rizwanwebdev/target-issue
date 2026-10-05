@@ -52,6 +52,34 @@ const IssueCard = ({
       );
     }
   };
+  const handleStatusChange = async (issueId: number, status: string) => {
+    try {
+      if (!organizationId || !projectId || !issueId) return;
+      const result = await apiRequest({
+        method: "PUT",
+        endpoint: "/issues/change-status",
+        body: {
+          organizationId: organizationId,
+          projectId: projectId,
+          issue_status: status,
+          issueId: issueId,
+        },
+      });
+      if (result.error) {
+        addToast(result.message, "error");
+        return;
+      }
+      addToast(result.message, "success");
+      if (setFetchAgain) {
+        setFetchAgain((prev) => !prev);
+      }
+    } catch (error) {
+      addToast(
+        error instanceof Error ? error.message : "Failed to load comments",
+        "error",
+      );
+    }
+  };
 
   return (
     <article className="rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -70,7 +98,15 @@ const IssueCard = ({
               </h2>
             </div>
 
-            <span className="rounded-full border border-gray-300  px-3 py-1 text-xs font-medium capitalize text-gray-600">
+            <span
+              className={`${
+                issue.status === "resolved"
+                  ? "bg-indigo-500 text-white"
+                  : issue.status === "closed"
+                    ? "bg-black text-white"
+                    : ""
+              } rounded-full border border-gray-300  px-3 py-1 text-xs font-medium capitalize text-gray-600`}
+            >
               {issue.status}
             </span>
           </div>
@@ -95,7 +131,7 @@ const IssueCard = ({
             </span>
           </div>
           <div className="mt-4 text-sm">
-            <span>Issue In: </span>
+            <span>Issue In Project: </span>
             <span>{issue.project_name}</span>
           </div>
 
@@ -117,29 +153,53 @@ const IssueCard = ({
           </div>
         </div>
 
-        <ActionMenu
-          isOpen={activeMenuId === issue.id}
-          onToggle={() =>
-            setActiveMenuId((prev) => (prev === issue.id ? null : issue.id))
-          }
-          role={project.role}
-          actions={[
-            {
-              label: "Delete",
-              roles: ["admin", "member"],
-              visible:
-                user?.id === issue.created_by || project.role === "admin",
-              variant: "danger",
-              onClick: () => handleDelete(issue.id),
-              confirm: {
-                title: "Delete Issue",
-                message:
-                  "Are you sure you want to delete this issue? This action cannot be undone.",
-                confirmText: "Yes, Delete",
+        {project && (
+          <ActionMenu
+            isOpen={activeMenuId === issue.id}
+            onToggle={() =>
+              setActiveMenuId((prev) => (prev === issue.id ? null : issue.id))
+            }
+            role={project.role}
+            actions={[
+              {
+                label: "Delete",
+                roles: ["admin", "member"],
+                visible:
+                  user?.id === issue.created_by || project.role === "admin",
+                variant: "danger",
+                onClick: () => handleDelete(issue.id),
+                confirm: {
+                  title: "Delete Issue",
+                  message:
+                    "Are you sure you want to delete this issue? This action cannot be undone.",
+                  confirmText: "Yes, Delete",
+                },
               },
-            },
-          ]}
-        />
+              {
+                label: "Resolved",
+                visible: !!project.role,
+                variant: "danger",
+                onClick: () => handleStatusChange(issue.id, "resolved"),
+                confirm: {
+                  title: "Issue Resolved",
+                  message: "Are you sure you want to change status.",
+                  confirmText: "Yes, Change",
+                },
+              },
+              {
+                label: "Closed",
+                visible: !!project.role,
+                variant: "danger",
+                onClick: () => handleStatusChange(issue.id, "closed"),
+                confirm: {
+                  title: "Issue Resolved",
+                  message: "Are you sure you want to change status.",
+                  confirmText: "Yes, Change",
+                },
+              },
+            ]}
+          />
+        )}
       </div>
       <div className={showComments ? "block" : "hidden"}>
         <IssueComments
