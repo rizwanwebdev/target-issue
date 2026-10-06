@@ -5,7 +5,7 @@ const DashHeader = () => {
   const { user } = useAuth();
   return (
     <>
-      <header className="flex justify-between w-full bg-background sticky top-0 px-6 py-4 border-b border-b-gray-300">
+      <header className="flex z-99 justify-between w-full bg-background sticky top-0 px-6 py-4 border-b border-b-gray-300">
         <div>
           <input
             type="text"
