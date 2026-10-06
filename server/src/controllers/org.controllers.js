@@ -832,3 +832,53 @@ export async function leaveOrganization(req, res) {
     });
   }
 }
+
+export async function searchMembers(req, res) {
+  try {
+    const { USERID } = req.user;
+    const { query, organizationId } = req.query;
+
+    const searchQuery = query?.trim();
+
+    if (!searchQuery || !organizationId) {
+      return res.status(400).json({
+        error: true,
+        message: "query and organization id is required",
+      });
+    }
+
+    const { isMember } = await checkOrgMembership(USERID, organizationId);
+
+    if (!isMember) {
+      return res.status(403).json({
+        error: true,
+        message: "You are not a member of this organization",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT u.full_name, u.id, u.username
+        FROM users u
+        INNER JOIN organization_members om
+          ON u.id = om.user_id
+        WHERE u.username ILIKE $1
+          AND om.organization_id = $2
+        LIMIT 10
+      `,
+      [`${searchQuery}%`, organizationId],
+    );
+
+    return res.status(200).json({
+      success: true,
+      users: result.rows,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: true,
+      message: error instanceof Error ? error.message : "Something Went Wrong",
+    });
+  }
+}

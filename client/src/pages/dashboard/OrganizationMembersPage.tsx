@@ -5,6 +5,7 @@ import InviteMembersModal from "@/components/modals/InviteMembersModal";
 import { useState } from "react";
 
 import type { OrganizationOutletContext } from "@/types/OutletContexts";
+import SearchMembers from "@/components/dashboard/utils/SearchMembers";
 
 const OrganizationMemebersPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -17,7 +18,7 @@ const OrganizationMemebersPage = () => {
   return (
     <>
       <title>Members | Create & Manage</title>
-      <section className="mb-6">
+      <section className="mb-6 flex flex-col gap-3 w-full">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-text">
@@ -37,6 +38,7 @@ const OrganizationMemebersPage = () => {
             />
           )}
         </div>
+        {slug && <SearchMembers slug={slug} organizationId={organization.id} />}
       </section>
       {slug && (
         <DisplayMembers
@@ -45,7 +47,6 @@ const OrganizationMemebersPage = () => {
           leaveUrl="/org/leave"
           setFetchAgain={setFetchAgain}
           fetchAgain={fetchAgain}
-          slug={slug}
           organizationId={organization.id}
         />
       )}

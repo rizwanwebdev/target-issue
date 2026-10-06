@@ -30,7 +30,7 @@ VALUES
 
 
 INSERT INTO organization_members (organization_id, user_id, joined_at)
-SELECT 11, id, NOW()
+SELECT 12, id, NOW()
 FROM users
 WHERE id <> 1
 ON CONFLICT (organization_id, user_id) DO NOTHING;

@@ -15,5 +15,6 @@ router.post("/member", authorize, orgRoutes.getSingleMember);
 router.delete("/delete", authorize, orgRoutes.deleteOrganization);
 router.delete("/remove-member", authorize, orgRoutes.removeOrgMember);
 router.delete("/leave", authorize, orgRoutes.leaveOrganization);
+router.get("/search", authorize, orgRoutes.searchMembers);
 
 export default router;

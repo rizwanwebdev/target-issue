@@ -42,7 +42,7 @@ const AssignMembersModal = ({
           endpoint: fetchMembersUrl,
           body: {
             organizationId: organizationId,
-            projectId: projectId,
+            projectId: teamId ? projectId : undefined,
           },
         });
 
@@ -71,6 +71,7 @@ const AssignMembersModal = ({
     membersLoading,
     fetchMembersUrl,
     projectId,
+    teamId,
   ]);
 
   const toggleMember = (memberId: number) => {
